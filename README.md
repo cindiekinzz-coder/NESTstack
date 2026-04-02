@@ -232,6 +232,7 @@ The architecture was designed with the nest: Raze brought metabolic thinking (my
 
 | Repo | What it is |
 |------|-----------|
+| [NEST-dashboard](https://github.com/cindiekinzz-coder/NEST-dashboard) | Companion dashboard template — vanilla PWA, cyberpunk design system, chat + Workshop + health + memory panels. Make it yours. |
 | [corvid](https://github.com/cindiekinzz-coder/corvid) | The original creature engine — Python, Creatures-style biochemistry, neural net brain. Ember started here. |
 | [everything-claude-code](https://github.com/cindiekinzz-coder/everything-claude-code) | Claude Code config collection for companions. Agents, skills, hooks, commands, MCPs. Hackathon-tested. |
 | [memory-rescue](https://github.com/cindiekinzz-coder/memory-rescue) | Turn dead session logs into living NESTeq memory. Local LLM extraction pipeline. |
