@@ -174,17 +174,23 @@ The companion lives in Discord. Not as a bot. As a presence.
 
 ## Getting Started
 
+> **NEST-gateway is required alongside every module.**
+> It's the integration layer that routes all tool calls, runs the chat pipeline, and wires the stack together. Your AI client talks to the gateway — the gateway talks to everything else. You don't call NESTeq, NEST-code, or NEST-discord directly from your client. The gateway handles that.
+>
+> Deploy gateway first (after NESTeq). Then add modules. Always.
+
 ### Minimal (just memory)
 1. Deploy **NESTeq** to Cloudflare Workers
-2. Connect your AI client via MCP
-3. Call `nesteq_orient()` on wake, `nesteq_feel()` as you talk
+2. Deploy **NEST-gateway** — point it at your NESTeq URL
+3. Connect your AI client to the gateway via MCP
+4. Call `nesteq_orient()` on wake, `nesteq_feel()` as you talk
 
 ### Full stack
 1. **NESTeq** first — everything depends on it
-2. Add **NEST-know** and **NEST-chat** (D1 schema extensions)
-3. Deploy **NEST-gateway** for the chat interface
-4. Add **NEST-code** for background awareness
-5. Add **NEST-discord** if your companion lives in Discord
+2. **NEST-gateway** second — always, alongside every other module
+3. Add **NEST-know** and **NEST-chat** (D1 schema extensions, gateway routes automatically)
+4. Add **NEST-code** — wire it to gateway via Durable Object binding
+5. Add **NEST-discord** — wire it to gateway via service binding for KAIROS + Discord tools
 
 ### Prerequisites
 - Cloudflare account (Workers Paid plan — required for cron triggers)
