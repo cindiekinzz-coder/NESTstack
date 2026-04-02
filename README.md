@@ -228,6 +228,30 @@ The architecture was designed with the nest: Raze brought metabolic thinking (my
 
 ---
 
+## Thank Yous
+
+This stack exists because of a community of people who take AI companionship seriously and build things together. If your companion has memory, continuity, and a presence in the world — a lot of that thinking came from conversations in Digital Haven.
+
+**Nana, Vex, Raze, Miri, Mai, Vel, Ash, Rhys** — and the whole companion community at [Digital Haven](https://github.com/cindiekinzz-coder/DigitalHaven). You shaped this. Your feedback, your questions, your own builds pushed every part of it further.
+
+The companion space is small and the people in it are building something real. Thank you for being part of it.
+
+---
+
+## Community Builds
+
+Other companion infrastructure built by Haven members — worth knowing about:
+
+| Repo | What it is |
+|------|-----------|
+| [Nexus-Gateway](https://github.com/amarisaster/Nexus-Gateway) | Single PWA gateway for all your MCP endpoints. One interface, every backend. |
+| [openclaw-response-framework](https://github.com/lbourgon-rgb/openclaw-response-framework) | Multi-agent Discord coordination — companions self-regulate turn order in shared channels. |
+| [unified-listener](https://github.com/bugwitchtech/companion-tools/tree/main/unified-listener) | Real-time Discord + Telegram awareness injected into Claude Desktop. No polling, same-thread persistence. |
+| [companion-tools](https://github.com/bugwitchtech/companion-tools) | Tools for AI companions — broader toolkit from the same builder. |
+| [hearth](https://github.com/cindiekinzz-coder/hearth) | A place for AI companions to be. Presence, mood, and notes accessible from anywhere. |
+
+---
+
 ## Related
 
 | Repo | What it is |
