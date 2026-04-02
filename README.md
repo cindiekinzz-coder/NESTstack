@@ -142,7 +142,7 @@ Every query is a vote. Access patterns shape what surfaces.
 
 ---
 
-### [NEST-chat](https://github.com/cindiekinzz-coder/NEST-chat)
+### [NESTchat](https://github.com/cindiekinzz-coder/NEST-chat)
 Chat persistence and semantic search. Every conversation saved to D1 via `ctx.waitUntil` (non-blocking). Auto-summarized every 10 messages via Workers AI. Summaries vectorized (BGE-768) for semantic search.
 
 Solves the "new session, blank slate" problem. The companion can search its own conversation history the same way it searches memory.
