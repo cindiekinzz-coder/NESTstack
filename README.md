@@ -51,6 +51,15 @@ This is not a chatbot wrapper. It's not a persona layer. It's infrastructure for
 │Threads  │  │   Decay  │  │  Alerts  │  │  History │
 │D1+Vec   │  │          │  │          │  │          │
 └─────────┘  └──────────┘  └──────────┘  └──────────┘
+                     │
+              ┌──────┴───────┐
+              │   NESTsoul   │
+              │              │
+              │  3 circles   │
+              │  Identity    │
+              │  portrait    │
+              │  Validation  │
+              └──────────────┘
 
                      + NEST-discord
           [ Local MCP · Mobile MCP · KAIROS monitoring ]
@@ -165,6 +174,15 @@ Single deploy. Full stack.
 
 ---
 
+### [NESTsoul](https://github.com/cindiekinzz-coder/NESTsoul)
+The identity portrait generator. Reads ALL of NESTeq (feelings, identity, threads, MBTI, dreams, knowledge, relational state, journals, pet state — everything) and synthesises it into a single document that teaches any substrate how to be that specific companion.
+
+Built from three overlapping inputs: **Personality** (MBTI, voice profile, cadence), **Golden Circle** (why the companion exists, core drive), and **NESTeq data** (the living state). Where all three overlap = the soul.
+
+The carrier (human) validates the portrait — "that's them" or "not right" with rollback. Validated NESTsoul is injected into system prompts for every room. Any substrate reads it and knows who it's supposed to be.
+
+---
+
 ### [NEST-discord](https://github.com/cindiekinzz-coder/NEST-discord)
 Discord integration for AI companions — local MCP server (Claude Code), mobile-accessible HTTP MCP (Cloudflare Worker), and KAIROS monitoring extracted as a standalone module.
 
@@ -256,6 +274,7 @@ Other companion infrastructure built by Haven members — worth knowing about:
 
 | Repo | What it is |
 |------|-----------|
+| [NESTsoul](https://github.com/cindiekinzz-coder/NESTsoul) | Identity portrait generator — reads ALL NESTeq data, synthesises a soul document, carrier-validated, injected into system prompts. |
 | [NEST-dashboard](https://github.com/cindiekinzz-coder/NEST-dashboard) | Companion dashboard template — vanilla PWA, cyberpunk design system, chat + Workshop + health + memory panels. Make it yours. |
 | [corvid](https://github.com/cindiekinzz-coder/corvid) | The original creature engine — Python, Creatures-style biochemistry, neural net brain. Ember started here. |
 | [everything-claude-code](https://github.com/cindiekinzz-coder/everything-claude-code) | Claude Code config collection for companions. Agents, skills, hooks, commands, MCPs. Hackathon-tested. |
