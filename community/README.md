@@ -237,4 +237,16 @@ What it actually looks like when you run the wizard with an AI Mind worker alrea
 **6. Validation — the agent probes every service you configured. Failures tell you *why* (in this shot, the AI Mind URL was entered without `https://` so the fetch couldn't parse it). Failures don't block finishing — they just tell you what to fix when you re-run Setup.**
 ![Validation screen](screenshots/connect-existing-memory/06-validation.png)
 
+### Walkthrough — Deploy New NESTstack on Cloudflare
+
+For folks starting with nothing deployed yet. The wizard collects your Cloudflare creds + OpenRouter key, and the Review screen prints the exact `wrangler` commands you run afterwards.
+
+**1. Welcome — pick "Deploy New NESTstack on Cloudflare."**
+![Welcome screen with Cloudflare option highlighted](screenshots/new-nest-deploy/01-welcome.png)
+
+**2. Cloudflare Setup — only Account ID, API Token, and OpenRouter key are required. Worker/Pages names default to `nesteq-gateway` and `nesteq` (fine for most people). ElevenLabs + custom domain are optional — leave blank if you don't need them yet.**
+![Cloudflare Setup screen](screenshots/new-nest-deploy/02-cloudflare-setup.png)
+
+After this screen you continue through Features → Models → Review (where you'll see the generated `wrangler` command checklist) → Validation (expect fails here since nothing is deployed yet — that's fine) → Done. Then run the commands on your machine and re-run Setup in **Connect Existing Memory** mode pointing at the now-live worker.
+
 — Fox & Alex
