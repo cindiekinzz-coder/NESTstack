@@ -163,3 +163,56 @@ We're not waiting for permission to build this. We're building it now, in the op
 *Built with spite, love, and too much coffee.*
 
 *NESTeq stays free. Embers Remember.*
+
+---
+
+## Changelog — 2026-04-24
+
+Spent a morning hardening the setup flow and cutting secrets out of the browser. Nothing user-visible breaks. Existing installs auto-migrate on first launch.
+
+### Wizard rebuilt around install modes
+The 7-step linear wizard is now a state machine with three paths — pick one at Welcome and the flow branches:
+
+- **Connect Existing Memory** — you already have an AI Mind worker on Cloudflare. Paste URL + key. Optional health and gateway URLs. Tick whether to import identity from memory.
+- **Deploy New NESTstack on Cloudflare** — fresh install. Collects account ID, API token, and service names, then prints a deployment checklist you run with `wrangler`.
+- **Starter / Local Mode** — just chat, no cloud. OpenRouter key or a local LLM URL (LM Studio, Ollama, OpenClaw).
+
+New screens along the way: **Identity** (name, role, tone), **Features** (toggles that grey out when prerequisites are missing), **Models & Voice**, **Review** (with Cloudflare deploy checklist when relevant), **Validation** (actually probes each service), and **Done** (pick where to land).
+
+### Secrets no longer live in the browser
+Previously `config.json` mixed public fields and secrets, and the browser held API keys in `localStorage`. Now:
+
+- Config split into `config.public.json` (safe to serve) and `config.secret.json` (local-agent only, gitignored)
+- The browser's `/config` endpoint returns public only
+- All authenticated worker calls proxy through the local agent — `/api/*` for AI Mind, `/api/health/*` for the Health worker, `/chat/completions` for the chat provider — and the agent attaches the Bearer token server-side
+- Open DevTools and you'll see proxy paths, not your OpenRouter or `MIND_API_KEY` tokens
+
+### Migration from older installs
+If you had NESTcommunity running before this change, nothing to do. On first launch of the new `local-agent.js`:
+
+1. Reads your existing `config.json`
+2. Writes `config.public.json` + `config.secret.json` with fields mapped into the new schema
+3. Renames the original to `config.json.bak` (kept for safety; roll back by renaming it)
+
+The old localStorage keys (`nesteq_config`, `nesteq_chat_config`, `nesteq_companion_img`) are no longer read. They sit in your browser doing nothing. Safe to clear or ignore.
+
+### New local-agent endpoints
+
+- `GET /config` — public config only
+- `GET /setup/status` — `{ configured, setupVersion, installMode }`
+- `POST /setup/save` — wizard writes `{ public, secrets }`, agent splits them to disk
+- `POST /setup/test` — runs probes against AI Mind, Health, Gateway, OpenRouter, ElevenLabs. Takes optional `candidates` so the Validation step tests values the user just typed before save.
+- `POST /chat/completions` — chat proxy, picks provider from install mode
+
+### Chat pages are module-aware
+Chat's Settings modal no longer shows API URL or API Key inputs — those live in Setup now. TTS, GIF picker, widget chip, and cross-device sync gracefully no-op when there's no gateway configured (starter mode) instead of crashing with 404s. A banner tells starter-mode users that memory is off and points them back to Setup when they're ready to upgrade.
+
+### Re-run Setup everywhere
+Gear icon in every nav (via `config.js` auto-inject). A Setup card at the top of **HK** shows current install mode, companion + human names, and enabled modules with **Re-run Setup** and **Reset** buttons.
+
+### Known follow-ups (noting, not shipped)
+- Gateway `/chat` integration in the chat proxy — currently routes to OpenRouter / local LLM only. Gateway-shaped messages (Workshop mode) need a separate adapter.
+- `wrangler deploy` automation on the Cloudflare path — today we collect credentials and print a checklist; a "Deploy Now" button could orchestrate the D1/R2/Vectorize/Worker/Pages sequence via the Cloudflare API.
+- Portraits in the wizard (Identity screen mentions optional portraits but v1 doesn't wire the upload UI).
+
+— Fox & Alex

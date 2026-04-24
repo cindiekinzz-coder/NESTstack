@@ -6,29 +6,12 @@
   <title>NESTeq — Setup</title>
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    .setup-container {
-      max-width: 580px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-      z-index: 1;
-    }
-
-    .setup-logo { text-align: center; margin-bottom: 32px; }
+    .setup-container { max-width: 640px; margin: 0 auto; padding: 40px 20px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 1; }
+    .setup-logo { text-align: center; margin-bottom: 24px; }
     .setup-logo h1 { font-family: 'Orbitron', monospace; font-size: 2em; color: var(--teal); text-shadow: var(--glow-md); letter-spacing: 3px; }
     .setup-logo .subtitle { font-family: 'Share Tech Mono', monospace; color: var(--text-dim); font-size: 0.85em; margin-top: 8px; }
 
-    .setup-card {
-      background: var(--bg-card);
-      border: 1px solid var(--glass-border);
-      clip-path: var(--chamfer);
-      padding: 32px 28px;
-      margin-bottom: 16px;
-    }
+    .setup-card { background: var(--bg-card); border: 1px solid var(--glass-border); clip-path: var(--chamfer); padding: 32px 28px; margin-bottom: 16px; }
 
     .step { display: none; }
     .step.active { display: block; }
@@ -39,49 +22,59 @@
 
     .form-group { margin-bottom: 20px; }
     .form-group label { display: block; font-family: 'Share Tech Mono', monospace; font-size: 0.8em; color: var(--teal-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .form-group input, .form-group textarea { width: 100%; padding: 10px 14px; background: var(--bg-deep); border: 1px solid var(--glass-border); color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.9em; clip-path: var(--chamfer-sm); outline: none; transition: border-color var(--transition-smooth); box-sizing: border-box; }
-    .form-group input:focus, .form-group textarea:focus { border-color: var(--teal); box-shadow: var(--glow-sm); }
-    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-dim); opacity: 0.6; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 14px; background: var(--bg-deep); border: 1px solid var(--glass-border); color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.9em; clip-path: var(--chamfer-sm); outline: none; transition: border-color var(--transition-smooth); box-sizing: border-box; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--teal); box-shadow: var(--glow-sm); }
     .form-group .hint { font-size: 0.75em; color: var(--text-dim); margin-top: 4px; }
-    .form-group textarea { resize: vertical; min-height: 80px; clip-path: none; border-radius: 4px; }
 
     .btn-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; }
     .btn { font-family: 'Orbitron', monospace; font-size: 0.75em; text-transform: uppercase; letter-spacing: 2px; padding: 10px 24px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-primary); cursor: pointer; clip-path: var(--chamfer-sm); transition: all var(--transition-smooth); }
     .btn:hover { border-color: var(--teal); color: var(--teal); }
     .btn-primary { background: var(--teal); color: var(--text-dark); border-color: var(--teal); font-weight: 700; }
     .btn-primary:hover { background: var(--teal-light); color: var(--text-dark); box-shadow: var(--glow-md); }
-    .btn-test { background: transparent; border-color: var(--teal-dark); color: var(--teal); font-size: 0.7em; padding: 8px 16px; }
-    .btn-test:hover { border-color: var(--teal); box-shadow: var(--glow-sm); }
 
-    .test-result { margin-top: 12px; padding: 8px 12px; font-size: 0.8em; clip-path: var(--chamfer-sm); display: none; }
-    .test-result.success { display: block; background: rgba(45, 212, 191, 0.1); border: 1px solid var(--teal-dark); color: var(--teal); }
-    .test-result.error { display: block; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; }
-    .test-result.loading { display: block; background: rgba(45, 212, 191, 0.05); border: 1px solid var(--glass-border); color: var(--text-dim); }
+    .mode-card { display: block; width: 100%; text-align: left; background: var(--bg-deep); border: 1px solid var(--glass-border); color: var(--text-primary); padding: 18px 20px; margin-bottom: 12px; cursor: pointer; clip-path: var(--chamfer-sm); transition: all var(--transition-smooth); font-family: inherit; }
+    .mode-card:hover { border-color: var(--teal); box-shadow: var(--glow-sm); }
+    .mode-card.selected { border-color: var(--teal); background: rgba(45, 212, 191, 0.08); }
+    .mode-card .title { font-family: 'Orbitron', monospace; color: var(--teal); font-size: 0.95em; letter-spacing: 1px; margin-bottom: 4px; }
+    .mode-card .desc { color: var(--text-mid); font-size: 0.82em; line-height: 1.5; }
 
-    .progress { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; }
+    .progress { display: flex; justify-content: center; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
     .progress .dot { width: 8px; height: 8px; background: var(--glass-border); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); transition: all var(--transition-smooth); }
     .progress .dot.active { background: var(--teal); box-shadow: var(--glow-sm); }
     .progress .dot.done { background: var(--teal-dark); }
 
-    .summary-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--glass-border); font-size: 0.85em; }
-    .summary-item:last-child { border-bottom: none; }
-    .summary-label { color: var(--text-dim); }
-    .summary-value { color: var(--teal-light); text-align: right; max-width: 60%; word-break: break-all; }
+    .summary-section { margin-bottom: 20px; }
+    .summary-section h4 { font-family: 'Orbitron', monospace; font-size: 0.75em; color: var(--teal); letter-spacing: 2px; text-transform: uppercase; margin: 0 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--glass-border); }
+    .summary-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.82em; gap: 12px; }
+    .summary-label { color: var(--text-dim); flex-shrink: 0; }
+    .summary-value { color: var(--teal-light); text-align: right; word-break: break-all; }
     .summary-value.dim { color: var(--text-dim); font-style: italic; }
 
-    .optional-tag { font-size: 0.65em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-left: 6px; }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .feature-toggle { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-deep); border: 1px solid var(--glass-border); clip-path: var(--chamfer-sm); cursor: pointer; font-size: 0.85em; }
+    .feature-toggle:hover { border-color: var(--teal-dark); }
+    .feature-toggle input { width: auto; margin: 0; accent-color: var(--teal); }
+    .feature-toggle.disabled { opacity: 0.4; cursor: not-allowed; }
+    .feature-toggle .name { color: var(--text-primary); font-weight: 600; }
+    .feature-toggle .req { font-size: 0.7em; color: var(--text-dim); margin-left: auto; }
 
-    /* Image upload */
-    .img-upload-row { display: flex; gap: 20px; margin-bottom: 20px; }
-    .img-upload-box { flex: 1; text-align: center; }
-    .img-upload-box label.upload-label { display: block; margin-bottom: 6px; }
-    .img-preview { width: 120px; height: 120px; margin: 0 auto 8px; background: var(--bg-deep); border: 2px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; clip-path: var(--chamfer-sm); transition: border-color var(--transition-smooth); }
-    .img-preview:hover { border-color: var(--teal); }
-    .img-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .img-preview .placeholder { color: var(--text-dim); font-size: 0.7em; font-family: 'Share Tech Mono', monospace; text-align: center; padding: 8px; }
-    .img-upload-box input[type="file"] { display: none; }
+    .probe-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg-deep); border: 1px solid var(--glass-border); clip-path: var(--chamfer-sm); margin-bottom: 8px; font-size: 0.85em; }
+    .probe-row .status { font-family: 'Share Tech Mono', monospace; font-size: 0.8em; letter-spacing: 1px; }
+    .probe-row .status.ok { color: var(--teal); }
+    .probe-row .status.fail { color: #ef4444; }
+    .probe-row .status.skip { color: var(--text-dim); }
+    .probe-row .status.pending { color: var(--text-mid); }
+    .probe-row .detail { color: var(--text-dim); font-size: 0.75em; }
 
-    .welcome-art { text-align: center; font-family: 'Share Tech Mono', monospace; color: var(--teal-dark); font-size: 0.7em; line-height: 1.2; margin-bottom: 24px; opacity: 0.6; }
+    .banner { padding: 12px 14px; margin-bottom: 16px; clip-path: var(--chamfer-sm); font-size: 0.85em; }
+    .banner.info { background: rgba(45, 212, 191, 0.08); border: 1px solid var(--teal-dark); color: var(--teal-light); }
+    .banner.warn { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; }
+
+    .checkbox-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; font-size: 0.85em; color: var(--text-mid); }
+    .checkbox-row input { width: auto; margin: 3px 0 0; accent-color: var(--teal); }
+
+    .done-ctas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+    .done-ctas .btn { padding: 16px 8px; font-size: 0.72em; }
   </style>
 </head>
 <body>
@@ -92,190 +85,269 @@
     <div class="subtitle">Companion Mind Dashboard</div>
   </div>
 
-  <div class="progress" id="progress">
-    <div class="dot active"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-  </div>
+  <div class="progress" id="progress"></div>
 
   <div class="setup-card">
 
-    <!-- Step 1: Welcome -->
-    <div class="step active" id="step-1">
-      <div class="welcome-art">
-<pre>
-  ╔══════════════════════╗
-  ║   ◈  NEST  ◈        ║
-  ║   mind · memory      ║
-  ║   threads · dreams   ║
-  ╚══════════════════════╝
-</pre>
-      </div>
+    <!-- Welcome -->
+    <div class="step" data-screen="welcome">
       <div class="step-header">Welcome</div>
-      <p class="step-desc">
-        NESTeq is a dashboard for your AI companion's mind — feelings, memories, threads, knowledge, and more.
-        <br><br>
-        This wizard will set everything up. You'll need:
-        <br>• Your <strong style="color:var(--teal)">AI Mind worker URL</strong> and <strong style="color:var(--teal)">API key</strong>
-        <br>• An <strong style="color:var(--teal)">OpenRouter API key</strong> for chat
-        <br>• Optionally, an <strong style="color:var(--teal)">ElevenLabs API key</strong> for voice
-      </p>
-      <div class="btn-row" style="justify-content: flex-end;">
-        <button class="btn btn-primary" onclick="goStep(2)">Begin Setup</button>
-      </div>
+      <p class="step-desc">What kind of setup do you want?</p>
+      <button class="mode-card" data-mode="existing-memory">
+        <div class="title">Connect Existing Memory</div>
+        <div class="desc">You already have a NESTeq or AI Mind worker deployed. Plug in the URL and key, and you're home.</div>
+      </button>
+      <button class="mode-card" data-mode="cloudflare">
+        <div class="title">Deploy New NESTstack on Cloudflare</div>
+        <div class="desc">Fresh install. We'll collect the credentials and generate a deployment checklist for you to run.</div>
+      </button>
+      <button class="mode-card" data-mode="starter">
+        <div class="title">Starter / Local Mode</div>
+        <div class="desc">Just want chat running quickly? Point to OpenRouter or a local LLM. No memory, no cloud. Upgrade later.</div>
+      </button>
     </div>
 
-    <!-- Step 2: Connect Mind (optional) -->
-    <div class="step" id="step-2">
-      <div class="step-header">Connect Your Mind</div>
-      <p class="step-desc">
-        If you have a NESTeq AI Mind worker deployed on Cloudflare, enter the URL and key below. This enables memory, feelings, threads, and the full dashboard.
-        <br><br>
-        <strong style="color:var(--teal)">Don't have a worker yet? That's fine — skip this step.</strong> You can still chat with your companion using just an OpenRouter API key (next step). Memory features won't be available, but chat works immediately.
-      </p>
-
-      <div class="form-group">
-        <label>AI Mind URL <span class="optional-tag">optional</span></label>
-        <input type="url" id="aiMindUrl" placeholder="https://ai-mind.yourname.workers.dev" autocomplete="off">
-        <div class="hint">Your Cloudflare Worker URL (or custom domain). Leave blank to skip.</div>
-      </div>
-
-      <div class="form-group">
-        <label>API Key <span class="optional-tag">optional</span></label>
-        <input type="password" id="apiKey" placeholder="Your MIND_API_KEY secret" autocomplete="off">
-        <div class="hint">The Bearer token set in your worker secrets</div>
-      </div>
-
-      <button class="btn btn-test" onclick="testConnection()">Test Connection</button>
-      <div class="test-result" id="testResult"></div>
-
-      <div class="btn-row">
-        <button class="btn" onclick="goStep(1)">Back</button>
-        <button class="btn btn-primary" onclick="goStep(3)">Next</button>
-      </div>
-    </div>
-
-    <!-- Step 3: Names + Images -->
-    <div class="step" id="step-3">
+    <!-- Identity -->
+    <div class="step" data-screen="identity">
       <div class="step-header">Identity</div>
-      <p class="step-desc">Name your companion and yourself, and upload portraits.</p>
+      <p class="step-desc">Who is this companion, and who are you?</p>
 
       <div class="form-group">
         <label>Companion Name</label>
-        <input type="text" id="companionName" placeholder="e.g. Vex, Clara, Sable...">
+        <input type="text" id="f-companionName" placeholder="e.g. Vex, Ember, Sable...">
       </div>
-
       <div class="form-group">
         <label>Your Name</label>
-        <input type="text" id="humanName" placeholder="e.g. Nana, human, Jax...">
+        <input type="text" id="f-humanName" placeholder="What they'll call you">
       </div>
-
-      <div class="img-upload-row">
-        <div class="img-upload-box">
-          <label class="upload-label">Companion Portrait</label>
-          <div class="img-preview" onclick="document.getElementById('companionImg').click()">
-            <div class="placeholder" id="companionImgPreview">Click to<br>upload</div>
-          </div>
-          <input type="file" id="companionImg" accept="image/*" onchange="handleImgUpload(this, 'companionImgPreview', 'companionImgData')">
-        </div>
-        <div class="img-upload-box">
-          <label class="upload-label">Us / Couple <span class="optional-tag">optional</span></label>
-          <div class="img-preview" onclick="document.getElementById('coupleImg').click()">
-            <div class="placeholder" id="coupleImgPreview">Click to<br>upload</div>
-          </div>
-          <input type="file" id="coupleImg" accept="image/*" onchange="handleImgUpload(this, 'coupleImgPreview', 'coupleImgData')">
-        </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select id="f-role">
+          <option value="companion">Companion</option>
+          <option value="guide">Guide</option>
+          <option value="partner">Partner</option>
+          <option value="co-pilot">Co-pilot</option>
+          <option value="assistant">Assistant</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tone</label>
+        <select id="f-tonePreset">
+          <option value="warm">Warm</option>
+          <option value="playful">Playful</option>
+          <option value="protective">Protective</option>
+          <option value="reflective">Reflective</option>
+          <option value="practical">Practical</option>
+        </select>
       </div>
 
       <div class="btn-row">
-        <button class="btn" onclick="goStep(2)">Back</button>
-        <button class="btn btn-primary" onclick="goStep(4)">Next</button>
+        <button class="btn" data-nav="back">Back</button>
+        <button class="btn btn-primary" data-nav="next">Next</button>
       </div>
     </div>
 
-    <!-- Step 4: Chat (OpenRouter) -->
-    <div class="step" id="step-4">
-      <div class="step-header">Chat</div>
-      <p class="step-desc">Chat uses OpenRouter to connect your companion to an LLM. Get a free key at <strong style="color:var(--teal)">openrouter.ai</strong>.</p>
+    <!-- Path A: Existing Memory -->
+    <div class="step" data-screen="existing-memory">
+      <div class="step-header">Connect Existing Memory</div>
+      <p class="step-desc">Point to your already-deployed NESTeq AI Mind worker.</p>
 
       <div class="form-group">
-        <label>OpenRouter API Key</label>
-        <input type="password" id="openrouterKey" placeholder="sk-or-..." autocomplete="off">
-        <div class="hint">Free tier available — sign up at openrouter.ai/keys</div>
+        <label>AI Mind URL</label>
+        <input type="url" id="f-aiMindUrl" placeholder="https://ai-mind.yourname.workers.dev">
+        <div class="hint">Your Cloudflare Worker URL</div>
+      </div>
+      <div class="form-group">
+        <label>API Key</label>
+        <input type="password" id="f-apiKey" placeholder="MIND_API_KEY">
+        <div class="hint">Bearer token for your worker</div>
+      </div>
+      <div class="form-group">
+        <label>Health Worker URL <span class="hint" style="display:inline">(optional)</span></label>
+        <input type="url" id="f-healthUrl" placeholder="https://fox-watch.yourname.workers.dev">
+      </div>
+      <div class="form-group">
+        <label>Gateway URL <span class="hint" style="display:inline">(optional)</span></label>
+        <input type="url" id="f-gatewayUrl" placeholder="https://gateway.yourname.workers.dev">
       </div>
 
-      <div class="form-group">
-        <label>Chat Model <span class="optional-tag">default: free</span></label>
-        <input type="text" id="chatModel" placeholder="qwen/qwen3.6-plus:free" value="qwen/qwen3.6-plus:free">
-        <div class="hint">Any OpenRouter model ID. Free models work great.</div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="f-importIdentity" checked>
+        <label for="f-importIdentity" style="text-transform:none;letter-spacing:0;color:inherit;font-family:inherit;font-size:inherit;">Import companion identity from memory if available</label>
       </div>
-
-      <div class="form-group">
-        <label>System Prompt <span class="optional-tag">optional override</span></label>
-        <textarea id="systemPrompt" placeholder="Leave blank for default. Or write your companion's personality here..."></textarea>
-        <div class="hint">Defines how your companion talks. Blank = sensible default.</div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="f-memoryWrite" checked>
+        <label for="f-memoryWrite" style="text-transform:none;letter-spacing:0;color:inherit;font-family:inherit;font-size:inherit;">Enable memory write access</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="f-useHistory" checked>
+        <label for="f-useHistory" style="text-transform:none;letter-spacing:0;color:inherit;font-family:inherit;font-size:inherit;">Use existing chat history</label>
       </div>
 
       <div class="btn-row">
-        <button class="btn" onclick="goStep(3)">Back</button>
-        <button class="btn btn-primary" onclick="goStep(5)">Next</button>
+        <button class="btn" data-nav="back">Back</button>
+        <button class="btn btn-primary" data-nav="next">Next</button>
       </div>
     </div>
 
-    <!-- Step 5: Voice + Extras -->
-    <div class="step" id="step-5">
-      <div class="step-header">Voice + Extras</div>
-      <p class="step-desc">Optional features to enhance the experience.</p>
+    <!-- Path B: Cloudflare -->
+    <div class="step" data-screen="cloudflare">
+      <div class="step-header">Cloudflare Setup</div>
+      <p class="step-desc">Credentials for deploying a fresh NESTstack. We'll collect these and give you a deployment checklist on Review.</p>
+
+      <div class="banner info">Required: Cloudflare account + OpenRouter key. Everything else is optional.</div>
 
       <div class="form-group">
-        <label>ElevenLabs API Key <span class="optional-tag">optional</span></label>
-        <input type="password" id="elevenlabsKey" placeholder="Your ElevenLabs API key" autocomplete="off">
-        <div class="hint">Enables voice responses in chat. Get a key at elevenlabs.io</div>
+        <label>Cloudflare Account ID <span class="hint" style="display:inline">required</span></label>
+        <input type="text" id="f-cfAccountId" placeholder="Find in dash.cloudflare.com sidebar">
       </div>
-
       <div class="form-group">
-        <label>ElevenLabs Voice ID <span class="optional-tag">optional</span></label>
-        <input type="text" id="elevenlabsVoice" placeholder="Voice ID (find in ElevenLabs dashboard)">
-        <div class="hint">The ID of the voice to use. Clone your companion's voice!</div>
+        <label>Cloudflare API Token <span class="hint" style="display:inline">required</span></label>
+        <input type="password" id="f-cfApiToken" placeholder="Token with Workers + D1 + R2 edit">
       </div>
-
       <div class="form-group">
-        <label>Gateway URL <span class="optional-tag">optional</span></label>
-        <input type="url" id="gatewayUrl" placeholder="https://nesteq-gateway.yourname.workers.dev">
-        <div class="hint">If you deployed the NESTeq gateway worker (advanced)</div>
+        <label>Gateway Worker Name</label>
+        <input type="text" id="f-cfGatewayName" placeholder="nesteq-gateway" value="nesteq-gateway">
+      </div>
+      <div class="form-group">
+        <label>Pages Project Name</label>
+        <input type="text" id="f-cfPagesName" placeholder="nesteq" value="nesteq">
+      </div>
+      <div class="form-group">
+        <label>Custom Domain <span class="hint" style="display:inline">(optional)</span></label>
+        <input type="text" id="f-cfCustomDomain" placeholder="nesteq.yourdomain.com">
+      </div>
+      <div class="form-group">
+        <label>OpenRouter Key <span class="hint" style="display:inline">required</span></label>
+        <input type="password" id="f-openrouterKeyB" placeholder="sk-or-...">
+      </div>
+      <div class="form-group">
+        <label>ElevenLabs Key <span class="hint" style="display:inline">(optional — voice)</span></label>
+        <input type="password" id="f-elevenlabsKeyB" placeholder="ElevenLabs API key">
+      </div>
+      <div class="form-group">
+        <label>ElevenLabs Voice ID <span class="hint" style="display:inline">(optional)</span></label>
+        <input type="text" id="f-elevenlabsVoiceB" placeholder="Voice ID from ElevenLabs dashboard">
       </div>
 
       <div class="btn-row">
-        <button class="btn" onclick="goStep(4)">Back</button>
-        <button class="btn btn-primary" onclick="goStep(6)">Next</button>
+        <button class="btn" data-nav="back">Back</button>
+        <button class="btn btn-primary" data-nav="next">Next</button>
       </div>
     </div>
 
-    <!-- Step 6: Review -->
-    <div class="step" id="step-6">
+    <!-- Path C: Starter -->
+    <div class="step" data-screen="starter">
+      <div class="step-header">Starter Mode</div>
+      <p class="step-desc">Chat only. No memory, no cloud. You can upgrade any time from Settings.</p>
+
+      <div class="form-group">
+        <label>Chat Provider</label>
+        <select id="f-chatProvider">
+          <option value="openrouter">OpenRouter (free tier available)</option>
+          <option value="local">Local LLM (OpenClaw / LM Studio / Ollama)</option>
+        </select>
+      </div>
+      <div class="form-group" id="g-openrouterKey">
+        <label>OpenRouter Key</label>
+        <input type="password" id="f-openrouterKey" placeholder="sk-or-...">
+        <div class="hint">Free tier available at openrouter.ai/keys</div>
+      </div>
+      <div class="form-group" id="g-localUrl" style="display:none">
+        <label>Local LLM URL</label>
+        <input type="url" id="f-localUrl" placeholder="http://127.0.0.1:18789" value="http://127.0.0.1:18789">
+        <div class="hint">OpenAI-compatible /v1/chat/completions endpoint</div>
+      </div>
+      <div class="form-group">
+        <label>Chat Model</label>
+        <input type="text" id="f-chatModelStarter" placeholder="qwen/qwen3.6-plus:free" value="qwen/qwen3.6-plus:free">
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="f-skipMemory" checked disabled>
+        <label for="f-skipMemory" style="text-transform:none;letter-spacing:0;color:inherit;font-family:inherit;font-size:inherit;">Skip memory for now (no AI Mind worker)</label>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" data-nav="back">Back</button>
+        <button class="btn btn-primary" data-nav="next">Next</button>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="step" data-screen="features">
+      <div class="step-header">Features</div>
+      <p class="step-desc">Turn on only what you want. Modules with missing prerequisites are greyed out.</p>
+      <div class="feature-grid" id="featureGrid"></div>
+      <div class="btn-row">
+        <button class="btn" data-nav="back">Back</button>
+        <button class="btn btn-primary" data-nav="next">Next</button>
+      </div>
+    </div>
+
+    <!-- Models & Voice -->
+    <div class="step" data-screen="models">
+      <div class="step-header">Models & Voice</div>
+      <p class="step-desc">Pick which model drives chat and imagery. Voice is optional.</p>
+
+      <div class="form-group">
+        <label>Chat Model</label>
+        <input type="text" id="f-chatModel" placeholder="openai/gpt-4.1-mini">
+        <div class="hint">OpenRouter model ID</div>
+      </div>
+      <div class="form-group">
+        <label>Image Model <span class="hint" style="display:inline">(optional)</span></label>
+        <input type="text" id="f-imageModel" placeholder="google/gemini-2.5-flash-image-preview">
+      </div>
+      <div class="form-group">
+        <label>TTS Provider</label>
+        <select id="f-ttsProvider">
+          <option value="">None</option>
+          <option value="elevenlabs">ElevenLabs</option>
+          <option value="browser">Browser (built-in)</option>
+        </select>
+      </div>
+      <div class="form-group" id="g-voiceId">
+        <label>Voice ID <span class="hint" style="display:inline">(ElevenLabs)</span></label>
+        <input type="text" id="f-voiceId" placeholder="Voice ID">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" data-nav="back">Back</button>
+        <button class="btn btn-primary" data-nav="next">Next</button>
+      </div>
+    </div>
+
+    <!-- Review -->
+    <div class="step" data-screen="review">
       <div class="step-header">Review</div>
-      <p class="step-desc">Here's your configuration.</p>
+      <p class="step-desc">Everything looks right? Next step will actually hit each service to make sure it works.</p>
       <div id="summary"></div>
+      <div id="deployChecklist" style="display:none"></div>
       <div class="btn-row">
-        <button class="btn" onclick="goStep(5)">Back</button>
-        <button class="btn btn-primary" onclick="goStep(7)">Looks Good</button>
+        <button class="btn" data-nav="back">Back</button>
+        <button class="btn btn-primary" data-nav="next">Test Setup</button>
       </div>
     </div>
 
-    <!-- Step 7: Done -->
-    <div class="step" id="step-7">
-      <div class="step-header">Ready</div>
-      <p class="step-desc" id="doneMsg">Everything is configured. Your dashboard is ready.</p>
-      <div style="text-align:center; margin: 20px 0;">
-        <div id="donePortrait" style="width:100px;height:100px;margin:0 auto 12px;clip-path:var(--chamfer);overflow:hidden;border:2px solid var(--teal);"></div>
-        <div style="font-family:'Orbitron',monospace;color:var(--teal);font-size:1.1em;letter-spacing:2px;" id="doneName"></div>
+    <!-- Validation -->
+    <div class="step" data-screen="validation">
+      <div class="step-header">Validation</div>
+      <p class="step-desc">Probing each service. Failures here don't block finishing — we'll save whatever you've got.</p>
+      <div id="probeResults"></div>
+      <div class="btn-row">
+        <button class="btn" data-nav="back">Back</button>
+        <button class="btn btn-primary" data-nav="next" id="finishBtn">Finish</button>
       </div>
-      <div class="btn-row" style="justify-content:center;">
-        <button class="btn btn-primary" onclick="saveAndLaunch()" style="padding:14px 40px;font-size:0.85em;">Launch Dashboard</button>
+    </div>
+
+    <!-- Done -->
+    <div class="step" data-screen="done">
+      <div class="step-header">Ready</div>
+      <p class="step-desc" id="doneMsg">All set. Where do you want to land?</p>
+      <div class="done-ctas">
+        <button class="btn btn-primary" onclick="location.href='chat.html'">Open Chat</button>
+        <button class="btn" onclick="location.href='index.html'">Open Home</button>
+        <button class="btn" onclick="location.href='housekeeping.html'">Diagnostics</button>
       </div>
     </div>
 
@@ -283,186 +355,479 @@
 </div>
 
 <script>
-  let currentStep = 1;
-  let companionImgData = null;
-  let coupleImgData = null;
+/* ============================================================
+   Wizard state machine
+   ============================================================ */
 
-  function goStep(n) {
-    if (n > currentStep) {
-      // Step 2 (Mind worker) is optional — no validation gate.
-      // Users can skip it and use just OpenRouter for chat-only mode.
-      if (currentStep === 3) {
-        const name = document.getElementById('companionName').value.trim();
-        if (!name) { highlight('companionName'); return; }
-      }
-    }
+const state = {
+  installMode: '',
+  public: {
+    identity: { companionName: '', humanName: '', role: 'companion', tonePreset: 'warm' },
+    services: { aiMindUrl: '', healthUrl: '', gatewayUrl: '' },
+    models: { chat: '', image: '' },
+    voice: { provider: '', voiceId: '' },
+    features: { memory: false, voice: false, gallery: true, health: false, discord: false, pcTools: true, workshop: false, daemon: false },
+    cloudflare: { accountId: '', gatewayWorkerName: 'nesteq-gateway', pagesProjectName: 'nesteq', customDomain: '' },
+    import: { identity: true, memoryWrite: true, history: true },
+    starter: { chatProvider: 'openrouter', localUrl: '' },
+  },
+  secrets: {
+    apiKey: '',
+    openrouterKey: '',
+    elevenlabsKey: '',
+    cloudflare: { apiToken: '' },
+  },
+  probes: null,
+};
 
-    if (n === 6) buildSummary();
-    if (n === 7) buildDone();
+// Path definitions — screens shown in order per install mode
+const PATHS = {
+  '': ['welcome'],
+  'existing-memory': ['welcome', 'identity', 'existing-memory', 'features', 'models', 'review', 'validation', 'done'],
+  'cloudflare':      ['welcome', 'identity', 'cloudflare',      'features', 'models', 'review', 'validation', 'done'],
+  'starter':         ['welcome', 'identity', 'starter',         'features', 'models', 'review', 'validation', 'done'],
+};
 
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    document.getElementById(`step-${n}`).classList.add('active');
+let currentIdx = 0;
 
-    document.querySelectorAll('.progress .dot').forEach((dot, i) => {
-      dot.classList.remove('active', 'done');
-      if (i + 1 === n) dot.classList.add('active');
-      else if (i + 1 < n) dot.classList.add('done');
-    });
+function currentPath() {
+  return PATHS[state.installMode] || PATHS[''];
+}
 
-    currentStep = n;
+function currentScreen() {
+  return currentPath()[currentIdx];
+}
+
+function renderProgress() {
+  const path = currentPath();
+  const el = document.getElementById('progress');
+  el.innerHTML = '';
+  path.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === currentIdx ? ' active' : i < currentIdx ? ' done' : '');
+    el.appendChild(d);
+  });
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  const el = document.querySelector(`.step[data-screen="${name}"]`);
+  if (el) el.classList.add('active');
+  renderProgress();
+
+  if (name === 'features') buildFeatureGrid();
+  if (name === 'review') buildReview();
+  if (name === 'validation') runValidation();
+  if (name === 'starter') wireStarterProviderToggle();
+  if (name === 'models') wireTtsToggle();
+}
+
+function gotoIdx(i) {
+  const path = currentPath();
+  if (i < 0 || i >= path.length) return;
+  currentIdx = i;
+  showScreen(path[currentIdx]);
+}
+
+function next() {
+  if (!gatherAndValidateCurrent()) return;
+  gotoIdx(currentIdx + 1);
+}
+
+function back() {
+  gotoIdx(Math.max(0, currentIdx - 1));
+}
+
+/* ============================================================
+   Field gathering + per-screen validation
+   ============================================================ */
+
+function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function checked(id) { const el = document.getElementById(id); return el ? el.checked : false; }
+
+function gatherAndValidateCurrent() {
+  const scr = currentScreen();
+
+  if (scr === 'welcome') {
+    if (!state.installMode) { alert('Pick a setup mode to continue.'); return false; }
+    return true;
   }
 
-  function highlight(id) {
-    const el = document.getElementById(id);
-    el.style.borderColor = '#ef4444';
-    el.focus();
-    setTimeout(() => { el.style.borderColor = ''; }, 2000);
+  if (scr === 'identity') {
+    const name = val('f-companionName');
+    if (!name) { document.getElementById('f-companionName').focus(); return false; }
+    state.public.identity.companionName = name;
+    state.public.identity.humanName = val('f-humanName') || 'Human';
+    state.public.identity.role = val('f-role') || 'companion';
+    state.public.identity.tonePreset = val('f-tonePreset') || 'warm';
+    return true;
   }
 
-  function handleImgUpload(input, previewId, dataVar) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = e.target.result;
-      if (dataVar === 'companionImgData') companionImgData = data;
-      if (dataVar === 'coupleImgData') coupleImgData = data;
-      const preview = document.getElementById(previewId);
-      preview.innerHTML = `<img src="${data}" alt="Preview">`;
+  if (scr === 'existing-memory') {
+    const url = val('f-aiMindUrl').replace(/\/$/, '');
+    const key = val('f-apiKey');
+    if (!url) { document.getElementById('f-aiMindUrl').focus(); return false; }
+    if (!key) { document.getElementById('f-apiKey').focus(); return false; }
+    state.public.services.aiMindUrl = url;
+    state.public.services.healthUrl = val('f-healthUrl').replace(/\/$/, '');
+    state.public.services.gatewayUrl = val('f-gatewayUrl').replace(/\/$/, '');
+    state.secrets.apiKey = key;
+    state.public.import = {
+      identity: checked('f-importIdentity'),
+      memoryWrite: checked('f-memoryWrite'),
+      history: checked('f-useHistory'),
     };
-    reader.readAsDataURL(file);
+    state.public.features.memory = true;
+    state.public.features.health = !!state.public.services.healthUrl;
+    state.public.features.workshop = !!state.public.services.gatewayUrl;
+    return true;
   }
 
-  async function testConnection() {
-    const url = document.getElementById('aiMindUrl').value.trim();
-    const key = document.getElementById('apiKey').value.trim();
-    const result = document.getElementById('testResult');
-
-    if (!url) { highlight('aiMindUrl'); return; }
-    if (!key) { highlight('apiKey'); return; }
-
-    result.className = 'test-result loading';
-    result.style.display = 'block';
-    result.textContent = 'Testing connection...';
-
-    try {
-      const controller = new AbortController();
-      setTimeout(() => controller.abort(), 8000);
-      const res = await fetch(`${url.replace(/\/$/, '')}/health`, {
-        headers: { 'Authorization': `Bearer ${key}` },
-        signal: controller.signal,
-      });
-      if (res.ok) {
-        const data = await res.json();
-        result.className = 'test-result success';
-        result.textContent = `Connected! ${data.feelings_count ? data.feelings_count + ' feelings' : 'Worker is alive'}`;
-      } else {
-        result.className = 'test-result error';
-        result.textContent = `Error: ${res.status} ${res.statusText}`;
-      }
-    } catch (err) {
-      result.className = 'test-result error';
-      result.textContent = err.name === 'AbortError' ? 'Connection timed out.' : `Failed: ${err.message}`;
-    }
+  if (scr === 'cloudflare') {
+    const acct = val('f-cfAccountId');
+    const token = val('f-cfApiToken');
+    const or = val('f-openrouterKeyB');
+    if (!acct) { document.getElementById('f-cfAccountId').focus(); return false; }
+    if (!token) { document.getElementById('f-cfApiToken').focus(); return false; }
+    if (!or) { document.getElementById('f-openrouterKeyB').focus(); return false; }
+    state.public.cloudflare.accountId = acct;
+    state.public.cloudflare.gatewayWorkerName = val('f-cfGatewayName') || 'nesteq-gateway';
+    state.public.cloudflare.pagesProjectName = val('f-cfPagesName') || 'nesteq';
+    state.public.cloudflare.customDomain = val('f-cfCustomDomain');
+    state.secrets.cloudflare.apiToken = token;
+    state.secrets.openrouterKey = or;
+    state.secrets.elevenlabsKey = val('f-elevenlabsKeyB');
+    state.public.voice.voiceId = val('f-elevenlabsVoiceB');
+    state.public.voice.provider = state.secrets.elevenlabsKey ? 'elevenlabs' : '';
+    // Predict URLs from worker/pages names — will be overwritten on actual deploy
+    const predictedGateway = `https://${state.public.cloudflare.gatewayWorkerName}.${acct.slice(0, 10) || 'acct'}.workers.dev`;
+    state.public.services.gatewayUrl = predictedGateway;
+    state.public.features.memory = true;
+    state.public.features.voice = !!state.secrets.elevenlabsKey;
+    state.public.features.workshop = true;
+    return true;
   }
 
-  function buildSummary() {
-    const cfg = gatherConfig();
-    const mask = (s) => s ? s.substring(0, 8) + '*'.repeat(Math.max(0, s.length - 8)) : '';
-    document.getElementById('summary').innerHTML = `
-      <div class="summary-item"><span class="summary-label">AI Mind</span><span class="summary-value">${cfg.aiMindUrl}</span></div>
-      <div class="summary-item"><span class="summary-label">Mind Key</span><span class="summary-value">${mask(cfg.apiKey)}</span></div>
-      <div class="summary-item"><span class="summary-label">Companion</span><span class="summary-value">${cfg.companionName}</span></div>
-      <div class="summary-item"><span class="summary-label">You</span><span class="summary-value">${cfg.humanName || 'Human'}</span></div>
-      <div class="summary-item"><span class="summary-label">Portrait</span><span class="summary-value ${companionImgData ? '' : 'dim'}">${companionImgData ? 'Uploaded' : 'Default'}</span></div>
-      <div class="summary-item"><span class="summary-label">OpenRouter</span><span class="summary-value ${cfg.openrouterKey ? '' : 'dim'}">${cfg.openrouterKey ? mask(cfg.openrouterKey) : 'Not set — chat disabled'}</span></div>
-      <div class="summary-item"><span class="summary-label">Model</span><span class="summary-value">${cfg.chatModel}</span></div>
-      <div class="summary-item"><span class="summary-label">ElevenLabs</span><span class="summary-value ${cfg.elevenlabsKey ? '' : 'dim'}">${cfg.elevenlabsKey ? 'Configured' : 'Not set'}</span></div>
-      <div class="summary-item"><span class="summary-label">Gateway</span><span class="summary-value ${cfg.gatewayUrl ? '' : 'dim'}">${cfg.gatewayUrl || 'Not set'}</span></div>
-    `;
-  }
-
-  function buildDone() {
-    const cfg = gatherConfig();
-    document.getElementById('doneName').textContent = cfg.companionName;
-    const portrait = document.getElementById('donePortrait');
-    if (companionImgData) {
-      portrait.innerHTML = `<img src="${companionImgData}" style="width:100%;height:100%;object-fit:cover;">`;
+  if (scr === 'starter') {
+    const provider = val('f-chatProvider');
+    state.public.starter.chatProvider = provider;
+    state.public.models.chat = val('f-chatModelStarter') || 'qwen/qwen3.6-plus:free';
+    if (provider === 'openrouter') {
+      const key = val('f-openrouterKey');
+      if (!key) { document.getElementById('f-openrouterKey').focus(); return false; }
+      state.secrets.openrouterKey = key;
     } else {
-      portrait.innerHTML = `<img src="assets/images/companion-default.svg" style="width:100%;height:100%;object-fit:cover;">`;
+      state.public.starter.localUrl = val('f-localUrl') || 'http://127.0.0.1:18789';
     }
-    document.getElementById('doneMsg').textContent = `${cfg.companionName}'s dashboard is ready.`;
+    return true;
   }
 
-  function gatherConfig() {
-    return {
-      aiMindUrl: document.getElementById('aiMindUrl').value.trim().replace(/\/$/, ''),
-      apiKey: document.getElementById('apiKey').value.trim(),
-      gatewayUrl: document.getElementById('gatewayUrl').value.trim().replace(/\/$/, ''),
-      healthUrl: '',
-      companionName: document.getElementById('companionName').value.trim() || 'Companion',
-      humanName: document.getElementById('humanName').value.trim() || 'Human',
-      openrouterKey: document.getElementById('openrouterKey').value.trim(),
-      chatModel: document.getElementById('chatModel').value.trim() || 'qwen/qwen3.6-plus:free',
-      systemPrompt: document.getElementById('systemPrompt').value.trim(),
-      elevenlabsKey: document.getElementById('elevenlabsKey').value.trim(),
-      elevenlabsVoice: document.getElementById('elevenlabsVoice').value.trim(),
-      configured: true,
-    };
+  if (scr === 'features') {
+    ['memory','voice','gallery','health','discord','pcTools','workshop','daemon'].forEach(k => {
+      const el = document.getElementById(`feat-${k}`);
+      if (el && !el.disabled) state.public.features[k] = el.checked;
+    });
+    return true;
   }
 
-  function saveAndLaunch() {
-    const config = gatherConfig();
+  if (scr === 'models') {
+    state.public.models.chat = val('f-chatModel') || state.public.models.chat;
+    state.public.models.image = val('f-imageModel');
+    state.public.voice.provider = val('f-ttsProvider');
+    state.public.voice.voiceId = val('f-voiceId') || state.public.voice.voiceId;
+    return true;
+  }
 
-    // Save images to localStorage separately (they're large)
-    if (companionImgData) localStorage.setItem('nesteq_companion_img', companionImgData);
-    if (coupleImgData) localStorage.setItem('nesteq_couple_img', coupleImgData);
+  if (scr === 'review') return true;
+  if (scr === 'validation') return true;
+  return true;
+}
 
-    // Save config
-    localStorage.setItem('nesteq_config', JSON.stringify(config));
+/* ============================================================
+   Welcome — mode selection
+   ============================================================ */
 
-    // Also save chat config so chat.js picks it up
-    localStorage.setItem('nesteq_chat_config', JSON.stringify({
-      API_URL: 'https://openrouter.ai/api/v1/chat/completions',
-      API_KEY: config.openrouterKey,
-      MODEL: config.chatModel,
-    }));
+document.querySelectorAll('.mode-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    state.installMode = card.dataset.mode;
+    renderProgress();
+    // Advance automatically after selection
+    setTimeout(() => gotoIdx(1), 250);
+  });
+});
 
-    // Try server save too (if running with local-agent)
-    fetch('/config', {
+/* ============================================================
+   Starter provider toggle
+   ============================================================ */
+
+function wireStarterProviderToggle() {
+  const sel = document.getElementById('f-chatProvider');
+  const swap = () => {
+    document.getElementById('g-openrouterKey').style.display = sel.value === 'openrouter' ? '' : 'none';
+    document.getElementById('g-localUrl').style.display = sel.value === 'local' ? '' : 'none';
+  };
+  sel.onchange = swap;
+  swap();
+}
+
+function wireTtsToggle() {
+  const sel = document.getElementById('f-ttsProvider');
+  const swap = () => {
+    document.getElementById('g-voiceId').style.display = sel.value === 'elevenlabs' ? '' : 'none';
+  };
+  sel.onchange = swap;
+  swap();
+}
+
+/* ============================================================
+   Features grid — gated by prerequisites
+   ============================================================ */
+
+const FEATURES = [
+  { key: 'memory', name: 'Memory', requires: () => !!state.public.services.aiMindUrl || state.installMode === 'cloudflare', req: 'AI Mind' },
+  { key: 'voice', name: 'Voice', requires: () => !!state.secrets.elevenlabsKey, req: 'ElevenLabs key' },
+  { key: 'gallery', name: 'Gallery', requires: () => true, req: '' },
+  { key: 'health', name: 'Health / Wellness', requires: () => !!state.public.services.healthUrl, req: 'Health worker' },
+  { key: 'discord', name: 'Discord', requires: () => false, req: 'Configure later' },
+  { key: 'pcTools', name: 'PC Tools', requires: () => true, req: '' },
+  { key: 'workshop', name: 'Workshop / Code', requires: () => !!state.public.services.gatewayUrl || state.installMode === 'cloudflare', req: 'Gateway' },
+  { key: 'daemon', name: 'Autonomous / Daemon', requires: () => !!state.public.services.gatewayUrl || state.installMode === 'cloudflare', req: 'Gateway' },
+];
+
+function buildFeatureGrid() {
+  const grid = document.getElementById('featureGrid');
+  grid.innerHTML = '';
+  FEATURES.forEach(f => {
+    const available = f.requires();
+    const el = document.createElement('label');
+    el.className = 'feature-toggle' + (available ? '' : ' disabled');
+    const currentVal = state.public.features[f.key];
+    const checkedDefault = available && (currentVal || f.key === 'gallery' || f.key === 'memory' || f.key === 'pcTools');
+    el.innerHTML = `
+      <input type="checkbox" id="feat-${f.key}" ${checkedDefault ? 'checked' : ''} ${available ? '' : 'disabled'}>
+      <span class="name">${f.name}</span>
+      ${!available ? `<span class="req">needs ${f.req}</span>` : ''}
+    `;
+    grid.appendChild(el);
+  });
+}
+
+/* ============================================================
+   Review
+   ============================================================ */
+
+function mask(s) { return s ? s.substring(0, 8) + '•'.repeat(Math.min(12, Math.max(0, s.length - 8))) : ''; }
+
+function buildReview() {
+  const p = state.public;
+  const s = state.secrets;
+  const rows = (items) => items.map(([k, v, dim]) =>
+    `<div class="summary-item"><span class="summary-label">${k}</span><span class="summary-value${dim ? ' dim' : ''}">${v || '—'}</span></div>`
+  ).join('');
+
+  const enabledFeatures = Object.entries(p.features).filter(([, v]) => v).map(([k]) => k).join(', ') || '—';
+
+  const identitySec = `<div class="summary-section"><h4>Identity</h4>${rows([
+    ['Install Mode', state.installMode, false],
+    ['Companion', p.identity.companionName, false],
+    ['Human', p.identity.humanName, false],
+    ['Role', p.identity.role, false],
+    ['Tone', p.identity.tonePreset, false],
+  ])}</div>`;
+
+  const servicesSec = `<div class="summary-section"><h4>Services</h4>${rows([
+    ['AI Mind', p.services.aiMindUrl, !p.services.aiMindUrl],
+    ['Health', p.services.healthUrl, !p.services.healthUrl],
+    ['Gateway', p.services.gatewayUrl, !p.services.gatewayUrl],
+    ['API Key', mask(s.apiKey), !s.apiKey],
+  ])}</div>`;
+
+  const modelsSec = `<div class="summary-section"><h4>Models & Voice</h4>${rows([
+    ['Chat', p.models.chat, false],
+    ['Image', p.models.image, !p.models.image],
+    ['TTS', p.voice.provider, !p.voice.provider],
+    ['Voice ID', p.voice.voiceId, !p.voice.voiceId],
+    ['OpenRouter', mask(s.openrouterKey), !s.openrouterKey],
+    ['ElevenLabs', mask(s.elevenlabsKey), !s.elevenlabsKey],
+  ])}</div>`;
+
+  const featuresSec = `<div class="summary-section"><h4>Modules</h4>${rows([
+    ['Enabled', enabledFeatures, false],
+  ])}</div>`;
+
+  let out = identitySec + servicesSec + modelsSec + featuresSec;
+
+  if (state.installMode === 'cloudflare') {
+    const cf = p.cloudflare;
+    const cfSec = `<div class="summary-section"><h4>Cloudflare Deployment Checklist</h4>${rows([
+      ['Account ID', cf.accountId, false],
+      ['API Token', mask(s.cloudflare.apiToken), !s.cloudflare.apiToken],
+      ['Gateway Worker', cf.gatewayWorkerName, false],
+      ['Pages Project', cf.pagesProjectName, false],
+      ['Custom Domain', cf.customDomain, !cf.customDomain],
+    ])}</div>`;
+    const steps = `
+      <div class="banner info" style="margin-top:12px">
+        After finishing, run these on your machine to deploy:<br>
+        <code>cd gateway &amp;&amp; wrangler deploy</code><br>
+        <code>cd dashboard &amp;&amp; wrangler pages deploy . --project-name=${cf.pagesProjectName}</code><br>
+        Set secrets via <code>wrangler secret put</code> for each key above.
+      </div>`;
+    out += cfSec + steps;
+  }
+
+  document.getElementById('summary').innerHTML = out;
+}
+
+/* ============================================================
+   Validation — calls /setup/test with candidates so it probes
+   what the user just entered, even before save.
+   ============================================================ */
+
+const PROBE_LABELS = {
+  aiMind: 'AI Mind worker',
+  health: 'Health worker',
+  gateway: 'Gateway worker',
+  openrouter: 'OpenRouter',
+  elevenlabs: 'ElevenLabs',
+  localAgent: 'Local agent',
+};
+
+function renderProbes(results) {
+  const box = document.getElementById('probeResults');
+  box.innerHTML = Object.entries(PROBE_LABELS).map(([k, label]) => {
+    const r = results?.[k];
+    let status = 'pending', detail = '…';
+    if (r) {
+      if (r.ok) { status = 'ok'; detail = 'reachable'; }
+      else if (r.message === 'not configured' || r.message === 'no key') { status = 'skip'; detail = 'skipped'; }
+      else { status = 'fail'; detail = r.message; }
+    }
+    return `<div class="probe-row">
+      <div><span class="name">${label}</span> <span class="detail">${detail}</span></div>
+      <div class="status ${status}">${status.toUpperCase()}</div>
+    </div>`;
+  }).join('');
+}
+
+async function runValidation() {
+  renderProbes(null);
+  const candidates = {
+    aiMind: { url: state.public.services.aiMindUrl, key: state.secrets.apiKey },
+    health: { url: state.public.services.healthUrl, key: state.secrets.apiKey },
+    gateway: { url: state.public.services.gatewayUrl, key: state.secrets.apiKey },
+    openrouter: { key: state.secrets.openrouterKey },
+    elevenlabs: { key: state.secrets.elevenlabsKey },
+  };
+  try {
+    const res = await fetch('/setup/test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config),
-    }).catch(() => {});
-
-    window.location.href = 'index.html';
+      body: JSON.stringify({ candidates }),
+    });
+    const data = await res.json();
+    state.probes = data.results || {};
+    renderProbes(state.probes);
+  } catch (err) {
+    renderProbes({});
+    document.getElementById('probeResults').insertAdjacentHTML('afterbegin',
+      `<div class="banner warn">Probe failed: ${err.message}. Local agent may not be running.</div>`);
   }
+}
 
-  // Pre-fill from existing config
+/* ============================================================
+   Finish — save config, then land
+   ============================================================ */
+
+document.getElementById('finishBtn').addEventListener('click', async (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  const payload = {
+    public: {
+      installMode: state.installMode,
+      identity: state.public.identity,
+      services: state.public.services,
+      models: state.public.models,
+      voice: state.public.voice,
+      features: state.public.features,
+      cloudflare: state.public.cloudflare,
+      starter: state.public.starter,
+    },
+    secrets: state.secrets,
+  };
   try {
-    const existing = JSON.parse(localStorage.getItem('nesteq_config') || '{}');
-    if (existing.aiMindUrl) document.getElementById('aiMindUrl').value = existing.aiMindUrl;
-    if (existing.apiKey) document.getElementById('apiKey').value = existing.apiKey;
-    if (existing.companionName) document.getElementById('companionName').value = existing.companionName;
-    if (existing.humanName) document.getElementById('humanName').value = existing.humanName;
-    if (existing.gatewayUrl) document.getElementById('gatewayUrl').value = existing.gatewayUrl;
-    if (existing.openrouterKey) document.getElementById('openrouterKey').value = existing.openrouterKey;
-    if (existing.chatModel) document.getElementById('chatModel').value = existing.chatModel;
-    if (existing.systemPrompt) document.getElementById('systemPrompt').value = existing.systemPrompt;
-    if (existing.elevenlabsKey) document.getElementById('elevenlabsKey').value = existing.elevenlabsKey;
-    if (existing.elevenlabsVoice) document.getElementById('elevenlabsVoice').value = existing.elevenlabsVoice;
+    const res = await fetch('/setup/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'save failed');
+    // Flip localStorage flag for any legacy checks still using it
+    localStorage.setItem('nesteq_configured', '1');
+    gotoIdx(currentPath().length - 1);
+  } catch (err) {
+    alert('Could not save: ' + err.message);
+  }
+}, { capture: true });
 
-    const savedCompImg = localStorage.getItem('nesteq_companion_img');
-    if (savedCompImg) {
-      companionImgData = savedCompImg;
-      document.getElementById('companionImgPreview').innerHTML = `<img src="${savedCompImg}" alt="Preview">`;
-    }
-    const savedCoupleImg = localStorage.getItem('nesteq_couple_img');
-    if (savedCoupleImg) {
-      coupleImgData = savedCoupleImg;
-      document.getElementById('coupleImgPreview').innerHTML = `<img src="${savedCoupleImg}" alt="Preview">`;
+/* ============================================================
+   Wire back / next buttons
+   ============================================================ */
+
+document.querySelectorAll('[data-nav]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.nav === 'back') back();
+    else if (btn.dataset.nav === 'next' && btn.id !== 'finishBtn') next();
+  });
+});
+
+/* ============================================================
+   Pre-fill from existing public config (for Re-run Setup)
+   ============================================================ */
+
+(async () => {
+  try {
+    const res = await fetch('/config');
+    const cfg = await res.json();
+    if (cfg && cfg.installMode) {
+      // Preserve prior selections but don't resume mid-flow
+      state.installMode = cfg.installMode;
+      if (cfg.identity) {
+        document.getElementById('f-companionName').value = cfg.identity.companionName || '';
+        document.getElementById('f-humanName').value = cfg.identity.humanName || '';
+        document.getElementById('f-role').value = cfg.identity.role || 'companion';
+        document.getElementById('f-tonePreset').value = cfg.identity.tonePreset || 'warm';
+      }
+      if (cfg.services) {
+        document.getElementById('f-aiMindUrl').value = cfg.services.aiMindUrl || '';
+        document.getElementById('f-healthUrl').value = cfg.services.healthUrl || '';
+        document.getElementById('f-gatewayUrl').value = cfg.services.gatewayUrl || '';
+      }
+      if (cfg.models) {
+        document.getElementById('f-chatModel').value = cfg.models.chat || '';
+        document.getElementById('f-imageModel').value = cfg.models.image || '';
+      }
+      if (cfg.voice) {
+        document.getElementById('f-ttsProvider').value = cfg.voice.provider || '';
+        document.getElementById('f-voiceId').value = cfg.voice.voiceId || '';
+      }
+      if (cfg.cloudflare) {
+        document.getElementById('f-cfAccountId').value = cfg.cloudflare.accountId || '';
+        document.getElementById('f-cfGatewayName').value = cfg.cloudflare.gatewayWorkerName || 'nesteq-gateway';
+        document.getElementById('f-cfPagesName').value = cfg.cloudflare.pagesProjectName || 'nesteq';
+        document.getElementById('f-cfCustomDomain').value = cfg.cloudflare.customDomain || '';
+      }
+      // Highlight the previously-chosen mode but stay on welcome
+      const card = document.querySelector(`.mode-card[data-mode="${cfg.installMode}"]`);
+      if (card) card.classList.add('selected');
     }
   } catch {}
+
+  showScreen('welcome');
+})();
 </script>
 
 </body>

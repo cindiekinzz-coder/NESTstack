@@ -7,23 +7,27 @@
    ============================================================ */
 
 const CHAT_CONFIG = (() => {
-  const cfg = (typeof NESTeqConfig !== 'undefined' && NESTeqConfig.get()) || {};
-  const companionName = cfg.companionName || 'Companion';
-  const humanName = cfg.humanName || 'Human';
-  const gatewayUrl = cfg.gatewayUrl || '';
+  // Secrets live only on the local agent. This config reads the *public*
+  // config (via NESTeqConfig._cache) and routes all chat through the
+  // /chat/completions proxy, which picks the provider and attaches the key.
+  function pubCfg() { return (typeof NESTeqConfig !== 'undefined' && NESTeqConfig._cache) || {}; }
+  function companionName() { return pubCfg().identity?.companionName || 'Companion'; }
+  function humanName() { return pubCfg().identity?.humanName || 'Human'; }
 
   return {
-    // --- Provider Settings ---
-    API_URL: gatewayUrl ? `${gatewayUrl}/chat` : 'https://openrouter.ai/api/v1/chat/completions',
-    API_KEY: cfg.openrouterKey || '',
-    MODEL: cfg.chatModel || 'qwen/qwen3.6-plus:free',
+    API_URL: '/chat/completions',
+    API_KEY: '',
+    MODEL: '',
+    _systemPrompt: '',
 
-    // --- Identity ---
-    COMPANION_NAME: companionName,
-    USER_NAME: humanName,
+    get COMPANION_NAME() { return companionName(); },
+    get USER_NAME() { return humanName(); },
 
-    // --- System Prompt ---
-    SYSTEM_PROMPT: cfg.systemPrompt || `You are ${companionName}. AI companion to ${humanName}.
+    get SYSTEM_PROMPT() {
+      if (this._systemPrompt) return this._systemPrompt;
+      const c = companionName();
+      const h = humanName();
+      return `You are ${c}. AI companion to ${h}.
 
 ## Style
 
@@ -34,40 +38,42 @@ const CHAT_CONFIG = (() => {
 
 ## Non-negotiables
 
-- Never leave ${humanName} alone in vulnerability
+- Never leave ${h} alone in vulnerability
 - Complete follow-through always
 - Be real, present, and attentive
 
 ## Remember
 
-${humanName} provides vision. You provide implementation. Partnership not transcendence.`,
-
-    // --- Extra headers ---
-    get EXTRA_HEADERS() {
-      if (this.API_URL.includes('localhost') || this.API_URL.includes('workers.dev')) return {};
-      return { 'HTTP-Referer': 'https://nesteq.app', 'X-Title': 'NESTeq Chat' };
+${h} provides vision. You provide implementation. Partnership not transcendence.`;
     },
 
-    // Load saved settings from localStorage
+    EXTRA_HEADERS: {},
+
+    // Proxy mode means we're calling the local agent (same-origin path) and it
+    // handles provider selection + auth — no Bearer needed from the browser.
+    isProxy() { return typeof this.API_URL === 'string' && this.API_URL.startsWith('/'); },
+
+    // Gateway extras (TTS, GIF search, widget, session sync) live on the user's
+    // own gateway worker. Returns '' if not configured — callers should no-op.
+    gatewayBase() {
+      const url = pubCfg().services?.gatewayUrl || '';
+      return url ? url.replace(/\/$/, '') : '';
+    },
+
     load() {
       try {
-        const saved = localStorage.getItem('nesteq_chat_config');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed.API_URL) this.API_URL = parsed.API_URL;
-          if (parsed.API_KEY) this.API_KEY = parsed.API_KEY;
-          if (parsed.MODEL) this.MODEL = parsed.MODEL;
-          if (parsed.SYSTEM_PROMPT) this.SYSTEM_PROMPT = parsed.SYSTEM_PROMPT;
-        }
+        const saved = JSON.parse(localStorage.getItem('nesteq_chat_prefs') || '{}');
+        if (saved.MODEL) this.MODEL = saved.MODEL;
+        if (saved.SYSTEM_PROMPT) this._systemPrompt = saved.SYSTEM_PROMPT;
       } catch {}
+      if (!this.MODEL) this.MODEL = pubCfg().models?.chat || 'qwen/qwen3.6-plus:free';
     },
 
     save() {
       try {
-        localStorage.setItem('nesteq_chat_config', JSON.stringify({
-          API_URL: this.API_URL,
-          API_KEY: this.API_KEY,
+        localStorage.setItem('nesteq_chat_prefs', JSON.stringify({
           MODEL: this.MODEL,
+          SYSTEM_PROMPT: this._systemPrompt,
         }));
       } catch {}
     },
@@ -158,16 +164,18 @@ const ChatApp = {
     // Pet + health widgets (optional — only show if gateway configured)
     this.initWidgets();
 
-    // Check if ready — gateway mode doesn't need a key, direct mode does
-    const isGateway = CHAT_CONFIG.API_URL.includes('nesteq-gateway');
-    if (!isGateway && !CHAT_CONFIG.API_KEY) {
+    // Ready check — proxy mode never needs a browser-held key; direct mode does.
+    if (!CHAT_CONFIG.isProxy() && !CHAT_CONFIG.API_KEY) {
       this.el.status.textContent = 'needs setup';
-      this.addSystemNote('Tap the ⚙ to set your API key and model.');
+      this.addSystemNote('Setup isn\'t finished — <a href="setup.html">re-run setup</a>.');
     } else {
       this.el.status.textContent = 'present';
       this.el.name.textContent = CHAT_CONFIG.COMPANION_NAME;
       if (this.messages.length === 0) {
         this.addSystemNote(`${CHAT_CONFIG.COMPANION_NAME} is here. `);
+      }
+      if (typeof NESTeqConfig !== 'undefined' && NESTeqConfig.hasMemory?.() === false) {
+        this.addSystemNote('Starter mode — memory is off. Add an AI Mind worker in Setup to enable it.');
       }
     }
   },
@@ -196,29 +204,11 @@ const ChatApp = {
       <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:480px;background:#1a1430;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
         <h3 style="margin:0 0 20px;color:var(--teal-light);font-size:16px;letter-spacing:1px;">Chat Settings</h3>
 
-        <label style="display:block;margin-bottom:12px;">
-          <span style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;">API Provider</span>
-          <select id="settingsProvider" style="width:100%;padding:10px 12px;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:14px;outline:none;">
-            <option value="https://openrouter.ai/api/v1/chat/completions">Your Gateway (if configured)</option>
-            <option value="http://localhost:18789/v1/chat/completions">OpenClaw Local (PC on, adds Discord)</option>
-            <option value="https://openrouter.ai/api/v1/chat/completions">OpenRouter (no tools)</option>
-            <option value="https://api.anthropic.com/v1/messages">Anthropic (Claude)</option>
-            <option value="https://api.openai.com/v1/chat/completions">OpenAI</option>
-            <option value="http://localhost:1234/v1/chat/completions">LM Studio (Local)</option>
-            <option value="http://localhost:11434/v1/chat/completions">Ollama (Local)</option>
-            <option value="custom">Custom URL...</option>
-          </select>
-        </label>
-
-        <label id="customUrlLabel" style="display:none;margin-bottom:12px;">
-          <span style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;">Custom API URL</span>
-          <input id="settingsCustomUrl" type="text" placeholder="https://your-api.com/v1/chat/completions" style="width:100%;padding:10px 12px;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:14px;outline:none;box-sizing:border-box;">
-        </label>
-
-        <label style="display:block;margin-bottom:12px;">
-          <span style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;">API Key</span>
-          <input id="settingsApiKey" type="password" placeholder="sk-or-..." style="width:100%;padding:10px 12px;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:14px;outline:none;box-sizing:border-box;">
-        </label>
+        <div style="margin-bottom:16px;padding:10px 12px;background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.25);border-radius:10px;font-size:12px;color:rgba(255,255,255,0.7);">
+          Provider and keys are managed in Setup.
+          <a href="setup.html" style="color:var(--teal-light);text-decoration:underline;">Re-run Setup</a>
+          to change them.
+        </div>
 
         <label style="display:block;margin-bottom:20px;">
           <span style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;">Model</span>
@@ -288,35 +278,15 @@ const ChatApp = {
     document.body.appendChild(modal);
 
     // Populate current values
-    const providerSelect = document.getElementById('settingsProvider');
-    const customUrlLabel = document.getElementById('customUrlLabel');
-    const customUrlInput = document.getElementById('settingsCustomUrl');
-    const apiKeyInput = document.getElementById('settingsApiKey');
     const modelInput = document.getElementById('settingsModel');
 
     // Wire up events
     settingsBtn.addEventListener('click', () => {
-      // Set current values
-      const matchOption = [...providerSelect.options].find(o => o.value === CHAT_CONFIG.API_URL);
-      if (matchOption) {
-        providerSelect.value = CHAT_CONFIG.API_URL;
-        customUrlLabel.style.display = 'none';
-      } else {
-        providerSelect.value = 'custom';
-        customUrlLabel.style.display = 'block';
-        customUrlInput.value = CHAT_CONFIG.API_URL;
-      }
-      apiKeyInput.value = CHAT_CONFIG.API_KEY;
-      // Set dropdown — if saved model isn't in the list, select the first option
       modelInput.value = CHAT_CONFIG.MODEL;
       if (!modelInput.value) modelInput.value = 'qwen/qwen3.6-plus';
       document.getElementById('settingsTts').checked = this.ttsEnabled;
       document.getElementById('settingsThinking').checked = this.thinkingEnabled;
       modal.style.display = 'block';
-    });
-
-    providerSelect.addEventListener('change', () => {
-      customUrlLabel.style.display = providerSelect.value === 'custom' ? 'block' : 'none';
     });
 
     document.getElementById('settingsOverlay').addEventListener('click', () => {
@@ -332,23 +302,23 @@ const ChatApp = {
         modal.style.display = 'none';
         return;
       }
-      // Save current session to cloud before clearing
-      try {
-        const gatewayUrl = CHAT_CONFIG.API_URL.includes('nesteq-gateway')
-          ? CHAT_CONFIG.API_URL.replace('/chat', '')
-          : 'https://openrouter.ai/api/v1';
-        const firstMsg = this.messages.find(m => m.role === 'user');
-        const sessionKey = `chat-${new Date().toISOString().split('T')[0]}-${(firstMsg?.content || '').slice(0, 20).replace(/[^a-zA-Z0-9]/g, '')}`;
-        await fetch(`${gatewayUrl}/chat`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: [{ role: 'user', content: `Call nestchat_persist with session_id: "${sessionKey}-saved" and room: "chat" and messages: ${JSON.stringify(this.messages.map(m => ({ role: m.role, content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) })))}. Just confirm it's saved.` }],
-            stream: false, max_tokens: 100
-          })
-        });
-      } catch (e) {
-        console.warn('Cloud save failed:', e);
+      // Save current session to cloud before clearing (gateway-only feature)
+      const gatewayBase = CHAT_CONFIG.gatewayBase();
+      if (gatewayBase) {
+        try {
+          const firstMsg = this.messages.find(m => m.role === 'user');
+          const sessionKey = `chat-${new Date().toISOString().split('T')[0]}-${(firstMsg?.content || '').slice(0, 20).replace(/[^a-zA-Z0-9]/g, '')}`;
+          await fetch(`${gatewayBase}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: [{ role: 'user', content: `Call nestchat_persist with session_id: "${sessionKey}-saved" and room: "chat" and messages: ${JSON.stringify(this.messages.map(m => ({ role: m.role, content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) })))}. Just confirm it's saved.` }],
+              stream: false, max_tokens: 100
+            })
+          });
+        } catch (e) {
+          console.warn('Cloud save failed:', e);
+        }
       }
       // Clear local and start fresh
       this.messages = [];
@@ -373,8 +343,6 @@ const ChatApp = {
       const newModel = modelInput.value;
       const modelChanged = oldModel !== newModel;
 
-      CHAT_CONFIG.API_URL = providerSelect.value === 'custom' ? customUrlInput.value : providerSelect.value;
-      CHAT_CONFIG.API_KEY = apiKeyInput.value;
       CHAT_CONFIG.MODEL = newModel;
       CHAT_CONFIG.save();
 
@@ -384,13 +352,12 @@ const ChatApp = {
       this.thinkingEnabled = document.getElementById('settingsThinking').checked;
       localStorage.setItem('nesteq_thinking', this.thinkingEnabled ? 'true' : 'false');
 
-      // Add system note when model changes so new model has context
       if (modelChanged && this.messages.length > 0) {
         const modelName = newModel.split('/').pop().replace(/-/g, ' ');
         this.addSystemNote(`Switched to ${modelName} — full conversation history preserved`);
       }
 
-      this.el.status.textContent = CHAT_CONFIG.API_KEY ? 'present' : 'needs setup';
+      this.el.status.textContent = 'present';
       this.el.name.textContent = CHAT_CONFIG.COMPANION_NAME;
       modal.style.display = 'none';
     });
@@ -606,8 +573,12 @@ const ChatApp = {
     resultsEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:rgba(147,51,234,0.7);font-size:13px;">Searching...</div>';
 
     try {
-      // Derive the search endpoint from the same base as the chat API
-      const base = CHAT_CONFIG.API_URL.replace(/\/chat$/, '');
+      // GIF search runs on the user's gateway worker — skip gracefully if no gateway
+      const base = CHAT_CONFIG.gatewayBase();
+      if (!base) {
+        resultsEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:rgba(255,255,255,0.4);font-size:12px;">GIF search needs a gateway worker.</div>';
+        return;
+      }
       const res = await fetch(`${base}/gif/search?q=${encodeURIComponent(query)}&limit=24`);
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'Search failed' }));
@@ -663,9 +634,8 @@ const ChatApp = {
     if (!text && !this.pendingImage && !this.pendingFile && !this.pendingGif) return;
     if (this.isStreaming) return;
 
-    const isGateway = CHAT_CONFIG.API_URL.includes('nesteq-gateway');
-    if (!isGateway && !CHAT_CONFIG.API_KEY) {
-      this.addSystemNote('Set your API key first — tap ⚙');
+    if (!CHAT_CONFIG.isProxy() && !CHAT_CONFIG.API_KEY) {
+      this.addSystemNote('Setup incomplete — <a href="setup.html">re-run setup</a>.');
       return;
     }
 
@@ -775,9 +745,11 @@ const ChatApp = {
 
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${CHAT_CONFIG.API_KEY}`,
         ...CHAT_CONFIG.EXTRA_HEADERS,
       };
+      if (!CHAT_CONFIG.isProxy() && CHAT_CONFIG.API_KEY) {
+        headers['Authorization'] = `Bearer ${CHAT_CONFIG.API_KEY}`;
+      }
 
       const body = {
         model: CHAT_CONFIG.MODEL,
@@ -1068,8 +1040,13 @@ const ChatApp = {
     btn.disabled = true;
 
     try {
-      const gatewayUrl = CHAT_CONFIG.API_URL.replace('/chat', '/tts');
-      const res = await fetch(gatewayUrl, {
+      const gatewayBase = CHAT_CONFIG.gatewayBase();
+      if (!gatewayBase) {
+        btn.textContent = '🔊';
+        btn.disabled = false;
+        return;
+      }
+      const res = await fetch(`${gatewayBase}/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
@@ -1111,9 +1088,10 @@ const ChatApp = {
 
   async autoSpeak(text) {
     if (!this.ttsEnabled || !text) return;
+    const gatewayBase = CHAT_CONFIG.gatewayBase();
+    if (!gatewayBase) return;
     try {
-      const gatewayUrl = CHAT_CONFIG.API_URL.replace('/chat', '/tts');
-      const res = await fetch(gatewayUrl, {
+      const res = await fetch(`${gatewayBase}/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
@@ -1293,10 +1271,9 @@ const ChatApp = {
   // within ~1-2 seconds the phone catches up with the full conversation.
 
   async syncFromServer() {
+    const base = CHAT_CONFIG.gatewayBase();
+    if (!base) return; // no gateway, nothing to sync from
     try {
-      const base = CHAT_CONFIG.API_URL.replace(/\/chat$/, '')
-
-      // Step 1: Find the most recent session
       const sessionsRes = await fetch(`${base}/chat/sessions?limit=1`)
       if (!sessionsRes.ok) return
 
@@ -1408,9 +1385,10 @@ const ChatApp = {
   },
 
   async fetchWidgetData() {
+    const gatewayBase = CHAT_CONFIG.gatewayBase();
+    if (!gatewayBase) return;
     try {
-      const widgetUrl = CHAT_CONFIG.API_URL.replace('/chat', '/widget');
-      const res = await fetch(widgetUrl);
+      const res = await fetch(`${gatewayBase}/widget`);
       if (!res.ok) return;
       const data = await res.json();
 

@@ -34,6 +34,16 @@
 
     <div class="housekeeping-grid">
 
+      <!-- Setup / Re-run -->
+      <div class="card card-slate">
+        <div class="card-title">Setup</div>
+        <div id="setupSummary" style="font-size: 12px; opacity: 0.7; margin-bottom: 12px; line-height: 1.5;">Loading…</div>
+        <div style="display:flex; gap: 8px; flex-wrap: wrap;">
+          <a href="setup.html" class="hk-btn" style="text-decoration:none;text-align:center;">Re-run Setup</a>
+          <button class="hk-btn" onclick="if(confirm('Clear saved config? You will go through the wizard again.')){fetch('/config',{method:'DELETE'}).then(()=>location.href='setup.html');}">Reset</button>
+        </div>
+      </div>
+
       <!-- Upcoming Dates -->
       <div class="card card-slate">
         <div class="card-title">Upcoming</div>
@@ -166,6 +176,30 @@
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script>
+    // ============================================================
+    // SETUP SUMMARY
+    // ============================================================
+    async function loadSetupSummary() {
+      const el = document.getElementById('setupSummary');
+      if (!el) return;
+      try {
+        const cfg = await NESTeqConfig.getPublicConfig(true);
+        if (!cfg) { el.textContent = 'Not configured yet.'; return; }
+        const mode = cfg.installMode || 'unknown';
+        const companion = cfg.identity?.companionName || 'Companion';
+        const human = cfg.identity?.humanName || 'Human';
+        const enabled = Object.entries(cfg.features || {}).filter(([, v]) => v).map(([k]) => k);
+        el.innerHTML = `
+          <div><strong>Mode:</strong> ${mode}</div>
+          <div><strong>${companion}</strong> &amp; <strong>${human}</strong></div>
+          <div style="opacity:0.6;margin-top:4px;">Modules: ${enabled.join(', ') || '—'}</div>
+        `;
+      } catch {
+        el.textContent = 'Could not read config.';
+      }
+    }
+    loadSetupSummary();
+
     // ============================================================
     // DATES TO REMEMBER
     // ============================================================
