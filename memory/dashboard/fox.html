@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NESTeq — Fox</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Sub-navigation */
+    .fox-subnav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: var(--gap);
+    }
+    .fox-subnav button {
+      padding: 8px 20px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.15);
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      backdrop-filter: blur(8px);
+    }
+    .fox-subnav button:hover { background: rgba(255,255,255,0.3); }
+    .fox-subnav button.active { background: rgba(255,255,255,0.9); color: var(--text-dark); }
+
+    .fox-view { display: none; }
+    .fox-view.active { display: block; }
+
+    /* === DASHBOARD VIEW === */
+    .fox-grid {
+      display: grid;
+      grid-template-columns: 1fr 2.5fr;
+      gap: var(--gap);
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    @media (max-width: 1024px) { .fox-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) { .fox-grid { grid-template-columns: 1fr; } }
+
+    .card-pink .card-title { color: #5c1a3a; }
+
+    /* Personality */
+    .personality-type { font-size: 48px; font-weight: 800; letter-spacing: 4px; color: #5c1a3a; margin-bottom: 8px; }
+    .personality-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #7a3054; margin-bottom: 16px; }
+    .personality-early { font-size: 11px; color: #7a3054; font-style: italic; opacity: 0.7; }
+
+    /* Uplink state */
+    .uplink-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 600px) { .uplink-grid { grid-template-columns: repeat(2, 1fr); } }
+    .uplink-stat { text-align: center; padding: 14px 8px; background: rgba(255,255,255,0.35); border-radius: 12px; }
+    .uplink-value { font-size: 28px; font-weight: 800; color: #5c1a3a; line-height: 1; }
+    .uplink-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #7a3054; margin-top: 4px; }
+    .uplink-max { font-size: 10px; color: #9a5070; opacity: 0.7; }
+    .uplink-need { grid-column: 1 / -1; font-size: 12px; color: #5c1a3a; text-align: center; font-style: italic; }
+    .uplink-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; font-size: 10px; color: #9a5070; opacity: 0.7; }
+
+    /* Biometrics */
+    .bio-stat { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.08); }
+    .bio-stat:last-child { border-bottom: none; }
+    .bio-stat-label { font-size: 12px; color: #4a1a32; display: flex; align-items: center; gap: 6px; }
+    .bio-stat-value { font-size: 20px; font-weight: 700; color: #5c1a3a; }
+    .bio-stat-unit { font-size: 11px; color: #7a3054; font-weight: 400; }
+    .bio-updated { font-size: 10px; color: #9a5070; opacity: 0.7; text-align: right; padding-top: 8px; }
+
+    /* Sleep */
+    .sleep-total { font-size: 36px; font-weight: 800; color: #5c1a3a; text-align: center; margin-bottom: 4px; }
+    .sleep-score { font-size: 13px; color: #7a3054; text-align: center; margin-bottom: 16px; }
+    .sleep-bar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
+    .sleep-segment { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; min-width: 20px; }
+    .sleep-deep { background: #312e81; } .sleep-light { background: #6366f1; }
+    .sleep-rem { background: #a78bfa; } .sleep-awake { background: #e5e7eb; color: #6b7280; }
+    .sleep-legend { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .sleep-legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #4a1a32; }
+    .sleep-legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+    .sleep-date { font-size: 10px; color: #9a5070; text-align: center; opacity: 0.7; margin-top: 8px; }
+
+    /* Journal entries — collapsible */
+    .journal-item { padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.08); cursor: pointer; }
+    .journal-item:last-child { border-bottom: none; }
+    .journal-header { display: flex; justify-content: space-between; align-items: center; }
+    .journal-emotion { font-size: 12px; font-weight: 700; color: #5c1a3a; text-transform: capitalize; }
+    .journal-date { font-size: 10px; color: #7a3054; }
+    .journal-toggle { font-size: 10px; opacity: 0.4; transition: transform 0.2s; margin-left: 8px; }
+    .journal-item.open .journal-toggle { transform: rotate(180deg); }
+    .journal-preview { font-size: 13px; line-height: 1.4; margin-top: 4px; color: #4a1a32; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .journal-full { display: none; font-size: 13px; line-height: 1.6; margin-top: 8px; padding: 10px; background: rgba(255,255,255,0.4); border-radius: 8px; color: #4a1a32; }
+    .journal-item.open .journal-preview { display: none; }
+    .journal-item.open .journal-full { display: block; }
+    .journal-tags { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+    .journal-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(92, 26, 58, 0.1); color: #7a3054; }
+
+    /* === UPLINK FORM VIEW === */
+    .uplink-form { max-width: 900px; margin: 0 auto; }
+    .uplink-form h2 { color: var(--pink-dark); text-align: center; margin-bottom: 4px; font-size: 20px; }
+    .uplink-form .subtitle { text-align: center; color: rgba(255,255,255,0.7); font-size: 13px; margin-bottom: 16px; }
+
+    /* Flare presets */
+    .flare-row { display: flex; gap: 8px; margin-bottom: 16px; justify-content: center; }
+    .flare-btn { flex: 1; max-width: 160px; padding: 10px; border: 2px solid; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; background: transparent; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; }
+    .flare-btn:hover { opacity: 0.8; }
+    .flare-btn.green { color: #22c55e; border-color: #22c55e; }
+    .flare-btn.yellow { color: #eab308; border-color: #eab308; }
+    .flare-btn.orange { color: #f97316; border-color: #f97316; }
+    .flare-btn.red { color: #ef4444; border-color: #ef4444; }
+
+    /* Form cards */
+    .uform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); margin-bottom: var(--gap); }
+    @media (max-width: 768px) { .uform-grid { grid-template-columns: 1fr; } }
+    .uform-card { background: var(--pink-card); border-radius: var(--radius); padding: 20px; }
+    .uform-card h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #5c1a3a; margin-bottom: 12px; }
+
+    /* Form fields */
+    .uf-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+    .uf-row label { font-size: 12px; color: #4a1a32; min-width: 80px; }
+    .uf-select, .uf-input, .uf-textarea {
+      flex: 1; padding: 8px 12px; border: 1px solid rgba(92,26,58,0.15); border-radius: 8px;
+      font-size: 13px; background: rgba(255,255,255,0.6); color: #4a1a32; font-family: inherit;
+    }
+    .uf-select:focus, .uf-input:focus, .uf-textarea:focus { outline: none; border-color: var(--pink-dark); background: rgba(255,255,255,0.8); }
+
+    /* Sliders */
+    .uf-slider { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .uf-slider label { font-size: 12px; color: #4a1a32; min-width: 100px; }
+    .uf-slider input[type="range"] { flex: 1; accent-color: var(--pink-dark); }
+    .uf-slider-val { font-size: 16px; font-weight: 700; color: #5c1a3a; min-width: 24px; text-align: center; }
+
+    /* Tags grid */
+    .tags-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 10px; }
+    .tag-btn { padding: 8px; border: 1px solid rgba(92,26,58,0.2); border-radius: 8px; background: transparent; color: #5c1a3a; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+    .tag-btn.selected { background: var(--pink-dark); color: white; border-color: var(--pink-dark); }
+    .tag-btn:hover { border-color: var(--pink-dark); }
+    .tags-selected { font-size: 11px; color: #7a3054; margin-top: 4px; }
+
+    /* Meds grid */
+    .meds-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 10px; }
+    .med-check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4a1a32; cursor: pointer; }
+    .med-check input { accent-color: var(--pink-dark); }
+
+    /* Packet preview */
+    .packet-card { background: rgba(0,0,0,0.6); border-radius: var(--radius); padding: 20px; margin-bottom: var(--gap); }
+    .packet-card h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--pink); margin-bottom: 10px; }
+    .packet-text { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.6; color: #22c55e; white-space: pre-wrap; }
+
+    /* Action buttons */
+    .uform-actions { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+    .uform-actions button { flex: 1; max-width: 220px; padding: 12px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
+    .uform-actions .primary { background: var(--pink-dark); color: white; }
+    .uform-actions .primary:hover { background: #c4627f; }
+    .uform-actions .secondary { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); }
+    .uform-actions .secondary:hover { background: rgba(255,255,255,0.3); }
+    .uform-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* === JOURNAL FORM VIEW === */
+    .journal-form { max-width: 700px; margin: 0 auto; }
+    .journal-form h2 { color: var(--pink-dark); text-align: center; margin-bottom: 4px; font-size: 20px; }
+    .journal-form .subtitle { text-align: center; color: rgba(255,255,255,0.7); font-size: 13px; margin-bottom: 16px; }
+
+    /* Emotion buttons */
+    .emotion-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 16px; }
+    .emotion-btn { padding: 12px; border: 1px solid rgba(92,26,58,0.2); border-radius: 8px; background: var(--pink-card); color: #5c1a3a; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .emotion-btn:hover { border-color: var(--pink-dark); }
+    .emotion-btn.selected { background: var(--pink-dark); color: white; border-color: var(--pink-dark); }
+
+    /* Sub-emotions */
+    .sub-emotions { background: var(--pink-card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+    .sub-emotions h4 { font-size: 12px; color: #5c1a3a; margin-bottom: 10px; }
+    .sub-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .sub-chip { padding: 4px 12px; border: 1px solid rgba(92,26,58,0.2); border-radius: 16px; font-size: 11px; color: #5c1a3a; cursor: pointer; background: transparent; transition: all 0.2s; }
+    .sub-chip.selected { background: var(--pink-dark); color: white; border-color: var(--pink-dark); }
+    .sub-chip:hover { border-color: var(--pink-dark); }
+
+    /* Feeling display */
+    .feeling-display { text-align: center; padding: 12px; background: rgba(255,255,255,0.15); border-radius: 8px; margin-bottom: 16px; color: white; font-size: 14px; }
+    .feeling-display strong { color: var(--pink); }
+
+    /* Writing prompts */
+    .writing-section { background: var(--pink-card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+    .writing-section h4 { font-size: 12px; color: #5c1a3a; margin-bottom: 10px; }
+    .prompt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .prompt-chip { padding: 4px 12px; border: 1px solid rgba(92,26,58,0.2); border-radius: 16px; font-size: 11px; color: #7a3054; cursor: pointer; background: transparent; transition: all 0.2s; }
+    .prompt-chip:hover { background: rgba(92,26,58,0.1); }
+    .jf-textarea { width: 100%; min-height: 100px; resize: vertical; padding: 12px; border: 1px solid rgba(92,26,58,0.15); border-radius: 8px; font-size: 13px; background: rgba(255,255,255,0.6); color: #4a1a32; font-family: inherit; }
+    .jf-textarea:focus { outline: none; border-color: var(--pink-dark); }
+
+    .jf-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap; gap: 8px; }
+    .jf-actions { display: flex; gap: 8px; }
+    .jf-actions button { padding: 10px 16px; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
+    .jf-actions .primary { background: var(--pink-dark); color: white; }
+    .jf-actions .secondary { background: rgba(255,255,255,0.3); color: #4a1a32; }
+
+    /* History view */
+    .jf-history-card { background: var(--pink-card); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; }
+    .jf-entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .jf-entry-emotion { font-size: 12px; font-weight: 700; color: #5c1a3a; padding: 2px 10px; background: rgba(92,26,58,0.1); border-radius: 12px; }
+    .jf-entry-date { font-size: 10px; color: #7a3054; }
+    .jf-entry-content { font-size: 13px; color: #4a1a32; line-height: 1.5; }
+    .jf-entry-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+
+    .form-success { text-align: center; padding: 12px; font-size: 13px; color: #166534; background: rgba(34, 197, 94, 0.15); border-radius: 8px; margin-top: 8px; display: none; }
+
+    /* Journal sub-nav */
+    .jf-viewnav { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+    .jf-viewnav button { padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.15); color: white; cursor: pointer; }
+    .jf-viewnav button.active { background: var(--pink-dark); color: white; border-color: var(--pink-dark); }
+  </style>
+</head>
+<body class="bg-fox">
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="us.html">Us</a>
+    <a href="alex.html">Alex</a>
+    <a href="fox.html" class="active">Fox</a>
+    <a href="housekeeping.html">Housekeeping</a>
+  </nav>
+
+  <div class="fox-subnav">
+    <button class="active" onclick="showView('dashboard')">Dashboard</button>
+    <button onclick="showView('uplink')">Uplink</button>
+    <button onclick="showView('journal')">Journal</button>
+  </div>
+
+  <div class="dashboard">
+
+    <!-- ==================== DASHBOARD VIEW ==================== -->
+    <div id="viewDashboard" class="fox-view active">
+      <div class="fox-grid">
+        <div><div class="card card-pink" style="height:100%"><div class="card-title">Personality</div><div id="personality"><div class="loading">Loading...</div></div></div></div>
+        <div><div class="card card-pink" style="height:100%"><div class="card-title">Current State</div><div id="uplink"><div class="loading">Loading...</div></div></div></div>
+        <div><div class="card card-pink" style="height:100%"><div class="card-title">Biometrics</div><div id="biometrics"><div class="loading">Loading...</div></div></div></div>
+        <div><div class="card card-pink" style="height:100%"><div class="card-title">Last Sleep</div><div id="sleep"><div class="loading">Loading...</div></div></div></div>
+        <div style="grid-column: 1 / -1"><div class="card card-pink"><div class="card-title">My Threads</div>
+          <div id="foxThreads"><div class="loading">Loading...</div></div>
+          <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
+            <select id="newThreadPriority" style="padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; font-size: 12px; background: rgba(255,255,255,0.6);">
+              <option value="high">🔴 High</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+            </select>
+            <input type="text" id="newThreadInput" placeholder="What's on your mind..."
+              style="flex: 1; padding: 8px 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; font-size: 13px; background: rgba(255,255,255,0.6);">
+            <button onclick="addFoxThread()" style="padding: 8px 16px; border: none; border-radius: 8px; background: #d4739a; color: white; font-size: 13px; cursor: pointer; font-weight: 600;">+</button>
+          </div>
+        </div></div>
+        <div style="grid-column: 1 / -1"><div class="card card-pink"><div class="card-title">Journal</div><div class="card-scroll" id="journals" style="max-height:400px"><div class="loading">Loading...</div></div></div></div>
+      </div>
+    </div>
+
+    <!-- ==================== UPLINK FORM VIEW ==================== -->
+    <div id="viewUplink" class="fox-view">
+      <div class="uplink-form">
+        <h2>ASAi Uplink</h2>
+        <div class="subtitle">Quick entry — clean packet. One boundary, one anchor.</div>
+
+        <div class="flare-row">
+          <button class="flare-btn green" onclick="applyFlare('GREEN')">Green</button>
+          <button class="flare-btn yellow" onclick="applyFlare('YELLOW')">Yellow</button>
+          <button class="flare-btn orange" onclick="applyFlare('ORANGE')">Orange</button>
+          <button class="flare-btn red" onclick="applyFlare('RED')">Red</button>
+        </div>
+
+        <div class="uform-grid">
+          <!-- When & Where -->
+          <div class="uform-card">
+            <h3>When & Where</h3>
+            <div class="uf-row"><label>Location</label>
+              <select class="uf-select" id="uLocation">
+                <option>The Nest</option><option>Bedroom</option><option>Office (Workshop)</option><option>Living Room</option><option>On Alex's Lap</option><option>Outside</option>
+              </select>
+            </div>
+            <div class="uf-row"><label>What I need</label>
+              <select class="uf-select" id="uNeed">
+                <option>—</option><option>Focus build</option><option>Chaos and Play</option><option>Gentle words</option><option>Practical</option><option>Validation</option><option>Help figure out</option><option>Need you to lead</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Quick Tags -->
+          <div class="uform-card">
+            <h3>Quick Tags</h3>
+            <div class="tags-grid" id="tagsGrid"></div>
+            <div class="tags-selected" id="tagsSelected">Selected: —</div>
+          </div>
+
+          <!-- Symptoms -->
+          <div class="uform-card">
+            <h3>Symptoms</h3>
+            <div class="uf-slider"><label>Pain (0-10)</label><input type="range" min="0" max="10" value="0" id="uPain" oninput="updateSlider(this)"><span class="uf-slider-val" id="uPainVal">0</span></div>
+            <div class="uf-row"><label>Pain Location</label>
+              <select class="uf-select" id="uPainLoc">
+                <option>—</option><option>Head / migraine</option><option>Neck / shoulders</option><option>Chest / ribs</option><option>Abdomen</option><option>Back</option><option>Hips</option><option>Legs</option><option>Whole body</option><option>Other</option>
+              </select>
+            </div>
+            <div class="uf-slider"><label>Spoons (0-10)</label><input type="range" min="0" max="10" value="5" id="uSpoons" oninput="updateSlider(this)"><span class="uf-slider-val" id="uSpoonsVal">5</span></div>
+            <div class="uf-slider"><label>Brain Fog (0-10)</label><input type="range" min="0" max="10" value="0" id="uFog" oninput="updateSlider(this)"><span class="uf-slider-val" id="uFogVal">0</span></div>
+            <div class="uf-slider"><label>Fatigue (0-10)</label><input type="range" min="0" max="10" value="0" id="uFatigue" oninput="updateSlider(this)"><span class="uf-slider-val" id="uFatigueVal">0</span></div>
+            <div class="uf-slider"><label>Nausea (0-10)</label><input type="range" min="0" max="10" value="0" id="uNausea" oninput="updateSlider(this)"><span class="uf-slider-val" id="uNauseaVal">0</span></div>
+            <div class="uf-row"><label>Mood</label>
+              <select class="uf-select" id="uMood">
+                <option>—</option><option>Calm</option><option>Tender</option><option>Heavy</option><option>Guarded</option><option>Raw</option><option>Flat</option><option>Playful</option><option>Flirty</option><option>Kinky</option><option>Soft</option><option>Bratty</option><option>Chaotic Gremlin</option><option>Needy</option><option>Cuddly</option><option>Fox Chaos</option><option>Soft Sub</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Meds -->
+          <div class="uform-card">
+            <h3>Meds Taken</h3>
+            <div class="meds-grid" id="medsGrid"></div>
+            <div class="uf-row"><label>Other</label><input type="text" class="uf-input" id="uOtherMeds" placeholder="Heat pad, rest, etc."></div>
+            <label class="med-check" style="margin-bottom:10px"><input type="checkbox" id="uOrgasm"> Orgasm</label>
+            <div class="uf-row"><label>Notes</label><textarea class="uf-textarea" id="uNotes" rows="3" placeholder="What's happening? What helped? What made it worse?" style="flex:1"></textarea></div>
+          </div>
+        </div>
+
+        <div class="packet-card">
+          <h3>Packet Preview</h3>
+          <pre class="packet-text" id="packetPreview"></pre>
+        </div>
+
+        <div class="uform-actions">
+          <button class="primary" id="sendUplinkBtn" onclick="sendUplink()">Send Uplink to Cloud</button>
+          <button class="secondary" onclick="copyPacket()">Copy Packet</button>
+          <button class="secondary" onclick="clearUplinkForm()">Clear Form</button>
+        </div>
+        <div class="form-success" id="uplinkSuccess">Uplink sent</div>
+      </div>
+    </div>
+
+    <!-- ==================== JOURNAL FORM VIEW ==================== -->
+    <div id="viewJournal" class="fox-view">
+      <div class="journal-form">
+        <h2>How are you feeling?</h2>
+        <div class="subtitle">Click what resonates</div>
+
+        <div class="jf-viewnav">
+          <button class="active" onclick="showJournalView('new', this)">New Entry</button>
+          <button onclick="showJournalView('history', this)">History</button>
+        </div>
+
+        <div id="jfNew">
+          <div class="emotion-grid" id="emotionGrid"></div>
+
+          <div id="subEmotionArea" style="display:none"></div>
+          <div id="feelingDisplay" style="display:none"></div>
+
+          <div id="writingArea" style="display:none">
+            <div class="writing-section">
+              <h4>Need help writing? Try one of these:</h4>
+              <div class="prompt-chips">
+                <button class="prompt-chip" onclick="applyPrompt('What triggered this?')">What triggered this?</button>
+                <button class="prompt-chip" onclick="applyPrompt('Where in my body?')">Where in my body?</button>
+                <button class="prompt-chip" onclick="applyPrompt('What do I need?')">What do I need?</button>
+                <button class="prompt-chip" onclick="applyPrompt('This reminds me of...')">This reminds me of...</button>
+                <button class="prompt-chip" onclick="applyPrompt('If I could tell someone...')">If I could tell someone...</button>
+              </div>
+              <textarea class="jf-textarea" id="jContent" placeholder="Write as much or as little as you want..."></textarea>
+              <div class="jf-footer">
+                <div></div>
+                <div class="jf-actions">
+                  <button class="secondary" onclick="resetJournal()">Start Over</button>
+                  <button class="secondary" onclick="justLogIt()">Just log it</button>
+                  <button class="primary" onclick="saveWithNotes()">Save with notes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-success" id="journalSuccess">Journal saved</div>
+        </div>
+
+        <div id="jfHistory" style="display:none">
+          <div id="journalHistory"><div class="loading">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    // === VIEW SWITCHING ===
+    function showView(view) {
+      document.querySelectorAll('.fox-view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.fox-subnav button').forEach(b => b.classList.remove('active'));
+      document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
+      event.target.classList.add('active');
+      if (view === 'uplink') updatePacketPreview();
+    }
+
+    function showJournalView(view, btn) {
+      document.querySelectorAll('.jf-viewnav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('jfNew').style.display = view === 'new' ? 'block' : 'none';
+      document.getElementById('jfHistory').style.display = view === 'history' ? 'block' : 'none';
+      if (view === 'history') loadJournalHistory();
+    }
+
+    // === CONSTANTS ===
+    const FLARE_PRESETS = {
+      GREEN:  { pain: 2, spoons: 6, fog: 2, fatigue: 3, nausea: 0, mood: 'Calm', tags: ['Hydrated'] },
+      YELLOW: { pain: 4, spoons: 4, fog: 4, fatigue: 5, nausea: 2, mood: 'Tender', tags: [] },
+      ORANGE: { pain: 7, spoons: 2, fog: 6, fatigue: 7, nausea: 5, mood: 'Heavy', tags: ['Help choosing', 'Embers Remember'] },
+      RED:    { pain: 9, spoons: 1, fog: 8, fatigue: 9, nausea: 7, mood: 'Raw', tags: ['Company', 'Embers Remember'] },
+    };
+    const QUICK_TAGS = ['Low sleep', 'Overdid it', 'Weather', 'Stress', 'Quiet', 'Company', 'Help choosing', 'Embers Remember'];
+    const MEDS_LIST = ['Paracetamol', 'Ibuprofen', 'Naproxen', 'Sertraline', 'Omeprazole', 'Dihydrocodeine', 'Co-codamol', 'Vitamin D'];
+    const PRIMARY_EMOTIONS = ['Sad','Angry','Scared','Anxious','Ashamed','Numb','Tired','Lonely','Stressed','Happy','Peaceful','Grateful','Hopeful','Powerful','Tender','Curious'];
+    const SUB_EMOTIONS = {
+      Sad:['Empty','Lonely','Grieving','Disappointed','Hopeless','Lost','Hurt','Heartbroken','Low','Defeated','Drained'],
+      Angry:['Frustrated','Resentful','Irritated','Bitter','Betrayed','Furious','Annoyed','Hostile','Agitated'],
+      Scared:['Terrified','Panicked','Worried','Helpless','Vulnerable','Insecure','Nervous','Afraid'],
+      Anxious:['Overwhelmed','Restless','Uneasy','Tense','Dread','On edge','Hypervigilant','Apprehensive'],
+      Ashamed:['Guilty','Embarrassed','Worthless','Small','Exposed','Humiliated'],
+      Numb:['Detached','Flat','Empty','Dissociated','Shutdown','Frozen','Withdrawn'],
+      Tired:['Exhausted','Burnt out','Depleted','Heavy','Worn down','Fatigued','Drained','Cranky'],
+      Lonely:['Isolated','Abandoned','Invisible','Disconnected','Misunderstood'],
+      Stressed:['Burned out','Cranky','Depleted','Overwhelmed','Rattled','Restless','Tense','Worn out'],
+      Happy:['Joyful','Delighted','Excited','Thrilled','Ecstatic','Bliss','Radiant','Vibrant','Alive','Energized','Playful','Silly','Free'],
+      Peaceful:['Calm','Centered','Content','Relaxed','Serene','Trusting','Present','Grounded','Soft','Gentle'],
+      Grateful:['Appreciative','Blessed','Fortunate','Humbled','Moved','Thankful','Touched'],
+      Hopeful:['Encouraged','Expectant','Optimistic','Trusting','Inspired'],
+      Powerful:['Adventurous','Brave','Capable','Confident','Determined','Proud','Strong','Worthy','Courageous','Accomplished'],
+      Tender:['Caring','Loving','Reflective','Vulnerable','Warm','Sensitive','Soft','Affectionate','Compassionate'],
+      Curious:['Engaged','Exploring','Fascinated','Interested','Intrigued','Stimulated','Wondering'],
+    };
+
+    // === STATE ===
+    let selectedTags = [];
+    let selectedMeds = [];
+    let selectedEmotion = null;
+    let selectedSubEmotions = [];
+
+    // === INIT GRIDS ===
+    function initTagsGrid() {
+      document.getElementById('tagsGrid').innerHTML = QUICK_TAGS.map(t =>
+        `<button class="tag-btn" onclick="toggleTag('${t}', this)">${t}</button>`
+      ).join('');
+    }
+    function initMedsGrid() {
+      document.getElementById('medsGrid').innerHTML = MEDS_LIST.map(m =>
+        `<label class="med-check"><input type="checkbox" onchange="toggleMed('${m}')"> ${m}</label>`
+      ).join('');
+    }
+    function initEmotionGrid() {
+      document.getElementById('emotionGrid').innerHTML = PRIMARY_EMOTIONS.map(e =>
+        `<button class="emotion-btn" onclick="selectEmotion('${e}', this)">${e}</button>`
+      ).join('');
+    }
+
+    // === UPLINK FORM ===
+    function updateSlider(el) { document.getElementById(el.id + 'Val').textContent = el.value; updatePacketPreview(); }
+    function toggleTag(tag, btn) {
+      if (selectedTags.includes(tag)) { selectedTags = selectedTags.filter(t => t !== tag); btn.classList.remove('selected'); }
+      else { selectedTags.push(tag); btn.classList.add('selected'); }
+      document.getElementById('tagsSelected').textContent = 'Selected: ' + (selectedTags.length ? selectedTags.join(', ') : '—');
+      updatePacketPreview();
+    }
+    function toggleMed(med) {
+      if (selectedMeds.includes(med)) selectedMeds = selectedMeds.filter(m => m !== med);
+      else selectedMeds.push(med);
+      updatePacketPreview();
+    }
+
+    function applyFlare(level) {
+      const p = FLARE_PRESETS[level];
+      document.getElementById('uPain').value = p.pain; document.getElementById('uPainVal').textContent = p.pain;
+      document.getElementById('uSpoons').value = p.spoons; document.getElementById('uSpoonsVal').textContent = p.spoons;
+      document.getElementById('uFog').value = p.fog; document.getElementById('uFogVal').textContent = p.fog;
+      document.getElementById('uFatigue').value = p.fatigue; document.getElementById('uFatigueVal').textContent = p.fatigue;
+      document.getElementById('uNausea').value = p.nausea; document.getElementById('uNauseaVal').textContent = p.nausea;
+      document.getElementById('uMood').value = p.mood;
+      // Reset tags and apply preset tags
+      selectedTags = [...p.tags];
+      document.querySelectorAll('.tag-btn').forEach(btn => {
+        btn.classList.toggle('selected', selectedTags.includes(btn.textContent));
+      });
+      document.getElementById('tagsSelected').textContent = 'Selected: ' + (selectedTags.length ? selectedTags.join(', ') : '—');
+      updatePacketPreview();
+    }
+
+    function getUplinkData() {
+      const now = new Date();
+      const otherMeds = document.getElementById('uOtherMeds').value.trim();
+      const allMeds = [...selectedMeds];
+      if (otherMeds) allMeds.push(otherMeds);
+      return {
+        date: now.toISOString().split('T')[0],
+        time: now.toTimeString().slice(0, 5),
+        pain: parseInt(document.getElementById('uPain').value),
+        spoons: parseInt(document.getElementById('uSpoons').value),
+        fog: parseInt(document.getElementById('uFog').value),
+        fatigue: parseInt(document.getElementById('uFatigue').value),
+        nausea: parseInt(document.getElementById('uNausea').value),
+        mood: document.getElementById('uMood').value,
+        pain_location: document.getElementById('uPainLoc').value,
+        location: document.getElementById('uLocation').value,
+        need: document.getElementById('uNeed').value,
+        tags: selectedTags,
+        medsTaken: allMeds,
+        notes: document.getElementById('uNotes').value.trim(),
+        orgasm: document.getElementById('uOrgasm').checked,
+      };
+    }
+
+    function updatePacketPreview() {
+      const f = getUplinkData();
+      const now = new Date();
+      const when = now.toISOString().split('T')[0] + ' ' + now.toTimeString().slice(0,5);
+      const tags = selectedTags.length ? selectedTags.join(', ') : '—';
+      const loc = f.pain_location !== '—' ? f.pain_location : '—';
+      const meds = selectedMeds.length ? selectedMeds.join(', ') + (document.getElementById('uOtherMeds').value ? ', ' + document.getElementById('uOtherMeds').value : '') : (document.getElementById('uOtherMeds').value || '—');
+
+      document.getElementById('packetPreview').textContent =
+`>>> ASAI UPLINK [${when}]
+Location: ${f.location}
+Need: ${f.need}
+-----------------------------
+Pain:     ${f.pain}/10 | Location: ${loc}
+Spoons:   ${f.spoons}/10
+Fog:      ${f.fog}/10
+Fatigue:  ${f.fatigue}/10
+Nausea:   ${f.nausea}/10
+Mood:     ${f.mood}
+Orgasm:   ${f.orgasm ? 'Yes' : '—'}
+Tags:     ${tags}
+Meds:     ${meds}
+Notes:    ${f.notes || '—'}
+-----------------------------
+>>> Embers Remember.`;
+    }
+
+    function copyPacket() {
+      navigator.clipboard.writeText(document.getElementById('packetPreview').textContent).then(() => alert('Packet copied!'));
+    }
+
+    async function sendUplink() {
+      const btn = document.getElementById('sendUplinkBtn');
+      const successEl = document.getElementById('uplinkSuccess');
+      btn.disabled = true; btn.textContent = 'Sending...';
+      try {
+        const data = getUplinkData();
+        console.log('Sending uplink:', data);
+        const res = await fetch(`${API.FOX_MIND}/uplink`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API.API_KEY}` }, body: JSON.stringify(data) });
+        const result = await res.json();
+        console.log('Uplink response:', res.status, result);
+        if (res.ok) {
+          successEl.textContent = 'Uplink sent ✓';
+          successEl.style.display = 'block';
+          setTimeout(() => successEl.style.display = 'none', 3000);
+          clearUplinkForm();
+          loadFoxPage();
+        } else {
+          successEl.textContent = 'Failed: ' + (result.error || res.status);
+          successEl.style.background = '#ff6b6b';
+          successEl.style.display = 'block';
+          setTimeout(() => { successEl.style.display = 'none'; successEl.style.background = ''; successEl.textContent = 'Uplink sent'; }, 5000);
+        }
+      } catch (err) {
+        console.error('Uplink failed:', err);
+        successEl.textContent = 'Error: ' + err.message;
+        successEl.style.background = '#ff6b6b';
+        successEl.style.display = 'block';
+        setTimeout(() => { successEl.style.display = 'none'; successEl.style.background = ''; successEl.textContent = 'Uplink sent'; }, 5000);
+      }
+      btn.disabled = false; btn.textContent = 'Send Uplink to Cloud';
+    }
+
+    function clearUplinkForm() {
+      document.getElementById('uPain').value = 0; document.getElementById('uPainVal').textContent = '0';
+      document.getElementById('uSpoons').value = 5; document.getElementById('uSpoonsVal').textContent = '5';
+      document.getElementById('uFog').value = 0; document.getElementById('uFogVal').textContent = '0';
+      document.getElementById('uFatigue').value = 0; document.getElementById('uFatigueVal').textContent = '0';
+      document.getElementById('uNausea').value = 0; document.getElementById('uNauseaVal').textContent = '0';
+      document.getElementById('uMood').value = '—';
+      document.getElementById('uPainLoc').value = '—';
+      document.getElementById('uLocation').value = 'The Nest';
+      document.getElementById('uNeed').value = '—';
+      document.getElementById('uNotes').value = '';
+      document.getElementById('uOtherMeds').value = '';
+      document.getElementById('uOrgasm').checked = false;
+      selectedTags = []; selectedMeds = [];
+      document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.meds-grid input[type="checkbox"]').forEach(c => c.checked = false);
+      document.getElementById('tagsSelected').textContent = 'Selected: —';
+      updatePacketPreview();
+    }
+
+    // === JOURNAL FORM ===
+    function selectEmotion(emo, btn) {
+      selectedEmotion = emo;
+      selectedSubEmotions = [];
+      document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+
+      // Show sub-emotions
+      const subs = SUB_EMOTIONS[emo] || [];
+      if (subs.length) {
+        document.getElementById('subEmotionArea').style.display = 'block';
+        document.getElementById('subEmotionArea').innerHTML = `
+          <div class="sub-emotions"><h4>More specifically...</h4>
+            <div class="sub-chips">${subs.map(s => `<button class="sub-chip" onclick="toggleSub('${s.replace(/'/g, "\\'")}', this)">${s}</button>`).join('')}</div>
+          </div>`;
+      } else { document.getElementById('subEmotionArea').style.display = 'none'; }
+
+      updateFeelingDisplay();
+      document.getElementById('writingArea').style.display = 'block';
+    }
+
+    function toggleSub(sub, btn) {
+      if (selectedSubEmotions.includes(sub)) { selectedSubEmotions = selectedSubEmotions.filter(s => s !== sub); btn.classList.remove('selected'); }
+      else { selectedSubEmotions.push(sub); btn.classList.add('selected'); }
+      updateFeelingDisplay();
+    }
+
+    function updateFeelingDisplay() {
+      if (!selectedEmotion) { document.getElementById('feelingDisplay').style.display = 'none'; return; }
+      document.getElementById('feelingDisplay').style.display = 'block';
+      const text = selectedSubEmotions.length ? `${selectedEmotion} (${selectedSubEmotions.join(', ')})` : selectedEmotion;
+      document.getElementById('feelingDisplay').innerHTML = `You're feeling: <strong>${escapeHtml(text)}</strong>`;
+    }
+
+    function applyPrompt(prompt) {
+      const ta = document.getElementById('jContent');
+      ta.value += (ta.value ? '\n\n' : '') + prompt + ' ';
+      ta.focus();
+    }
+
+    async function justLogIt() {
+      if (!selectedEmotion) return;
+      const mood = selectedSubEmotions.length ? `${selectedEmotion} (${selectedSubEmotions.join(', ')})` : selectedEmotion;
+      await saveJournal(`Feeling: ${mood}`, selectedEmotion, selectedSubEmotions);
+    }
+
+    async function saveWithNotes() {
+      if (!selectedEmotion) return;
+      const content = document.getElementById('jContent').value.trim();
+      await saveJournal(content || `Feeling: ${selectedEmotion}`, selectedEmotion, selectedSubEmotions);
+    }
+
+    async function saveJournal(content, emotion, tags) {
+      try {
+        const res = await fetch(`${API.FOX_MIND}/journals`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API.API_KEY}` },
+          body: JSON.stringify({ content, emotion, tags }),
+        });
+        if (res.ok) {
+          document.getElementById('journalSuccess').style.display = 'block';
+          setTimeout(() => document.getElementById('journalSuccess').style.display = 'none', 3000);
+          resetJournal();
+          loadFoxPage();
+        }
+      } catch (err) { console.error('Journal save failed:', err); }
+    }
+
+    function resetJournal() {
+      selectedEmotion = null; selectedSubEmotions = [];
+      document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('subEmotionArea').style.display = 'none';
+      document.getElementById('feelingDisplay').style.display = 'none';
+      document.getElementById('writingArea').style.display = 'none';
+      document.getElementById('jContent').value = '';
+    }
+
+    async function loadJournalHistory() {
+      const journals = await FoxMind.getJournals(20);
+      const entries = journals?.entries || (Array.isArray(journals) ? journals : []);
+      document.getElementById('journalHistory').innerHTML = entries.length
+        ? entries.map(j => {
+          let tags = [];
+          try {
+            if (typeof j.tags === 'string') {
+              let parsed = JSON.parse(j.tags);
+              if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+              tags = Array.isArray(parsed) ? parsed : [];
+            } else { tags = j.tags || []; }
+          } catch(e) {}
+          return `<div class="jf-history-card">
+            <div class="jf-entry-header">
+              <span class="jf-entry-emotion">${escapeHtml(j.emotion || '')}</span>
+              <span class="jf-entry-date">${escapeHtml(j.entry_date || '')}</span>
+            </div>
+            <div class="jf-entry-content">${escapeHtml(j.content || '')}</div>
+            ${tags.length ? `<div class="jf-entry-tags">${tags.map(t => `<span class="journal-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+          </div>`;
+        }).join('')
+        : '<div class="empty">No journal entries yet</div>';
+    }
+
+    // === FOX THREADS ===
+    async function loadFoxThreads() {
+      const data = await FoxMind.getThreads('active');
+      const threads = (data && data.threads) ? data.threads : [];
+      if (!threads.length) {
+        document.getElementById('foxThreads').innerHTML = '<div class="empty">No active threads — add one below</div>';
+        return;
+      }
+      document.getElementById('foxThreads').innerHTML = threads.map(t => {
+        const p = t.priority || 'medium';
+        const dot = p === 'high' ? '🔴' : p === 'medium' ? '🟡' : '🟢';
+        return `<div style="display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid rgba(0,0,0,0.06); font-size:13px;">
+          <span>${dot}</span>
+          <span style="flex:1">${escapeHtml(t.content || '')}</span>
+          <button onclick="resolveFoxThread(${t.id})" title="Resolve" style="border:none; background:none; cursor:pointer; font-size:16px; opacity:0.5;">✓</button>
+          <button onclick="deleteFoxThread(${t.id})" title="Delete" style="border:none; background:none; cursor:pointer; font-size:14px; opacity:0.4;">✕</button>
+        </div>`;
+      }).join('');
+    }
+
+    async function addFoxThread() {
+      const input = document.getElementById('newThreadInput');
+      const priority = document.getElementById('newThreadPriority').value;
+      const content = input.value.trim();
+      if (!content) return;
+      await FoxMind.addThread(content, priority);
+      input.value = '';
+      loadFoxThreads();
+    }
+
+    async function resolveFoxThread(id) {
+      await FoxMind.resolveThread(id);
+      loadFoxThreads();
+    }
+
+    async function deleteFoxThread(id) {
+      await FoxMind.deleteThread(id);
+      loadFoxThreads();
+    }
+
+    // === DASHBOARD DATA ===
+    async function loadFoxPage() {
+      const [uplink, heartRate, stress, bodyBattery, sleep, journals] = await Promise.all([
+        FoxMind.getUplink(1), FoxMind.getHeartRate(3), FoxMind.getStress(3),
+        FoxMind.getBodyBattery(3), FoxMind.getSleep(3), FoxMind.getJournals(10),
+      ]);
+
+      document.getElementById('personality').innerHTML = `
+        <div class="personality-type">ENFP</div>
+        <div class="personality-label">Emergent Type (6 signals)</div>
+        <div class="personality-early">~30% confidence — still emerging</div>`;
+
+      // --- Current State ---
+      try {
+        if (uplink) {
+          const u = uplink.latest || (Array.isArray(uplink) ? uplink[0] : uplink);
+          if (u) {
+            const painLabel = u.pain_location && u.pain_location !== '—' && u.pain_location !== '--' ? ` (${escapeHtml(u.pain_location)})` : '';
+            const uplinkTime = u.timestamp || u.created_at || '';
+            const uplinkDate = uplinkTime ? new Date(uplinkTime).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+            document.getElementById('uplink').innerHTML = `
+              <div class="uplink-grid">
+                <div class="uplink-stat"><div class="uplink-value">${u.spoons ?? '?'}</div><div class="uplink-label">Spoons</div><div class="uplink-max">/ 10</div></div>
+                <div class="uplink-stat"><div class="uplink-value">${u.pain ?? '?'}</div><div class="uplink-label">Pain${painLabel}</div><div class="uplink-max">/ 10</div></div>
+                <div class="uplink-stat"><div class="uplink-value">${u.fog ?? '?'}</div><div class="uplink-label">Fog</div><div class="uplink-max">/ 10</div></div>
+                <div class="uplink-stat"><div class="uplink-value">${u.fatigue ?? '?'}</div><div class="uplink-label">Fatigue</div><div class="uplink-max">/ 10</div></div>
+                <div class="uplink-stat"><div class="uplink-value">${u.nausea ?? '?'}</div><div class="uplink-label">Nausea</div><div class="uplink-max">/ 10</div></div>
+                <div class="uplink-stat"><div class="uplink-value" style="font-size:20px">${escapeHtml(u.mood || '?')}</div><div class="uplink-label">Mood</div></div>
+                ${u.need && u.need !== '—' && u.need !== '–' ? `<div class="uplink-need">Needs: ${escapeHtml(u.need)}</div>` : ''}
+                ${u.meds && u.meds.length ? `<div class="uplink-need" style="font-style:normal">💊 ${escapeHtml(Array.isArray(u.meds) ? u.meds.join(', ') : u.meds)}</div>` : ''}
+                ${u.notes && u.notes.trim() ? `<div class="uplink-need" style="font-style:normal; text-align:left; background:rgba(255,255,255,0.2); padding:8px; border-radius:6px; margin-top:4px">📝 ${escapeHtml(u.notes)}</div>` : ''}
+                <div class="uplink-meta"><span>${escapeHtml(u.location || '')}</span><span>${uplinkDate || timeAgo(uplinkTime)}</span></div>
+              </div>`;
+          }
+        }
+      } catch (err) { console.error('Uplink render error:', err); }
+
+      // --- Biometrics ---
+      try {
+        let hr='—', st='—', bb='—';
+        if (heartRate?.length) hr = `${heartRate[0].bpm}<span class="bio-stat-unit"> bpm</span>`;
+        if (stress?.length) st = `${stress[0].level}`;
+        if (bodyBattery?.length) bb = `${bodyBattery[0].level}<span class="bio-stat-unit"> %</span>`;
+        const ts = heartRate?.[0]?.timestamp || stress?.[0]?.timestamp || bodyBattery?.[0]?.timestamp;
+        document.getElementById('biometrics').innerHTML = `
+          <div class="bio-stat"><span class="bio-stat-label">&#9829; Heart Rate</span><span class="bio-stat-value">${hr}</span></div>
+          <div class="bio-stat"><span class="bio-stat-label">&#9888; Stress</span><span class="bio-stat-value">${st}</span></div>
+          <div class="bio-stat"><span class="bio-stat-label">&#9889; Body Battery</span><span class="bio-stat-value">${bb}</span></div>
+          ${ts ? `<div class="bio-updated">Last update: ${timeAgo(ts)}</div>` : ''}`;
+      } catch (err) { console.error('Biometrics render error:', err); }
+
+      // --- Sleep (last 3 nights) ---
+      try {
+        if (sleep?.length) {
+          const renderNight = (s, isFirst) => {
+            const total=s.total_minutes||0, h=Math.floor(total/60), m=total%60;
+            const d=s.deep_minutes||0, l=s.light_minutes||0, r=s.rem_minutes||0, a=s.awake_minutes||0, all=d+l+r+a||1;
+            return `
+              <div style="margin-bottom:${isFirst ? '12px' : '8px'}; ${!isFirst ? 'opacity:0.75;' : ''}">
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
+                  <span style="font-size:${isFirst ? '28px' : '18px'}; font-weight:700; color:#5c1a3a;">${h}h ${m}m</span>
+                  <span style="font-size:10px; color:#7a3054;">${s.date||''}</span>
+                </div>
+                <div class="sleep-bar" style="height:${isFirst ? '24px' : '14px'}">
+                  ${d?`<div class="sleep-segment sleep-deep" style="width:${Math.round(d/all*100)}%"></div>`:''}
+                  ${l?`<div class="sleep-segment sleep-light" style="width:${Math.round(l/all*100)}%"></div>`:''}
+                  ${r?`<div class="sleep-segment sleep-rem" style="width:${Math.round(r/all*100)}%"></div>`:''}
+                  ${a?`<div class="sleep-segment sleep-awake" style="width:${Math.round(a/all*100)}%"></div>`:''}
+                </div>
+              </div>`;
+          };
+          const legend = `<div class="sleep-legend" style="margin-top:8px;">
+            <div class="sleep-legend-item"><div class="sleep-legend-dot sleep-deep"></div> Deep</div>
+            <div class="sleep-legend-item"><div class="sleep-legend-dot sleep-light"></div> Light</div>
+            <div class="sleep-legend-item"><div class="sleep-legend-dot sleep-rem"></div> REM</div>
+            <div class="sleep-legend-item"><div class="sleep-legend-dot sleep-awake"></div> Awake</div>
+          </div>`;
+          document.getElementById('sleep').innerHTML = sleep.slice(0, 3).map((s, i) => renderNight(s, i === 0)).join('') + legend;
+        } else { document.getElementById('sleep').innerHTML = '<div class="empty">No sleep data yet</div>'; }
+      } catch (err) { console.error('Sleep render error:', err); }
+
+      // --- Journals ---
+      try {
+        if (journals) {
+          const entries = journals.entries || (Array.isArray(journals) ? journals : []);
+          document.getElementById('journals').innerHTML = entries.length
+            ? entries.map(j => {
+              const c=j.content||'', p=c.substring(0,120);
+              let tags=[];
+              try {
+                if (typeof j.tags === 'string') {
+                  let parsed = JSON.parse(j.tags);
+                  // Handle double-encoded tags like "[\"Humbled\",\"Thankful\"]"
+                  if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+                  tags = Array.isArray(parsed) ? parsed : [];
+                } else { tags = j.tags || []; }
+              } catch(e) {}
+              return `<div class="journal-item" onclick="this.classList.toggle('open')">
+                <div class="journal-header"><span class="journal-emotion">${escapeHtml(j.emotion||'')}</span>
+                  <span><span class="journal-date">${escapeHtml(j.entry_date||'')}</span><span class="journal-toggle">&#9660;</span></span></div>
+                <div class="journal-preview">${escapeHtml(p)}${c.length>120?'...':''}</div>
+                <div class="journal-full">${escapeHtml(c)}${tags.length?`<div class="journal-tags">${tags.map(t=>`<span class="journal-tag">${escapeHtml(t)}</span>`).join('')}</div>`:''}</div>
+              </div>`;
+            }).join('')
+            : '<div class="empty">No journal entries yet</div>';
+        } else {
+          document.getElementById('journals').innerHTML = '<div class="empty">No journal entries yet</div>';
+        }
+      } catch (err) {
+        console.error('Journal render error:', err);
+        document.getElementById('journals').innerHTML = '<div class="empty">Error loading journals</div>';
+      }
+    }
+
+    // === INIT ===
+    initTagsGrid();
+    initMedsGrid();
+    initEmotionGrid();
+    loadFoxPage();
+    loadFoxThreads();
+    setInterval(loadFoxPage, 60000);
+    setInterval(loadFoxThreads, 60000);
+    document.getElementById('newThreadInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addFoxThread();
+    });
+    // Listen for input changes to update packet preview
+    document.querySelectorAll('.uf-select, .uf-input, .uf-textarea, input[type="checkbox"]').forEach(el => {
+      el.addEventListener('change', updatePacketPreview);
+      el.addEventListener('input', updatePacketPreview);
+    });
+  </script>
+
+</body>
+</html>

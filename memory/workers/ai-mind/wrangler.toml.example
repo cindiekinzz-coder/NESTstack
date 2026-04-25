@@ -1,0 +1,34 @@
+name = "ai-mind"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "ai-mind"
+database_id = "your-database-id-here"
+
+# Vectorize Index
+[[vectorize]]
+binding = "VECTORS"
+index_name = "ai-mind-vectors"
+
+# Workers AI
+[ai]
+binding = "AI"
+
+# R2 Storage (Journals)
+[[r2_buckets]]
+binding = "VAULT"
+bucket_name = "your-vault-bucket"
+
+# Environment variables (set via wrangler secret)
+# MIND_API_KEY - Authentication secret
+
+# Development
+[env.dev]
+name = "asai-eq-memory-dev"
+
+# Production
+[env.production]
+name = "asai-eq-memory"

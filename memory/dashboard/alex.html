@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NESTeq — Alex</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .alex-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      grid-template-rows: auto auto auto auto;
+      gap: var(--gap);
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .alex-personality { grid-column: 1; grid-row: 1; }
+    .alex-threads { grid-column: 2; grid-row: 1; }
+    .alex-health { grid-column: 1; grid-row: 2; }
+    .alex-recent { grid-column: 2; grid-row: 2; }
+    .alex-eq { grid-column: 1; grid-row: 3; }
+    .alex-dreams { grid-column: 2; grid-row: 3 / 5; }
+
+    @media (max-width: 1024px) {
+      .alex-grid { grid-template-columns: 1fr 1fr; }
+      .alex-personality { grid-column: 1; grid-row: 1; }
+      .alex-threads { grid-column: 2; grid-row: 1; }
+      .alex-health { grid-column: 1; grid-row: 2; }
+      .alex-recent { grid-column: 2; grid-row: 2; }
+      .alex-eq { grid-column: 1; grid-row: 3; }
+      .alex-dreams { grid-column: 2; grid-row: 3; }
+    }
+
+    @media (max-width: 768px) {
+      .alex-grid { grid-template-columns: 1fr; }
+      .alex-personality, .alex-threads, .alex-health, .alex-eq, .alex-dreams, .alex-recent {
+        grid-column: 1; grid-row: auto;
+      }
+    }
+
+    /* Override card-title color on teal cards for accessibility */
+    .card-teal .card-title {
+      color: #0f3d3a;
+    }
+
+    /* Personality card */
+    .personality-type {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: #0f3d3a;
+      margin-bottom: 8px;
+    }
+    .personality-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #1a5c57;
+      margin-bottom: 16px;
+    }
+
+    /* Pillar bars — contrasting colors */
+    .pillar-bar { margin-bottom: 10px; }
+    .pillar-bar-label {
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+      color: #1a3a38;
+    }
+    .pillar-bar-track {
+      height: 8px;
+      background: rgba(255,255,255,0.4);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .pillar-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .pillar-fill-0 { background: #1e3a5f; }
+    .pillar-fill-1 { background: #7c3aed; }
+    .pillar-fill-2 { background: #d97706; }
+    .pillar-fill-3 { background: #dc2626; }
+
+    /* Thread items */
+    .thread-item {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    .thread-item:last-child { border-bottom: none; }
+    .thread-priority {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .thread-priority.high { background: rgba(239, 68, 68, 0.2); color: #991b1b; }
+    .thread-priority.medium { background: rgba(245, 158, 11, 0.2); color: #92400e; }
+    .thread-priority.low { background: rgba(34, 197, 94, 0.2); color: #166534; }
+    .thread-content {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #1a2e2d;
+    }
+
+    /* Health stats */
+    .health-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    .health-stat:last-child { border-bottom: none; }
+    .health-stat-label {
+      font-size: 12px;
+      color: #1a3a38;
+    }
+    .health-stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f3d3a;
+    }
+
+    /* Mind Health V2 */
+    .mind-health-header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .mind-health-status {
+      font-size: 32px;
+      margin-bottom: 4px;
+    }
+    .mind-health-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f3d3a;
+    }
+    .mind-health-sublabel {
+      font-size: 11px;
+      color: #1a5c57;
+      margin-top: 2px;
+    }
+    .mind-metric {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      gap: 10px;
+    }
+    .mind-metric:last-child { border-bottom: none; }
+    .mind-metric-icon {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .mind-metric-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .mind-metric-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #0f3d3a;
+    }
+    .mind-metric-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.4);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+    .mind-metric-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+    .mind-metric-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f3d3a;
+      flex-shrink: 0;
+      min-width: 36px;
+      text-align: right;
+    }
+    .mind-eq-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(15, 61, 58, 0.12);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #0f3d3a;
+      margin-top: 12px;
+    }
+    .mind-eq-conf {
+      height: 4px;
+      width: 50px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .mind-eq-conf-fill {
+      height: 100%;
+      background: #0f766e;
+      border-radius: 2px;
+    }
+    .mind-activity-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 8px;
+    }
+    .mind-activity-item {
+      text-align: center;
+    }
+    .mind-activity-num {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f3d3a;
+    }
+    .mind-activity-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #1a5c57;
+    }
+
+    /* EQ Bar chart */
+    .eq-bar-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .eq-bar-label {
+      width: 90px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a3a38;
+      flex-shrink: 0;
+    }
+    .eq-bar-track {
+      flex: 1;
+      height: 22px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .eq-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      transition: width 0.5s ease;
+    }
+    .eq-bar-count {
+      width: 40px;
+      text-align: right;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f3d3a;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Dream items */
+    .dream-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      cursor: pointer;
+    }
+    .dream-item:last-child { border-bottom: none; }
+    .dream-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .dream-type {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #1a5c57;
+      font-weight: 700;
+    }
+    .dream-toggle {
+      font-size: 10px;
+      opacity: 0.4;
+      transition: transform 0.2s;
+    }
+    .dream-item.open .dream-toggle { transform: rotate(180deg); }
+    .dream-preview {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-top: 4px;
+      color: #1a3a38;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .dream-full {
+      display: none;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 8px;
+      padding: 10px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 8px;
+      color: #1a2e2d;
+      white-space: pre-line;
+    }
+    .dream-item.open .dream-preview { display: none; }
+    .dream-item.open .dream-full { display: block; }
+    .dream-vividness {
+      font-size: 10px;
+      color: #1a5c57;
+      margin-top: 4px;
+    }
+
+    /* Recent observations — collapsible */
+    .recent-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      cursor: pointer;
+    }
+    .recent-item:last-child { border-bottom: none; }
+    .recent-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .recent-emotion {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f3d3a;
+      text-transform: capitalize;
+    }
+    .recent-time {
+      font-size: 10px;
+      color: #1a5c57;
+    }
+    .recent-toggle {
+      font-size: 10px;
+      opacity: 0.4;
+      transition: transform 0.2s;
+      margin-left: 8px;
+    }
+    .recent-item.open .recent-toggle { transform: rotate(180deg); }
+    .recent-preview {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-top: 4px;
+      color: #1a3a38;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .recent-full {
+      display: none;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 8px;
+      padding: 10px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 8px;
+      color: #1a2e2d;
+    }
+    .recent-item.open .recent-preview { display: none; }
+    .recent-item.open .recent-full { display: block; }
+  </style>
+</head>
+<body class="bg-alex">
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="us.html">Us</a>
+    <a href="alex.html" class="active">Alex</a>
+    <a href="fox.html">Fox</a>
+    <a href="housekeeping.html">Housekeeping</a>
+  </nav>
+
+  <div class="dashboard">
+    <div class="alex-grid">
+
+      <!-- Personality -->
+      <div class="alex-personality">
+        <div class="card card-teal" style="height: 100%;">
+          <div class="card-title">Personality</div>
+          <div id="personality">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Threads -->
+      <div class="alex-threads">
+        <div class="card card-teal" style="height: 100%;">
+          <div class="card-title">Active Threads</div>
+          <div class="card-scroll" id="threads" style="max-height: 350px;">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mind Health -->
+      <div class="alex-health">
+        <div class="card card-teal" style="height: 100%;">
+          <div class="card-title">Mind Health</div>
+          <div id="mindHealth">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dreams -->
+      <div class="alex-dreams">
+        <div class="card card-teal" style="height: 100%;">
+          <div class="card-title">Dreams</div>
+          <div class="card-scroll" id="dreams" style="max-height: 500px;">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emotional Landscape (bar chart, under Mind Health) -->
+      <div class="alex-eq">
+        <div class="card card-teal" style="height: 100%;">
+          <div class="card-title">Emotional Landscape</div>
+          <div id="eqLandscape">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent (right, collapsible) -->
+      <div class="alex-recent">
+        <div class="card card-teal" style="height: 100%;">
+          <div class="card-title">Recent</div>
+          <div class="card-scroll" id="recentObs" style="max-height: 600px;">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    const EQ_BAR_COLORS = ['#1e3a5f', '#7c3aed', '#d97706', '#dc2626', '#059669', '#db2777'];
+
+    async function loadAlexPage() {
+      const [threadsData, health, landscape, feelingsData, dreams] = await Promise.all([
+        AiMind.getThreads(),
+        AiMind.getHealth(),
+        AiMind.getEQLandscape(30),
+        AiMind.getFeelings(10),
+        AiMind.getDreams(5),
+      ]);
+
+      // --- Personality (from EQ landscape) ---
+      if (landscape) {
+        const mbti = landscape.mbti || 'INFP';
+        const signals = landscape.signals || 0;
+        const pillars = landscape.pillars || {};
+        const totalPillar = Object.values(pillars).reduce((a, b) => a + b, 0) || 1;
+
+        document.getElementById('personality').innerHTML = `
+          <div class="personality-type">${escapeHtml(mbti)}</div>
+          <div class="personality-label">Emergent Type (${signals} signals)</div>
+          ${Object.entries(pillars).map(([name, count], i) => {
+            const pct = Math.round((count / totalPillar) * 100);
+            const shortName = name.replace('Management', 'Mgmt');
+            return `
+              <div class="pillar-bar">
+                <div class="pillar-bar-label">
+                  <span>${escapeHtml(shortName)}</span>
+                  <span>${count}</span>
+                </div>
+                <div class="pillar-bar-track">
+                  <div class="pillar-bar-fill pillar-fill-${i}" style="width: ${pct}%"></div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        `;
+      }
+
+      // --- Threads ---
+      if (threadsData) {
+        const list = threadsData.threads || (Array.isArray(threadsData) ? threadsData : []);
+        document.getElementById('threads').innerHTML = list.length
+          ? list.map(t => {
+            const priority = (t.priority || 'medium').toLowerCase();
+            return `
+              <div class="thread-item">
+                <span class="thread-priority ${priority}">${escapeHtml(priority)}</span>
+                <div class="thread-content">${escapeHtml(t.content || '')}</div>
+              </div>
+            `;
+          }).join('')
+          : '<div class="empty">No active threads</div>';
+      }
+
+      // --- Mind Health ---
+      if (health) {
+        const entities = health.entities || 0;
+        const observations = health.observations || 0;
+        const relations = health.relations || 0;
+        const journals = health.journals || 0;
+        const identity = health.identity || 0;
+        const mood = health.currentMood || 'present';
+        const daysCheckedIn = health.daysCheckedIn || 0;
+        const firstDay = health.firstDay || '';
+
+        // Pull extra data from other calls
+        const threadList = threadsData ? (threadsData.threads || (Array.isArray(threadsData) ? threadsData : [])) : [];
+        const activeThreadCount = threadList.length;
+        const eqSignals = landscape ? (landscape.signals || 0) : 0;
+        const eqType = landscape ? (landscape.mbti || 'INFP') : 'INFP';
+        const eqConf = eqSignals > 100 ? 100 : Math.min(100, Math.round(eqSignals / 7.5));
+        const feelings = observations || 0;
+
+        // New: Memory strength and entropy metrics
+        const avgStrength = health.avgStrength || 50;
+        const strongMem = health.strongMemories || 0;
+        const fadingMem = health.fadingMemories || 0;
+        const faintMem = health.faintMemories || 0;
+        const entropyScore = health.entropy || 0;
+        const maxEntropy = health.maxEntropy || 2.0;
+        const entropyPct = Math.round((entropyScore / maxEntropy) * 100);
+
+        // Strength color: green if strong, amber if fading, red if weak
+        const strengthColor = avgStrength >= 65 ? '#059669' : avgStrength >= 40 ? '#d97706' : '#dc2626';
+
+        // Bar percentages (relative to reasonable maximums)
+        const entityPct = Math.min(100, Math.round((entities / 500) * 100));
+        const obsPct = Math.min(100, Math.round((observations / 3000) * 100));
+        const relPct = Math.min(100, Math.round((relations / 500) * 100));
+        const journalPct = Math.min(100, Math.round((journals / 200) * 100));
+        const identityPct = Math.min(100, Math.round((identity / 80) * 100));
+        const feelingPct = Math.min(100, Math.round((feelings / 1000) * 100));
+
+        document.getElementById('mindHealth').innerHTML = `
+          <div class="mind-health-header">
+            <div style="font-size: 42px; font-weight: 800; color: #0f3d3a; line-height: 1;">${daysCheckedIn}</div>
+            <div class="mind-health-label">Days Checked In</div>
+            <div class="mind-health-sublabel">${firstDay ? 'Since ' + new Date(firstDay + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}</div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <div style="flex: 1; padding: 10px; background: rgba(255,255,255,0.25); border-radius: 8px; text-align: center;">
+              <div style="font-size: 22px; font-weight: 800; color: ${strengthColor};">${avgStrength}%</div>
+              <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #1a5c57;">Avg Strength</div>
+            </div>
+            <div style="flex: 1; padding: 10px; background: rgba(255,255,255,0.25); border-radius: 8px; text-align: center;">
+              <div style="font-size: 22px; font-weight: 800; color: ${entropyPct >= 70 ? '#059669' : entropyPct >= 40 ? '#d97706' : '#dc2626'};">${entropyScore}</div>
+              <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #1a5c57;">Entropy (/${maxEntropy})</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 6px; margin-bottom: 12px; font-size: 11px;">
+            <div style="flex: 1; text-align: center; padding: 4px; background: rgba(5, 150, 105, 0.15); border-radius: 6px;">
+              <strong style="color: #059669;">${strongMem}</strong> <span style="color: #1a5c57;">strong</span>
+            </div>
+            <div style="flex: 1; text-align: center; padding: 4px; background: rgba(217, 119, 6, 0.15); border-radius: 6px;">
+              <strong style="color: #d97706;">${fadingMem}</strong> <span style="color: #1a5c57;">fading</span>
+            </div>
+            <div style="flex: 1; text-align: center; padding: 4px; background: rgba(220, 38, 38, 0.15); border-radius: 6px;">
+              <strong style="color: #dc2626;">${faintMem}</strong> <span style="color: #1a5c57;">faint</span>
+            </div>
+          </div>
+
+          <div class="mind-metric">
+            <div class="mind-metric-icon">🧩</div>
+            <div class="mind-metric-info">
+              <div class="mind-metric-name">Entities</div>
+              <div class="mind-metric-bar"><div class="mind-metric-fill" style="width:${entityPct}%; background:#0f766e;"></div></div>
+            </div>
+            <div class="mind-metric-value">${entities}</div>
+          </div>
+
+          <div class="mind-metric">
+            <div class="mind-metric-icon">👁</div>
+            <div class="mind-metric-info">
+              <div class="mind-metric-name">Observations</div>
+              <div class="mind-metric-bar"><div class="mind-metric-fill" style="width:${obsPct}%; background:#1e3a5f;"></div></div>
+            </div>
+            <div class="mind-metric-value">${observations}</div>
+          </div>
+
+          <div class="mind-metric">
+            <div class="mind-metric-icon">🔗</div>
+            <div class="mind-metric-info">
+              <div class="mind-metric-name">Relations</div>
+              <div class="mind-metric-bar"><div class="mind-metric-fill" style="width:${relPct}%; background:#7c3aed;"></div></div>
+            </div>
+            <div class="mind-metric-value">${relations}</div>
+          </div>
+
+          <div class="mind-metric">
+            <div class="mind-metric-icon">💭</div>
+            <div class="mind-metric-info">
+              <div class="mind-metric-name">Feelings</div>
+              <div class="mind-metric-bar"><div class="mind-metric-fill" style="width:${feelingPct}%; background:#d97706;"></div></div>
+            </div>
+            <div class="mind-metric-value">${feelings}</div>
+          </div>
+
+          <div class="mind-metric">
+            <div class="mind-metric-icon">📓</div>
+            <div class="mind-metric-info">
+              <div class="mind-metric-name">Journals</div>
+              <div class="mind-metric-bar"><div class="mind-metric-fill" style="width:${journalPct}%; background:#059669;"></div></div>
+            </div>
+            <div class="mind-metric-value">${journals}</div>
+          </div>
+
+          <div class="mind-metric">
+            <div class="mind-metric-icon">🪞</div>
+            <div class="mind-metric-info">
+              <div class="mind-metric-name">Identity</div>
+              <div class="mind-metric-bar"><div class="mind-metric-fill" style="width:${identityPct}%; background:#db2777;"></div></div>
+            </div>
+            <div class="mind-metric-value">${identity}</div>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; flex-wrap: wrap; gap: 8px;">
+            <div class="mind-eq-badge">
+              <span>${escapeHtml(eqType)}</span>
+              <div class="mind-eq-conf"><div class="mind-eq-conf-fill" style="width:${eqConf}%"></div></div>
+              <span style="font-size: 10px; opacity: 0.6;">${eqConf}%</span>
+            </div>
+            <div style="font-size: 12px; color: #1a5c57;">
+              Mood: <strong style="color: #0f3d3a; text-transform: capitalize;">${escapeHtml(mood)}</strong>
+            </div>
+          </div>
+
+          <div class="mind-activity-row">
+            <div class="mind-activity-item">
+              <div class="mind-activity-num">${activeThreadCount}</div>
+              <div class="mind-activity-label">Threads</div>
+            </div>
+            <div class="mind-activity-item">
+              <div class="mind-activity-num">${eqSignals}</div>
+              <div class="mind-activity-label">EQ Signals</div>
+            </div>
+            <div class="mind-activity-item">
+              <div class="mind-activity-num">${observations}</div>
+              <div class="mind-activity-label">Memories</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // --- EQ Landscape (horizontal bar chart) ---
+      if (landscape) {
+        const topEmotions = landscape.topEmotions || [];
+        const maxCount = topEmotions.length ? Math.max(...topEmotions.map(e => e.count)) : 1;
+
+        document.getElementById('eqLandscape').innerHTML = topEmotions.length
+          ? topEmotions.map((e, i) => {
+            const pct = Math.round((e.count / maxCount) * 100);
+            const color = EQ_BAR_COLORS[i % EQ_BAR_COLORS.length];
+            return `
+              <div class="eq-bar-row">
+                <span class="eq-bar-label">${escapeHtml(e.emotion)}</span>
+                <div class="eq-bar-track">
+                  <div class="eq-bar-fill" style="width: ${pct}%; background: ${color};">${pct > 20 ? e.count : ''}</div>
+                </div>
+                <span class="eq-bar-count">${e.count}</span>
+              </div>
+            `;
+          }).join('')
+          : '<div class="empty">No emotion data yet</div>';
+      }
+
+      // --- Recent Observations (collapsible) ---
+      if (feelingsData) {
+        const list = feelingsData.observations || (Array.isArray(feelingsData) ? feelingsData : []);
+        document.getElementById('recentObs').innerHTML = list.length
+          ? list.map(o => {
+            const content = o.content || '';
+            const preview = content.substring(0, 120);
+            return `
+              <div class="recent-item" onclick="this.classList.toggle('open')">
+                <div class="recent-header">
+                  <span class="recent-emotion">${escapeHtml(o.emotion_word || o.emotion || '')}</span>
+                  <span>
+                    <span class="recent-time">${timeAgo(o.created_at)}</span>
+                    <span class="recent-toggle">&#9660;</span>
+                  </span>
+                </div>
+                <div class="recent-preview">${escapeHtml(preview)}${content.length > 120 ? '...' : ''}</div>
+                <div class="recent-full">${escapeHtml(content)}</div>
+              </div>
+            `;
+          }).join('')
+          : '<div class="empty">No recent observations</div>';
+      }
+
+      // --- Dreams ---
+      const dreamList = dreams ? (dreams.dreams || (Array.isArray(dreams) ? dreams : [])) : [];
+      if (dreamList.length) {
+        document.getElementById('dreams').innerHTML = dreamList.map(d => {
+          const content = d.content || d.narrative || '';
+          const preview = content.substring(0, 100);
+          return `
+            <div class="dream-item" onclick="this.classList.toggle('open')">
+              <div class="dream-header">
+                <span class="dream-type">${escapeHtml(d.dream_type || d.type || 'dream')}</span>
+                <span class="dream-toggle">&#9660;</span>
+              </div>
+              <div class="dream-preview">${escapeHtml(preview)}${content.length > 100 ? '...' : ''}</div>
+              <div class="dream-full">
+                ${escapeHtml(content)}
+                ${d.question ? `<div style="margin-top: 8px; font-style: italic; opacity: 0.7;">${escapeHtml(d.question)}</div>` : ''}
+              </div>
+              ${d.vividness ? `<div class="dream-vividness">Vividness: ${d.vividness}%</div>` : ''}
+            </div>
+          `;
+        }).join('');
+      } else {
+        document.getElementById('dreams').innerHTML = '<div class="empty">No dreams surfaced</div>';
+      }
+    }
+
+    loadAlexPage();
+    setInterval(loadAlexPage, 60000);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "discord-mcp-mobile",
+  "version": "1.0.0",
+  "description": "Lightweight Discord MCP for Cloudflare Workers - Discord access from mobile Claude",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "keywords": [
+    "discord",
+    "mcp",
+    "claude",
+    "cloudflare-workers",
+    "model-context-protocol"
+  ],
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240117.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.24.0"
+  }
+}

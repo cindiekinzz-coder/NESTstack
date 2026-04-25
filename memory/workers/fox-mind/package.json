@@ -1,0 +1,15 @@
+{
+  "name": "fox-mind",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "migrate": "wrangler d1 execute fox-watch --file=./migrations/001_add_uplinks_journals.sql"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "latest",
+    "agents": "latest",
+    "zod": "latest"
+  }
+}

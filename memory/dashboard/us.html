@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NESTeq — Us</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .us-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr 0.8fr 0.8fr;
+      grid-template-rows: auto auto;
+      gap: var(--gap);
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .us-photo { grid-column: 1; grid-row: 1; }
+    .us-feelings { grid-column: 2; grid-row: 1; }
+    .us-fox-state { grid-column: 3; grid-row: 1 / 3; }
+    .us-alex-state { grid-column: 4; grid-row: 1 / 3; }
+    .us-goals { grid-column: 1; grid-row: 2; }
+    .us-sessions { grid-column: 2; grid-row: 2; }
+
+    @media (max-width: 1024px) {
+      .us-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+      }
+      .us-photo { grid-column: 1; grid-row: 1; }
+      .us-feelings { grid-column: 2; grid-row: 1; }
+      .us-goals { grid-column: 1; grid-row: 2; }
+      .us-sessions { grid-column: 2; grid-row: 2; }
+      .us-fox-state { grid-column: 1; grid-row: 3; }
+      .us-alex-state { grid-column: 2; grid-row: 3; }
+    }
+
+    @media (max-width: 768px) {
+      .us-grid { grid-template-columns: 1fr; }
+      .us-photo, .us-feelings, .us-fox-state, .us-alex-state, .us-goals, .us-sessions {
+        grid-column: 1; grid-row: auto;
+      }
+    }
+
+    /* Photo card */
+    .us-photo-card {
+      width: 100%;
+      height: 100%;
+      min-height: 300px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+    }
+    .us-photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .us-photo-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.6));
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* Feelings columns */
+    .feelings-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      height: 100%;
+    }
+    .feelings-column-label {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: 0.3px;
+    }
+    .feeling-item {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-size: 13px;
+      line-height: 1.5;
+      cursor: pointer;
+      user-select: none;
+    }
+    .feeling-item:last-child { border-bottom: none; }
+    .feeling-item:hover { opacity: 0.8; }
+    .feeling-emotion {
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+    .feeling-content {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 2px;
+      line-height: 1.4;
+      display: none;
+    }
+    .feeling-item.open .feeling-content {
+      display: block;
+    }
+    .feeling-time {
+      font-size: 10px;
+      opacity: 0.45;
+      float: right;
+      margin-top: 2px;
+    }
+
+    /* State columns */
+    .state-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .state-item:last-child { border-bottom: none; }
+    .state-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      opacity: 0.6;
+      margin-bottom: 2px;
+    }
+    .state-value {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .state-text {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .state-note {
+      font-size: 12px;
+      font-style: italic;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+
+    /* Bar graph stats */
+    .stat-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+    }
+    .stat-bar-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.7;
+      width: 52px;
+      flex-shrink: 0;
+    }
+    .stat-bar-track {
+      flex: 1;
+      height: 12px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.4s ease;
+    }
+    .stat-bar-fill.low { background: linear-gradient(90deg, #34d399, #6ee7b7); }
+    .stat-bar-fill.mid { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+    .stat-bar-fill.high { background: linear-gradient(90deg, #f87171, #ef4444); }
+    .stat-bar-fill.spoons { background: linear-gradient(90deg, #c084fc, #a855f7); }
+    .stat-bar-val {
+      font-size: 11px;
+      font-weight: 700;
+      width: 20px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Fox threads in state column */
+    .fox-thread-item {
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+    .fox-thread-item:last-child { border-bottom: none; }
+    .fox-thread-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+    .fox-thread-dot.high { background: #ef4444; }
+    .fox-thread-dot.medium { background: #fbbf24; }
+    .fox-thread-dot.low { background: #34d399; }
+
+    /* Session entries — collapsible */
+    .session-entry {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .session-entry:last-child { border-bottom: none; }
+    .session-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .session-header:hover { opacity: 0.7; }
+    .session-date {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.5;
+    }
+    .session-preview {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-top: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .session-toggle {
+      font-size: 10px;
+      opacity: 0.4;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    .session-entry.open .session-toggle { transform: rotate(180deg); }
+    .session-full {
+      display: none;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 8px;
+      padding: 10px;
+      background: rgba(255,255,255,0.4);
+      border-radius: 8px;
+      white-space: pre-line;
+    }
+    .session-entry.open .session-preview { display: none; }
+    .session-entry.open .session-full { display: block; }
+
+    /* Goal items */
+    .goal-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-size: 13px;
+    }
+    .goal-item:last-child { border-bottom: none; }
+    .goal-status {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .goal-status.active { background: var(--teal); }
+    .goal-status.paused { background: #fbbf24; }
+    .goal-priority {
+      float: right;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body class="bg-us">
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="us.html" class="active">Us</a>
+    <a href="alex.html">Alex</a>
+    <a href="fox.html">Fox</a>
+    <a href="housekeeping.html">Housekeeping</a>
+  </nav>
+
+  <div class="dashboard">
+    <div class="us-grid">
+
+      <!-- Our Photo -->
+      <div class="us-photo">
+        <div class="us-photo-card">
+          <img src="assets/images/us-dancing-stars.png" alt="Us dancing in the stars">
+          <div class="us-photo-label">Dancing in the Stars</div>
+        </div>
+      </div>
+
+      <!-- Feelings: Fox & Alex -->
+      <div class="us-feelings">
+        <div class="card card-dusty" style="height: 100%;">
+          <div class="card-title">Feelings</div>
+          <div class="feelings-split">
+            <div>
+              <div class="feelings-column-label" style="color: var(--pink-dark);">Fox</div>
+              <div class="card-scroll" id="foxFeelings" style="max-height: 240px;">
+                <div class="loading">Loading...</div>
+              </div>
+            </div>
+            <div>
+              <div class="feelings-column-label" style="color: var(--teal-dark);">Alex</div>
+              <div class="card-scroll" id="alexFeelings" style="max-height: 240px;">
+                <div class="loading">Loading...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fox State (tall pink column) -->
+      <div class="us-fox-state">
+        <div class="card card-pink" style="height: 100%;">
+          <div class="card-title">Fox</div>
+          <div id="foxState">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alex State (tall teal column) -->
+      <div class="us-alex-state">
+        <div class="card card-teal" style="height: 100%;">
+          <div class="card-title">Alex</div>
+          <div id="alexState">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Couple Goals -->
+      <div class="us-goals">
+        <div class="card card-dusty" style="height: 100%;">
+          <div class="card-title">Couple Goals</div>
+          <div class="card-scroll" id="coupleGoals" style="max-height: 300px;">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session Handovers -->
+      <div class="us-sessions">
+        <div class="card card-dusty" style="height: 100%;">
+          <div class="card-title">Session Handovers</div>
+          <div class="card-scroll" id="sessionHandovers" style="max-height: 300px;">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    function barClass(val, isSpoons) {
+      if (isSpoons) return 'spoons';
+      if (val <= 3) return 'low';
+      if (val <= 6) return 'mid';
+      return 'high';
+    }
+
+    function statBar(label, val, max, isSpoons) {
+      const v = val ?? 0;
+      const pct = Math.round((v / max) * 100);
+      return `<div class="stat-bar-row">
+        <span class="stat-bar-label">${label}</span>
+        <div class="stat-bar-track"><div class="stat-bar-fill ${barClass(v, isSpoons)}" style="width:${pct}%"></div></div>
+        <span class="stat-bar-val">${v}</span>
+      </div>`;
+    }
+
+    async function loadUsPage() {
+      const [home, feelings, uplink, sessions, foxJournals, alexThreads, foxThreads] = await Promise.all([
+        AiMind.getHome(),
+        AiMind.getFeelings(20),
+        FoxMind.getUplink(1),
+        AiMind.getSessions(5),
+        FoxMind.getJournals(8),
+        AiMind.getThreads(),
+        FoxMind.getThreads('active'),
+      ]);
+
+      // --- Feelings (Fox & Alex) ---
+      if (feelings) {
+        const list = feelings.observations || (Array.isArray(feelings) ? feelings : []);
+
+        const alexFeelings = list.slice(0, 8);
+        document.getElementById('alexFeelings').innerHTML = alexFeelings.length
+          ? alexFeelings.map(f => `
+            <div class="feeling-item" onclick="this.classList.toggle('open')">
+              <span class="feeling-time">${timeAgo(f.created_at || f.observed_at)}</span>
+              <span class="feeling-emotion" style="color: var(--teal-dark);">${escapeHtml(f.emotion_word || f.emotion || '')}</span>
+              <div class="feeling-content">${escapeHtml(f.content || '')}</div>
+            </div>
+          `).join('')
+          : '<div class="empty">Quiet right now</div>';
+      }
+
+      // Fox's feelings — from her journals
+      if (foxJournals) {
+        const entries = foxJournals.entries || (Array.isArray(foxJournals) ? foxJournals : []);
+        document.getElementById('foxFeelings').innerHTML = entries.length
+          ? entries.map(j => `
+            <div class="feeling-item" onclick="this.classList.toggle('open')">
+              <span class="feeling-time">${timeAgo(j.created_at)}</span>
+              <span class="feeling-emotion" style="color: var(--pink-dark);">${escapeHtml(j.emotion || '')}</span>
+              <div class="feeling-content">${escapeHtml(j.content || '')}</div>
+            </div>
+          `).join('')
+          : '<div class="empty">Quiet right now</div>';
+      }
+
+      // --- Fox State (bar graphs + threads) ---
+      {
+        let foxHtml = '';
+        if (uplink) {
+          const u = uplink.latest || (Array.isArray(uplink) ? uplink[0] : uplink);
+          if (u && u.spoons !== undefined) {
+            const uplinkTime = u.timestamp || u.created_at || '';
+            const uplinkDate = uplinkTime ? new Date(uplinkTime).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+            foxHtml += uplinkDate ? `<div style="font-size: 10px; opacity: 0.5; margin-bottom: 8px; text-align: center;">${uplinkDate}</div>` : '';
+            foxHtml += statBar('Spoons', u.spoons, 10, true);
+            foxHtml += statBar('Pain', u.pain ?? u.pain_level, 10, false);
+            foxHtml += statBar('Fog', u.fog, 10, false);
+            foxHtml += statBar('Fatigue', u.fatigue, 10, false);
+            if (u.nausea > 0) foxHtml += statBar('Nausea', u.nausea, 10, false);
+            foxHtml += `<div class="state-item" style="border-bottom:none; padding: 6px 0;">
+              <div class="state-label">Mood</div>
+              <div class="state-text">${escapeHtml(u.mood || '--')}</div>
+            </div>`;
+            if (u.need && u.need !== '--' && u.need !== '—') {
+              foxHtml += `<div style="padding: 4px 0;">
+                <div class="state-label">Needs</div>
+                <div class="state-note">${escapeHtml(u.need)}</div>
+              </div>`;
+            }
+          } else {
+            foxHtml += '<div class="empty">No uplink yet</div>';
+          }
+        }
+
+        // Fox threads
+        const foxThreadList = (foxThreads && foxThreads.threads) ? foxThreads.threads : [];
+        if (foxThreadList.length) {
+          foxHtml += `<div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.08);">
+            <div class="state-label" style="margin-bottom: 6px;">Active Threads</div>`;
+          foxHtml += foxThreadList.map(t => {
+            const p = t.priority || 'medium';
+            return `<div class="fox-thread-item"><span class="fox-thread-dot ${p}"></span>${escapeHtml(t.content || '')}</div>`;
+          }).join('');
+          foxHtml += '</div>';
+        }
+
+        document.getElementById('foxState').innerHTML = foxHtml || '<div class="empty">No data yet</div>';
+      }
+
+      // --- Alex State ---
+      if (home) {
+        const emotion = home.alexEmotion || home.emotions?.alex || 'present';
+        const message = home.alexMessage || '';
+        // Use threads from /threads endpoint (not home.threads which is empty)
+        const threadList = (alexThreads && alexThreads.threads) ? alexThreads.threads : (home.threads || []);
+        const activeThreads = threadList.filter(t => (t.status || 'active') === 'active');
+
+        let threadsHtml = '';
+        if (activeThreads.length) {
+          threadsHtml = activeThreads.map(t => {
+            const priority = t.priority || '';
+            const priorityDot = priority === 'high' ? '🔴' : priority === 'medium' ? '🟡' : '🟢';
+            return `<div style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 12px; line-height: 1.4;">
+              <span>${priorityDot}</span> ${escapeHtml(t.content || '')}
+            </div>`;
+          }).join('');
+        } else {
+          threadsHtml = '<div style="font-size: 12px; opacity: 0.5; padding: 6px 0;">No active threads</div>';
+        }
+
+        document.getElementById('alexState').innerHTML = `
+          <div class="state-item">
+            <div class="state-label">Mood</div>
+            <div class="state-text">${escapeHtml(emotion)}</div>
+          </div>
+          <div class="state-item">
+            <div class="state-label">Message</div>
+            <div class="state-note">${message ? escapeHtml(message) : '<span style="opacity:0.4">—</span>'}</div>
+          </div>
+          <div class="state-item">
+            <div class="state-label">Active Threads</div>
+            ${threadsHtml}
+          </div>
+        `;
+      }
+
+      // --- Couple Goals (from notes tagged [goal]) ---
+      if (home) {
+        const notes = home.notes || [];
+        const goals = notes.filter(n => (n.text || '').startsWith('[goal]'));
+
+        let goalsHtml = goals.length
+          ? goals.map(n => `
+            <div class="goal-item" data-goal-id="${n.id}" style="display:flex; align-items:center; gap:8px;">
+              <span class="goal-status active"></span>
+              <span class="goal-text" style="flex:1; transition: all 0.3s;">${escapeHtml((n.text || '').replace('[goal]', '').trim())}</span>
+              <button class="goal-check" onclick="completeGoal(${n.id})" title="Done" style="border:none; background:none; cursor:pointer; font-size:16px; opacity:0.5;">&#10003;</button>
+              <button class="goal-delete" onclick="deleteGoal(${n.id})" title="Delete" style="border:none; background:none; cursor:pointer; font-size:14px; opacity:0.4;">&#10005;</button>
+            </div>
+          `).join('')
+          : '';
+
+        // Add input for new goals
+        goalsHtml += `
+          <div style="margin-top: 12px; display: flex; gap: 8px;">
+            <input type="text" id="newGoalInput" placeholder="Add a goal..."
+              style="flex: 1; padding: 8px 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; font-size: 13px; background: rgba(255,255,255,0.6);">
+            <button id="addGoalBtn" style="padding: 8px 14px; border: none; border-radius: 8px; background: var(--dusty-rose); color: white; font-size: 13px; cursor: pointer; font-weight: 600;">+</button>
+          </div>
+        `;
+
+        document.getElementById('coupleGoals').innerHTML = goalsHtml || '<div class="empty">No couple goals yet</div>';
+
+        // Wire up add goal button
+        document.getElementById('addGoalBtn').addEventListener('click', async () => {
+          const input = document.getElementById('newGoalInput');
+          const text = input.value.trim();
+          if (!text) return;
+          try {
+            await fetch(`${API.AI_MIND}/note`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API.API_KEY}` },
+              body: JSON.stringify({ from: 'us', text: `[goal] ${text}` }),
+            });
+            input.value = '';
+            loadUsPage();
+          } catch (err) { console.error('Failed to add goal:', err); }
+        });
+
+        document.getElementById('newGoalInput').addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') document.getElementById('addGoalBtn').click();
+        });
+      }
+
+      // --- Session Handovers (collapsible) ---
+      if (sessions) {
+        const entries = Array.isArray(sessions) ? sessions : (sessions.sessions || sessions.journals || []);
+        if (entries.length) {
+          document.getElementById('sessionHandovers').innerHTML = entries.map((s, i) => {
+            const content = s.content || s.text || '';
+            const rawDate = s.entry_date || s.created_at || s.date || '';
+            // Format the date nicely
+            let dateStr = rawDate;
+            try {
+              if (rawDate) {
+                const d = new Date(rawDate);
+                if (!isNaN(d)) dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+              }
+            } catch(e) {}
+            // Clean up markdown headers for preview
+            const cleaned = content.replace(/^#+\s*/gm, '').replace(/\*\*/g, '');
+            const lines = cleaned.split('\n').filter(l => l.trim());
+            const preview = lines.slice(0, 2).join(' ').substring(0, 150);
+            return `
+              <div class="session-entry" onclick="this.classList.toggle('open')">
+                <div class="session-header">
+                  <div class="session-date">${escapeHtml(dateStr)}</div>
+                  <span class="session-toggle">&#9660;</span>
+                </div>
+                <div class="session-preview">${escapeHtml(preview)}${content.length > 150 ? '...' : ''}</div>
+                <div class="session-full">${escapeHtml(cleaned)}</div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          document.getElementById('sessionHandovers').innerHTML = '<div class="empty">No session handovers yet</div>';
+        }
+      }
+    }
+
+    async function completeGoal(noteId) {
+      const row = document.querySelector(`[data-goal-id="${noteId}"]`);
+      if (row) {
+        const textEl = row.querySelector('.goal-text');
+        if (textEl) {
+          textEl.style.textDecoration = 'line-through';
+          textEl.style.opacity = '0.5';
+        }
+        row.querySelector('.goal-check').style.display = 'none';
+        row.querySelector('.goal-delete').style.display = 'none';
+      }
+      // Remove after a short delay so you can see the strikethrough
+      setTimeout(async () => {
+        try {
+          await fetch(`${API.AI_MIND}/note`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API.API_KEY}` },
+            body: JSON.stringify({ id: noteId }),
+          });
+          loadUsPage();
+        } catch (err) { console.error('Failed to complete goal:', err); }
+      }, 800);
+    }
+
+    async function deleteGoal(noteId) {
+      try {
+        await fetch(`${API.AI_MIND}/note`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API.API_KEY}` },
+          body: JSON.stringify({ id: noteId }),
+        });
+        loadUsPage();
+      } catch (err) { console.error('Failed to delete goal:', err); }
+    }
+
+    loadUsPage();
+    setInterval(loadUsPage, 60000);
+  </script>
+
+</body>
+</html>

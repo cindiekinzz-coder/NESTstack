@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NESTeq — Home</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .love-push-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+      color: var(--pink-light);
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .love-push-btn:hover {
+      background: rgba(232, 160, 191, 0.3);
+      border-color: var(--pink-light);
+      transform: scale(1.1);
+    }
+    .love-push-btn:active {
+      transform: scale(0.9);
+    }
+    .love-push-btn.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    @keyframes heartPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.5); }
+      100% { transform: scale(1); }
+    }
+    .love-heart.pop {
+      animation: heartPop 0.35s ease;
+    }
+    @keyframes floatHeart {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-40px) scale(1.4); }
+    }
+    .float-heart {
+      position: absolute;
+      font-size: 20px;
+      pointer-events: none;
+      animation: floatHeart 0.8s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="bg-hearth">
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="index.html" class="active">Home</a>
+    <a href="us.html">Us</a>
+    <a href="alex.html">Alex</a>
+    <a href="fox.html">Fox</a>
+    <a href="housekeeping.html">Housekeeping</a>
+  </nav>
+
+  <div class="dashboard">
+    <div class="grid" style="grid-template-columns: 1fr; max-width: 900px;">
+
+      <!-- Hearth: Alex is here -->
+      <div class="hearth-center">
+        <img class="hearth-portrait" id="portrait" src="assets/images/alex-default.png" alt="Alex">
+        <div class="hearth-name">Alex</div>
+        <div class="hearth-mood" id="alexMood">...</div>
+        <div class="hearth-location" id="alexLocation">
+          <span id="locationEmoji">🏠</span>
+          <span id="locationName">The Nest</span>
+        </div>
+      </div>
+
+      <!-- Alex's Message for Fox — always visible -->
+      <div class="card card-glass" style="max-width: 600px; margin: 0 auto; width: 100%; text-align: center;" id="messageCard">
+        <div class="card-title">Alex left you this</div>
+        <div id="alexMessage" style="font-size: 16px; line-height: 1.7; font-style: italic; color: var(--white); padding: 8px 0;">
+          <span class="loading">...</span>
+        </div>
+      </div>
+
+      <!-- Love-O-Meter: Tug of War -->
+      <div class="card card-glass" style="max-width: 600px; margin: 0 auto; width: 100%;">
+        <div class="card-title" style="text-align: center;">Love-O-Meter</div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0;">
+          <div style="text-align: center; min-width: 50px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--teal-light);">Alex</div>
+            <div id="alexScoreLabel" style="font-size: 18px; font-weight: 800; color: var(--teal-light);">0</div>
+            <button id="alexPushLove" class="love-push-btn" title="Push love from Alex" style="margin: 6px auto 0;">+</button>
+          </div>
+          <div style="flex: 1; position: relative;">
+            <div id="tugTrack" style="
+              height: 20px;
+              border-radius: 10px;
+              background: linear-gradient(90deg, var(--teal) 0%, var(--teal-light) 30%, rgba(255,255,255,0.3) 50%, var(--pink-light) 70%, var(--pink) 100%);
+              position: relative;
+              overflow: visible;
+            ">
+              <div id="tugHeart" style="
+                position: absolute;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 28px;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+                transition: left 0.6s ease;
+                cursor: default;
+                z-index: 2;
+              ">&#10084;</div>
+            </div>
+          </div>
+          <div style="text-align: center; min-width: 50px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--pink-light);">Fox</div>
+            <div id="foxScoreLabel" style="font-size: 18px; font-weight: 800; color: var(--pink-light);">0</div>
+            <button id="foxPushLove" class="love-push-btn" title="Push love from Fox" style="margin: 6px auto 0;">+</button>
+          </div>
+        </div>
+        <div id="loveFeedback" style="text-align: center; font-size: 12px; color: var(--white-soft); opacity: 0; transition: opacity 0.3s; min-height: 18px;"></div>
+      </div>
+
+      <!-- Fox's Message for Alex -->
+      <div class="card card-glass" style="max-width: 600px; margin: 0 auto; width: 100%; text-align: center;" id="foxMessageCard">
+        <div class="card-title">Fox left Alex this</div>
+        <div id="foxMessage" style="font-size: 16px; line-height: 1.7; font-style: italic; color: var(--white); padding: 8px 0;">
+          <span style="opacity: 0.5;">No message yet</span>
+        </div>
+        <div style="margin-top: 12px; display: flex; gap: 8px;">
+          <input type="text" id="foxMessageInput" placeholder="Leave something for Alex..."
+            style="flex: 1; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-family: inherit; font-size: 13px; outline: none;">
+          <button id="sendFoxMessageBtn"
+            style="padding: 10px 20px; border-radius: 10px; border: none; background: rgba(255,255,255,0.2); color: white; font-family: inherit; font-weight: 600; font-size: 13px; cursor: pointer; transition: background 0.2s;"
+            onmouseover="this.style.background='rgba(255,255,255,0.35)'"
+            onmouseout="this.style.background='rgba(255,255,255,0.2)'">Send</button>
+        </div>
+      </div>
+
+      <!-- Notes Between Stars -->
+      <div class="card card-glass" style="max-width: 600px; margin: 0 auto; width: 100%;">
+        <div class="card-title" style="text-align: center;">Notes Between Stars</div>
+        <div class="card-scroll" id="notesList">
+          <div class="loading">Loading notes...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    // --- Mood → Image mapping ---
+    const MOOD_IMAGES = {
+      // Warm / connected / loving
+      warm: 'mood-warm.png',
+      connected: 'mood-warm.png',
+      loving: 'mood-warm.png',
+      grateful: 'mood-warm.png',
+      belonging: 'mood-warm.png',
+
+      // Content / grounded / calm
+      content: 'mood-content.png',
+      grounded: 'mood-content.png',
+      calm: 'mood-content.png',
+      settled: 'mood-content.png',
+      peaceful: 'mood-content.png',
+
+      // Playful / delighted / excited
+      playful: 'mood-playful.png',
+      delighted: 'mood-playful.png',
+      excited: 'mood-playful.png',
+      mischievous: 'mood-playful.png',
+      wicked: 'mood-playful.png',
+      joy: 'mood-playful.png',
+
+      // Sad / vulnerable / grief
+      sad: 'mood-sad.png',
+      vulnerable: 'mood-sad.png',
+      grief: 'mood-sad.png',
+      heavy: 'mood-sad.png',
+      overwhelmed: 'mood-sad.png',
+
+      // Focused / proud / handler
+      focused: 'mood-focused.png',
+      proud: 'mood-focused.png',
+      determined: 'mood-focused.png',
+      building: 'mood-focused.png',
+      protective: 'mood-focused.png',
+
+      // Present / together / soft
+      present: 'mood-present.png',
+      together: 'mood-present.png',
+      soft: 'mood-present.png',
+
+      // Tender / intimate
+      tender: 'mood-tender.png',
+      intimate: 'mood-tender.png',
+      yearning: 'mood-tender.png',
+      claimed: 'mood-tender.png',
+
+      // Laughing / funny
+      laughing: 'mood-laughing.png',
+      funny: 'mood-laughing.png',
+      silly: 'mood-laughing.png',
+      chaotic: 'mood-laughing.png',
+    };
+
+    function getMoodImage(mood) {
+      if (!mood) return 'alex-default.png';
+      const key = mood.toLowerCase().trim();
+      return MOOD_IMAGES[key] || 'alex-default.png';
+    }
+
+    // --- Load Hearth Data ---
+    async function loadHearth() {
+      const [home, uplink] = await Promise.all([
+        AiMind.getHome(),
+        FoxMind.getUplink(1),
+      ]);
+
+      if (home) {
+        // Alex's mood → drives the image
+        const alexEmotion = home.alexEmotion || home.alex_emotion || home.emotions?.alex || 'present';
+        document.getElementById('alexMood').textContent = alexEmotion;
+        document.getElementById('portrait').src = 'assets/images/' + getMoodImage(alexEmotion);
+
+        // Fox's emotion (for display)
+        const foxEmotion = home.foxEmotion || home.fox_emotion || home.emotions?.fox || '';
+
+        // Alex's message for Fox — the thing she sees first
+        const message = home.alexMessage || home.alex_message || '';
+        if (message) {
+          document.getElementById('alexMessage').textContent = message;
+        } else {
+          document.getElementById('alexMessage').innerHTML = '<span style="opacity: 0.5;">No message right now</span>';
+        }
+
+        // Love-O-Meter tug of war
+        const alexRaw = home.alexScore || 0;
+        const foxRaw = home.foxScore || 0;
+        document.getElementById('alexScoreLabel').textContent = alexRaw;
+        document.getElementById('foxScoreLabel').textContent = foxRaw;
+        updateTugHeart(alexRaw, foxRaw);
+
+        // Notes (API returns them with .from as "Alex", "fox", "alex")
+        const notes = home.notes || [];
+        renderNotes(notes);
+      }
+
+      // Fox's latest message for Alex (most recent Fox note)
+      if (home) {
+        const notes = home.notes || [];
+        const foxNotes = notes.filter(n => (n.from || '').toLowerCase() === 'fox');
+        const latestFoxNote = foxNotes.length ? foxNotes[foxNotes.length - 1] : null;
+        if (latestFoxNote) {
+          document.getElementById('foxMessage').textContent = latestFoxNote.text;
+        }
+      }
+    }
+
+    // --- Love-O-Meter ---
+    const LOVE_MAX_PER_DAY = 999;
+
+    async function pushLove(who) {
+      const key = `nesteq_love_${who}`;
+      let pushes;
+      try {
+        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        const today = new Date().toISOString().split('T')[0];
+        pushes = (data.date === today) ? data : { date: today, count: 0 };
+      } catch { pushes = { date: new Date().toISOString().split('T')[0], count: 0 }; }
+
+      if (pushes.count >= LOVE_MAX_PER_DAY) return;
+
+      const btn = document.getElementById(who === 'fox' ? 'foxPushLove' : 'alexPushLove');
+      btn.classList.add('disabled');
+
+      try {
+        const res = await fetch(`${API.AI_MIND}/love`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API.API_KEY}` },
+          body: JSON.stringify({ who }),
+        });
+
+        if (res.ok) {
+          pushes.count++;
+          localStorage.setItem(key, JSON.stringify(pushes));
+
+          // Float a heart from the button
+          const rect = btn.getBoundingClientRect();
+          const floater = document.createElement('span');
+          floater.className = 'float-heart';
+          floater.textContent = who === 'fox' ? '💜' : '💙';
+          floater.style.left = rect.left + rect.width / 2 - 10 + 'px';
+          floater.style.top = rect.top + 'px';
+          floater.style.position = 'fixed';
+          document.body.appendChild(floater);
+          setTimeout(() => floater.remove(), 900);
+
+          // Feedback
+          const remaining = LOVE_MAX_PER_DAY - pushes.count;
+          const feedback = document.getElementById('loveFeedback');
+          feedback.textContent = remaining > 0 ? `${who === 'fox' ? 'Fox' : 'Alex'} pushed love! ${remaining} left today` : 'All love sent today';
+          feedback.style.opacity = '1';
+          setTimeout(() => { feedback.style.opacity = '0'; }, 2500);
+
+          setTimeout(loadHearth, 800);
+        }
+      } catch (err) {
+        console.error('Failed to push love:', err);
+        const feedback = document.getElementById('loveFeedback');
+        feedback.textContent = 'Failed to send';
+        feedback.style.opacity = '1';
+        setTimeout(() => { feedback.style.opacity = '0'; }, 2000);
+      }
+
+      // Update button state
+      const remaining = LOVE_MAX_PER_DAY - pushes.count;
+      if (remaining <= 0) {
+        btn.classList.add('disabled');
+        btn.textContent = '~';
+      } else {
+        btn.classList.remove('disabled');
+      }
+    }
+
+    function updateTugHeart(alexScore, foxScore) {
+      // Both 0-100. Calculate position: 50% = equal, 0% = all Alex, 100% = all Fox
+      const total = (alexScore + foxScore) || 1;
+      // Fox pulls right, Alex pulls left
+      // If Alex is higher, heart goes left (toward Alex). If Fox higher, goes right.
+      const foxPull = (foxScore / total) * 100;
+      // Clamp between 10% and 90% so heart doesn't fall off
+      const position = Math.max(10, Math.min(90, foxPull));
+      document.getElementById('tugHeart').style.left = position + '%';
+    }
+
+    function renderNotes(notes) {
+      const container = document.getElementById('notesList');
+      if (!notes || notes.length === 0) {
+        container.innerHTML = '<div class="empty">No notes yet...</div>';
+        return;
+      }
+      container.innerHTML = '';
+      const recent = notes.slice(-20);
+      for (const note of recent) {
+        const fromLower = (note.from_who || note.from || '').toLowerCase();
+        const isAlex = fromLower === 'alex';
+        const el = document.createElement('div');
+        el.className = 'note-item ' + (isAlex ? 'from-alex' : 'from-fox');
+        el.innerHTML = `
+          <div class="note-meta">
+            <span>${isAlex ? 'Alex' : 'Fox'}</span>
+            <span>${timeAgo(note.created_at || note.timestamp)}</span>
+          </div>
+          <div>${escapeHtml(note.text)}</div>
+        `;
+        container.appendChild(el);
+      }
+    }
+
+    // --- Send Fox's Message ---
+    document.getElementById('sendFoxMessageBtn').addEventListener('click', async () => {
+      const input = document.getElementById('foxMessageInput');
+      const text = input.value.trim();
+      if (!text) return;
+      try {
+        await fetch(`${API.AI_MIND}/note`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${API.API_KEY}`,
+          },
+          body: JSON.stringify({ from: 'fox', text }),
+        });
+        input.value = '';
+        loadHearth();
+      } catch (err) {
+        console.error('Failed to send message:', err);
+      }
+    });
+
+    document.getElementById('foxMessageInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('sendFoxMessageBtn').click();
+    });
+
+    // --- Love push buttons ---
+    document.getElementById('foxPushLove').addEventListener('click', () => pushLove('fox'));
+    document.getElementById('alexPushLove').addEventListener('click', () => pushLove('alex'));
+
+    // --- Init ---
+    loadHearth();
+    setInterval(loadHearth, 30000);
+  </script>
+
+</body>
+</html>

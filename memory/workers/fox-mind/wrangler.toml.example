@@ -1,0 +1,12 @@
+name = "fox-mind"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fox-watch"
+database_id = "your-database-id-here"
+
+[vars]
+CORS_ORIGIN = "*"

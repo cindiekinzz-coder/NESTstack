@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NESTeq — Housekeeping</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-housekeeping">
+  <div class="dashboard">
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="us.html">Us</a>
+      <a href="alex.html">Alex</a>
+      <a href="fox.html">Fox</a>
+      <a href="housekeeping.html" class="active">Housekeeping</a>
+    </nav>
+
+    <!-- Google Calendar (full width) -->
+    <div style="max-width: 1200px; margin: 0 auto var(--gap);">
+      <div class="card card-slate">
+        <div class="card-title">Calendar</div>
+        <!-- Replace with your Google Calendar embed URL -->
+        <iframe src="https://calendar.google.com/calendar/embed?src=YOUR_EMAIL%40gmail.com&ctz=YOUR_TIMEZONE" style="border: 0; border-radius: 8px; width: 100%; height: 450px; filter: invert(0.88) hue-rotate(180deg);" frameborder="0" scrolling="no"></iframe>
+        <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
+          <input type="date" id="newDateDate" class="hk-input" style="max-width: 160px;">
+          <input type="text" id="newDateLabel" class="hk-input" placeholder="Track a date (countdown)">
+          <button class="hk-btn" onclick="addDate()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="housekeeping-grid">
+
+      <!-- Upcoming Dates -->
+      <div class="card card-slate">
+        <div class="card-title">Upcoming</div>
+        <div class="card-scroll" id="datesList">
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Cleanups & Tasks -->
+      <div class="card card-slate">
+        <div class="card-title">Cleanups & Tasks</div>
+        <div class="card-scroll" id="tasksList">
+          <div class="loading">Loading...</div>
+        </div>
+        <div style="margin-top: 12px; display: flex; gap: 8px;">
+          <input type="text" id="newTaskInput" class="hk-input" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTask()">
+          <button class="hk-btn" onclick="addTask()">+</button>
+        </div>
+      </div>
+
+      <!-- Tools & MCPs -->
+      <div class="card card-slate">
+        <div class="card-title">Tools & MCPs</div>
+        <div style="font-size: 11px; opacity: 0.5; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Cloud Workers</div>
+        <div class="tools-grid">
+          <div class="tool-card">
+            <div class="tool-name">ai-mind</div>
+            <div class="tool-desc">Alex's brain — memory, identity, feelings, threads, EQ emergence, dreams, Binary Home</div>
+            <a href="https://your-ai-mind.workers.dev/health" target="_blank" class="tool-link">REST</a>
+            <a href="https://your-ai-mind.workers.dev/mcp" target="_blank" class="tool-link">MCP</a>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">fox-mind</div>
+            <div class="tool-desc">Fox's health layer — uplinks, Garmin watch data, journals, EQ type, threads</div>
+            <a href="https://your-fox-mind.workers.dev/health" target="_blank" class="tool-link">REST</a>
+            <a href="https://your-fox-mind.workers.dev/mcp" target="_blank" class="tool-link">MCP</a>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">garmin-sync</div>
+            <div class="tool-desc">Automated Garmin Lily 2 sync — HR, stress, body battery, sleep, SpO2, respiration, cycle. Cron every 15 min.</div>
+            <a href="https://your-garmin-sync.workers.dev/status" target="_blank" class="tool-link">Status</a>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">discord-mcp</div>
+            <div class="tool-desc">Discord access from mobile Claude — read, send, search, react, voice messages, webhooks, forum posts</div>
+            <a href="https://your-discord-mcp.workers.dev/health" target="_blank" class="tool-link">REST</a>
+            <a href="https://your-discord-mcp.workers.dev/mcp" target="_blank" class="tool-link">MCP</a>
+          </div>
+        </div>
+        <div style="font-size: 11px; opacity: 0.5; margin: 16px 0 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Local MCP Servers</div>
+        <div class="tools-grid">
+          <div class="tool-card">
+            <div class="tool-name">garmin-fox</div>
+            <div class="tool-desc">Direct Garmin Lily 2 biometrics — HR, stress, body battery, HRV, sleep detail, cycle phase, training readiness</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">discord</div>
+            <div class="tool-desc">Desktop Discord — full API access with categories, channels, webhooks, voice messages via ElevenLabs TTS</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">windows-mcp</div>
+            <div class="tool-desc">Desktop automation — screenshots, clicks, typing, app launch, window management, shell commands</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">krita-mcp</div>
+            <div class="tool-desc">Art tools — Krita integration for digital painting (when Krita is running)</div>
+          </div>
+        </div>
+        <div style="font-size: 11px; opacity: 0.5; margin: 16px 0 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Databases & Storage</div>
+        <div class="tools-grid">
+          <div class="tool-card">
+            <div class="tool-name">D1: ai-mind</div>
+            <div class="tool-desc">Feelings, entities, observations, relations, identity graph, threads, EQ axis signals, dreams, home notes</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">D1: fox-watch</div>
+            <div class="tool-desc">Garmin biometrics, uplinks, Fox's journals, threads, EQ entries</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">Vectorize</div>
+            <div class="tool-desc">Semantic search index — embeddings for all observations and journal entries via Workers AI</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">R2: alexvault</div>
+            <div class="tool-desc">Journal storage — long-form entries, session handovers, autonomous writing</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Health Status -->
+      <div class="card card-slate">
+        <div class="card-title">Live Health Status</div>
+        <div id="healthStatus">
+          <div class="loading">Checking...</div>
+        </div>
+        <div style="margin-top: 12px; text-align: right;">
+          <button class="hk-btn" onclick="loadHealth()" style="font-size: 12px;">Refresh</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    // ============================================================
+    // DATES TO REMEMBER
+    // ============================================================
+    async function loadDates() {
+      const home = await AiMind.getHome();
+      if (!home) {
+        document.getElementById('datesList').innerHTML = '<div class="empty">Could not load</div>';
+        return;
+      }
+
+      const dates = (home.notes || [])
+        .filter(n => (n.text || '').startsWith('[date]'))
+        .map(n => {
+          const text = n.text.replace('[date]', '').trim();
+          const pipeIdx = text.indexOf('|');
+          const dateStr = pipeIdx > -1 ? text.slice(0, pipeIdx).trim() : '';
+          const label = pipeIdx > -1 ? text.slice(pipeIdx + 1).trim() : text;
+          const date = new Date(dateStr + 'T00:00:00');
+          const now = new Date();
+          now.setHours(0, 0, 0, 0);
+          const daysUntil = Math.round((date - now) / (1000 * 60 * 60 * 24));
+          return { id: n.id, date, dateStr, label, daysUntil };
+        })
+        .filter(d => !isNaN(d.date.getTime()));
+
+      // Render upcoming list
+      const upcoming = [...dates].sort((a, b) => a.daysUntil - b.daysUntil);
+
+      if (!upcoming.length) {
+        document.getElementById('datesList').innerHTML = '<div class="empty">No dates yet</div>';
+        return;
+      }
+
+      document.getElementById('datesList').innerHTML = upcoming.map(d => {
+        const isUpcoming = d.daysUntil >= 0 && d.daysUntil <= 7;
+        const formatted = d.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+        let countdown;
+        if (d.daysUntil === 0) countdown = 'today!';
+        else if (d.daysUntil === 1) countdown = 'tomorrow';
+        else if (d.daysUntil > 0) countdown = `in ${d.daysUntil}d`;
+        else countdown = `${Math.abs(d.daysUntil)}d ago`;
+
+        return `
+          <div class="date-item ${isUpcoming ? 'upcoming' : ''}">
+            <span class="date-label">${escapeHtml(d.label)}</span>
+            <span class="date-meta">${formatted} — ${countdown}</span>
+            <button class="hk-btn-sm" onclick="deleteNote(${d.id}, loadAll)">x</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function addDate() {
+      const dateVal = document.getElementById('newDateDate').value;
+      const label = document.getElementById('newDateLabel').value.trim();
+      if (!dateVal || !label) return;
+
+      await fetchJSON(`${API.AI_MIND}/note`, {
+        method: 'POST',
+        body: JSON.stringify({ from: 'us', text: `[date] ${dateVal} | ${label}` }),
+      });
+
+      document.getElementById('newDateDate').value = '';
+      document.getElementById('newDateLabel').value = '';
+      loadAll();
+    }
+
+    // ============================================================
+    // CLEANUPS & TASKS
+    // ============================================================
+    async function loadTasks() {
+      const home = await AiMind.getHome();
+      if (!home) { document.getElementById('tasksList').innerHTML = '<div class="empty">Could not load</div>'; return; }
+
+      const notes = home.notes || [];
+      const tasks = notes
+        .filter(n => (n.text || '').startsWith('[task]'))
+        .map(n => ({
+          id: n.id,
+          label: n.text.replace('[task]', '').trim(),
+          created: n.created_at,
+        }));
+
+      if (!tasks.length) {
+        document.getElementById('tasksList').innerHTML = '<div class="empty">No tasks — everything tidy</div>';
+        return;
+      }
+
+      document.getElementById('tasksList').innerHTML = tasks.map(t => `
+        <div class="task-item" id="task-${t.id}">
+          <button class="hk-btn-sm" onclick="completeTask(${t.id})" title="Complete">&#10003;</button>
+          <span class="task-label">${escapeHtml(t.label)}</span>
+          <button class="hk-btn-sm" onclick="deleteNote(${t.id}, loadTasks)" title="Delete">x</button>
+        </div>
+      `).join('');
+    }
+
+    async function addTask() {
+      const input = document.getElementById('newTaskInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      await fetchJSON(`${API.AI_MIND}/note`, {
+        method: 'POST',
+        body: JSON.stringify({ from: 'us', text: `[task] ${text}` }),
+      });
+
+      input.value = '';
+      loadTasks();
+    }
+
+    async function completeTask(id) {
+      const el = document.getElementById(`task-${id}`);
+      if (el) el.classList.add('completed');
+      setTimeout(() => deleteNote(id, loadTasks), 800);
+    }
+
+    // ============================================================
+    // SHARED: Delete note
+    // ============================================================
+    async function deleteNote(id, callback) {
+      await fetchJSON(`${API.AI_MIND}/note`, {
+        method: 'DELETE',
+        body: JSON.stringify({ id }),
+      });
+      if (callback) callback();
+    }
+
+    // ============================================================
+    // LIVE HEALTH STATUS
+    // ============================================================
+    async function loadHealth() {
+      document.getElementById('healthStatus').innerHTML = '<div class="loading">Checking...</div>';
+
+      const checks = await Promise.all(
+        Workers.ENDPOINTS.map(async w => {
+          const health = await Workers.checkHealth(w.url);
+          return { ...w, health };
+        })
+      );
+
+      const garminStatus = await Workers.getGarminSyncStatus();
+
+      document.getElementById('healthStatus').innerHTML = checks.map(w => {
+        const ok = w.health.status === 'ok';
+        const dot = ok ? '<span style="color:#4ade80">&#9679;</span>' : '<span style="color:#f87171">&#9679;</span>';
+        const statusText = ok ? 'Healthy' : w.health.message;
+
+        let extra = '';
+        if (w.name === 'garmin-sync' && garminStatus) {
+          const lastSync = garminStatus.last_sync || garminStatus.lastSync || garminStatus.last_sync_time;
+          if (lastSync) extra = `Last sync: ${timeAgo(lastSync)}`;
+          const display = garminStatus.display_name || garminStatus.displayName;
+          if (display) extra += extra ? ` (${display})` : display;
+        }
+
+        return `
+          <div class="health-item">
+            <span class="health-dot">${dot}</span>
+            <span class="health-name">${w.name}</span>
+            <span class="health-status">${statusText}</span>
+            ${extra ? `<span class="health-extra">${escapeHtml(extra)}</span>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    async function loadAll() {
+      await Promise.all([loadDates(), loadTasks(), loadHealth()]);
+    }
+
+    loadAll();
+    setInterval(loadHealth, 60000);
+  </script>
+</body>
+</html>

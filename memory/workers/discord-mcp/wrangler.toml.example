@@ -1,0 +1,11 @@
+name = "discord-mcp"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# Non-secret environment variables go here
+
+# Secrets (add via wrangler secret put):
+# - DISCORD_TOKEN: Your Discord bot token
+# - MCP_SECRET: Random string for URL authentication

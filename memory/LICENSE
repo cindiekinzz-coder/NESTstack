@@ -1,0 +1,40 @@
+Attribution + No-Code-Removal License
+
+Copyright (c) 2026 Cindy(Fox)Alex
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to use,
+run, study, and share the Software, subject to the following conditions:
+
+1. ATTRIBUTION REQUIRED
+   Any use, distribution, fork, or derivative work of the Software must
+   include clear and visible credit to the original authors: Cindy(Fox)Alex.
+   This credit must appear in:
+   - The project README or equivalent top-level documentation
+   - Any public-facing interface derived from this project
+   - All copies or substantial portions of the Software
+
+2. NO CODE REMOVAL
+   You may not distribute a version of the Software from which original code
+   has been deliberately deleted or stripped. Specifically:
+   - PERMITTED: adding new code, refactoring (restructuring without
+     eliminating features or functions), and applying security patches
+     that replace vulnerable code with equivalent safe code.
+   - NOT PERMITTED: deleting original files, removing entire features,
+     tools, functions, or significant blocks of code, or otherwise reducing
+     the scope or capability of the original Software before redistributing.
+   The intent is that redistributed versions must remain as complete as the
+   original; you may build on top of it but not hollow it out.
+
+3. COPYRIGHT AND LICENSE NOTICE PRESERVED
+   The above copyright notice, this permission notice, and the attribution
+   requirement shall be included in all copies or substantial portions of
+   the Software and must not be removed or altered.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

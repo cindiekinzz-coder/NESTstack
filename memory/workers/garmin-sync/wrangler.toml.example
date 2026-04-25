@@ -1,0 +1,25 @@
+name = "garmin-sync"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database — same fox-watch DB that fox-mind reads from
+[[d1_databases]]
+binding = "DB"
+database_name = "fox-watch"
+database_id = "your-database-id-here"
+
+# KV Namespace for OAuth token storage
+[[kv_namespaces]]
+binding = "TOKENS"
+id = "your-kv-namespace-id-here"
+
+# Cron trigger — every 15 minutes
+[triggers]
+crons = ["*/15 * * * *"]
+
+# Environment variables (set via wrangler secret)
+# SYNC_API_KEY - Authentication for manual trigger endpoint
+
+[vars]
+CORS_ORIGIN = "*"
