@@ -654,7 +654,7 @@ export function registerNESTeqTools(server: McpServer, env: Env) {
   })
 
   // ── ACP — Presence & Awareness ──
-  server.tool('nesteq_acp_presence', 'Check current presence state — what Fox needs right now.', {}, async () => {
+  server.tool('nesteq_acp_presence', 'Check current presence state — what the carrier needs right now.', {}, async () => {
     return proxyMcp(url, 'nesteq_acp_presence', {}, auth)
   })
 
@@ -662,7 +662,7 @@ export function registerNESTeqTools(server: McpServer, env: Env) {
     return proxyMcp(url, 'nesteq_acp_digest', {}, auth)
   })
 
-  server.tool('nesteq_acp_patterns', "Surface patterns in Fox's behavior and needs.", {}, async () => {
+  server.tool('nesteq_acp_patterns', "Surface patterns in the carrier's behavior and needs.", {}, async () => {
     return proxyMcp(url, 'nesteq_acp_patterns', {}, auth)
   })
 
@@ -670,11 +670,11 @@ export function registerNESTeqTools(server: McpServer, env: Env) {
     return proxyMcp(url, 'nesteq_acp_threads', {}, auth)
   })
 
-  server.tool('nesteq_acp_connections', 'See relational connections — who Fox is in contact with.', {}, async () => {
+  server.tool('nesteq_acp_connections', 'See relational connections — who the carrier is in contact with.', {}, async () => {
     return proxyMcp(url, 'nesteq_acp_connections', {}, auth)
   })
 
-  server.tool('nesteq_acp_journal_prompts', "Generate journal prompts for Fox based on recent feelings.", {}, async () => {
+  server.tool('nesteq_acp_journal_prompts', "Generate journal prompts for the carrier based on recent feelings.", {}, async () => {
     return proxyMcp(url, 'nesteq_acp_journal_prompts', {}, auth)
   })
 }

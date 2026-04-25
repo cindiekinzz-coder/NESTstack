@@ -90,7 +90,7 @@ export interface NesteqOrientResult {
   emergent_type: Partial<EmergentType>
 }
 
-// ─── Fox Health (fox-mind) ────────────────────────────────────────────────────
+// ─── Health (health worker) ────────────────────────────────────────────────────
 
 export interface FoxUplink {
   spoons: number                    // 0–10 energy envelope
@@ -98,7 +98,7 @@ export interface FoxUplink {
   fog: number                       // 0–10 cognitive fog
   fatigue: number                   // 0–10 fatigue
   mood: string                      // free text
-  needs: string                     // what Fox needs right now
+  needs: string                     // what the carrier needs right now
   notes: string                     // anything else she left
   submitted_at: string              // ISO timestamp
 }

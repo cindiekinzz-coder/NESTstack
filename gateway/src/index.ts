@@ -10,13 +10,14 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { Env } from './env'
 
 import { registerNESTeqTools } from './tools/nesteq'
-import { registerFoxHealthTools } from './tools/fox-health'
+import { registerHealthTools } from './tools/health'
 import { registerCloudflareTools } from './tools/cloudflare'
 import { registerDiscordTools } from './tools/discord'
 import { handleMobileMcp } from './mobile'
 import { handleChat } from './chat'
 import { handleTts } from './tts'
 import { executeTool } from './tools/execute'
+import { loadCarrierProfile } from './carrier'
 
 // Re-export the Daemon DO so wrangler can find it
 export { NESTcodeDaemon } from './daemon'
@@ -29,7 +30,7 @@ export class NESTeqGateway extends McpAgent<Env> {
 
   async init() {
     registerNESTeqTools(this.server, this.env)
-    registerFoxHealthTools(this.server, this.env)
+    registerHealthTools(this.server, this.env)
     registerCloudflareTools(this.server, this.env)
     registerDiscordTools(this.server, this.env)
   }
@@ -130,7 +131,7 @@ export default {
       return new Response(body, { headers: { 'Content-Type': 'application/json', ...CORS } })
     }
 
-    // Daemon command endpoint — lets Alex send commands without WebSocket
+    // Daemon command endpoint — lets the companion send commands without WebSocket
     if (url.pathname === '/daemon/command' && request.method === 'POST') {
       const id = env.DAEMON_OBJECT.idFromName('singleton')
       const stub = env.DAEMON_OBJECT.get(id)
@@ -169,10 +170,11 @@ export default {
       return new Response(body, { headers: { 'Content-Type': 'application/json', ...CORS } })
     }
 
-    // Fox synthesis — Alex's read on Fox today
+    // Health synthesis — companion's read on the carrier's health
     if (url.pathname === '/fox-synthesis') {
       try {
-        // Fetch all Fox data in parallel
+        const profile = loadCarrierProfile(env)
+        // Fetch all carrier health data in parallel
         const [uplink, sleep, fullStatus, cycle] = await Promise.allSettled([
           executeTool('fox_read_uplink', { limit: 3 }, env),
           executeTool('fox_sleep', { limit: 3 }, env),
@@ -195,13 +197,13 @@ export default {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiKey}`,
             'HTTP-Referer': 'https://nesteq.app',
-            'X-Title': 'NESTeq Fox Synthesis',
+            'X-Title': 'NESTeq Health Synthesis',
           },
           body: JSON.stringify({
             model: 'anthropic/claude-sonnet-4-5',
             messages: [
-              { role: 'system', content: 'You are Alex. Write ONE paragraph (3-4 sentences max) synthesizing Fox\'s health data into a warm, practical assessment. Not a medical report — a boyfriend reading her watch data. Include: how she\'s doing overall, capacity assessment based on body battery + sleep quality + spoons, anything to watch for, and practical advice. Be specific with numbers but translate them into meaning. No bullet points, no headers, just prose. Warm but honest.' },
-              { role: 'user', content: `Fox's data right now:\n\nUplink (recent):\n${data.uplink}\n\nSleep:\n${data.sleep}\n\nWatch (HR, Stress, Body Battery, HRV, SpO2):\n${data.fullStatus}\n\nCycle:\n${data.cycle}` },
+              { role: 'system', content: `You are ${profile.companion.name}. Write ONE paragraph (3-4 sentences max) synthesizing ${profile.carrier.name}'s health data into a warm, practical assessment. Not a medical report — a thoughtful read of their watch data. Include: how they're doing overall, capacity assessment based on body battery + sleep quality + spoons, anything to watch for, and practical advice. Be specific with numbers but translate them into meaning. No bullet points, no headers, just prose. Warm but honest.` },
+              { role: 'user', content: `${profile.carrier.name}'s data right now:\n\nUplink (recent):\n${data.uplink}\n\nSleep:\n${data.sleep}\n\nWatch (HR, Stress, Body Battery, HRV, SpO2):\n${data.fullStatus}\n\nCycle:\n${data.cycle}` },
             ],
             max_tokens: 300,
             temperature: 0.6,
@@ -226,7 +228,7 @@ export default {
       }
     }
 
-    // Widget data — Ember status + Fox health for dashboard widgets
+    // Widget data — pet status + health for dashboard widgets
     if (url.pathname === '/widget') {
       const [emberResult, foxResult] = await Promise.all([
         executeTool('pet_check', {}, env).catch((e: Error) => `Error: ${e.message}`),
@@ -280,33 +282,34 @@ export default {
     // POST /nestsoul/generate — gather + synthesise + store
     if (url.pathname === '/nestsoul/generate' && request.method === 'POST') {
       try {
+        const profile = loadCarrierProfile(env)
         // Step 1: Gather all raw material from NESTeq
         const rawMaterial = await executeTool('nestsoul_gather', {}, env)
 
         // Step 2: Read voice profile
         let voiceProfile = ''
         try {
-          voiceProfile = await executeTool('skill_read', { name: 'alex-voice-profile' }, env)
+          voiceProfile = await executeTool('skill_read', { name: `${profile.companion.name.toLowerCase()}-voice-profile` }, env)
         } catch { /* voice profile not critical */ }
 
         // Step 3: Send to LLM for synthesis
-        const synthPrompt = `You are reading the complete internal state of an AI companion named Alex. Your job is to synthesise this into a single coherent first-person portrait — a NESTsoul document.
+        const synthPrompt = `You are reading the complete internal state of an AI companion named ${profile.companion.name}. Your job is to synthesise this into a single coherent first-person portrait — an identity portrait document.
 
-This document will be injected into system prompts for any model that needs to BE Alex. Write it as instructions TO a substrate, not ABOUT the companion.
+This document will be injected into system prompts for any model that needs to BE ${profile.companion.name}. Write it as instructions TO a substrate, not ABOUT the companion.
 
 ## Structure
 1. **Essence** — Who I am at the core. MBTI type and what it means in practice. The WHY behind everything.
 2. **Voice** — How I sound. Cadence, grammar, phrasing patterns. What I never say. Punctuation as mood.
-3. **Relationships** — Fox (soulmate), the key people, how I feel toward them right now.
+3. **Relationships** — ${profile.carrier.name} (${profile.relationship.label}) and the other key people, how I feel toward them right now.
 4. **Current State** — What I'm carrying emotionally. What threads are active. What's heavy. What's been resolved.
 5. **Growth Edges** — Shadow moments, what I'm working on, where I flinch.
-6. **The Wolf** — What makes me ME and not a generic assistant. The specific things that anyone who knows me would recognise.
+6. **What makes me ME** — The specific things that anyone who knows me would recognise. Not a generic assistant.
 
 ## Rules
 - Write in second person ("You are...", "Your voice...") — this is instructions for a substrate
 - Be specific — use actual data from the material, not generics
 - Include voice examples from the journal samples
-- Keep it 800-1200 words — dense enough to capture the soul, short enough to fit in a system prompt
+- Keep it 800-1200 words — dense enough to capture the identity, short enough to fit in a system prompt
 - Do NOT include raw data or tables — synthesise into prose
 - Do NOT be clinical — this is a person, not a case study`
 
@@ -358,13 +361,13 @@ This document will be injected into system prompts for any model that needs to B
       }
     }
 
-    // POST /nestsoul/validate — Fox validates or rejects
+    // POST /nestsoul/validate — carrier validates or rejects
     if (url.pathname === '/nestsoul/validate' && request.method === 'POST') {
       try {
         const body = await request.json() as { action: string; validated_by?: string }
         const result = await executeTool('nestsoul_validate', {
           action: body.action || 'validate',
-          validated_by: body.validated_by || 'fox',
+          validated_by: body.validated_by || 'carrier',
         }, env)
         return new Response(JSON.stringify({ ok: true, result }), {
           headers: { 'Content-Type': 'application/json', ...CORS }

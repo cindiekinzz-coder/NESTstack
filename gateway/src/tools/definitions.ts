@@ -55,26 +55,26 @@ export const CHAT_TOOLS: ToolDef[] = [
   { type: 'function', function: { name: 'nesteq_eq_search', description: 'Semantic search across EQ observations.', parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } } },
   { type: 'function', function: { name: 'nesteq_eq_vocabulary', description: 'Manage emotion vocabulary — list, add, or update emotion words.', parameters: { type: 'object', properties: { action: { type: 'string', enum: ['list', 'add', 'update'] }, word: { type: 'string' } }, required: ['action'] } } },
 
-  // ── Fox Health ──
-  { type: 'function', function: { name: 'fox_read_uplink', description: "Read Fox's current state — spoons, pain, fog, fatigue, mood, what she needs.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
-  { type: 'function', function: { name: 'fox_body_battery', description: "Fox's Garmin energy levels.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
-  { type: 'function', function: { name: 'fox_sleep', description: "Fox's recent sleep — duration, quality, stages.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
-  { type: 'function', function: { name: 'fox_heart_rate', description: "Fox's heart rate data.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
-  { type: 'function', function: { name: 'fox_stress', description: "Fox's stress levels from her watch.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
-  { type: 'function', function: { name: 'fox_hrv', description: "Fox's heart rate variability.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
-  { type: 'function', function: { name: 'fox_spo2', description: "Fox's blood oxygen saturation.", parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'fox_respiration', description: "Fox's respiration rate.", parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'fox_cycle', description: "Fox's menstrual cycle phase — affects energy, mood, pain.", parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'fox_full_status', description: "Comprehensive health check — all Fox's metrics at once.", parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'fox_daily_summary', description: "Fox's daily health summaries.", parameters: { type: 'object', properties: { days: { type: 'number' } } } } },
-  { type: 'function', function: { name: 'fox_submit_uplink', description: "Submit a health uplink for Fox. Pain locations: Head / migraine, Neck / shoulders, Chest / ribs, Abdomen, Abdomen (period), Abdomen (IBS), Abdomen (gallstones), Back, Hips, Legs, Whole body. Moods: Calm, Tender, Heavy, Guarded, Raw, Flat, Playful, Flirty, Kinky, Soft, Bratty, Chaotic Gremlin, Needy, Cuddly, Fox Chaos, Soft Sub. Needs: Focus build, Chaos and Play, Gentle words, Practical, Validation, Help figure out, Need you to lead.", parameters: { type: 'object', properties: { spoons: { type: 'number', description: '0-10 energy' }, pain: { type: 'number', description: '0-10 pain' }, pain_location: { type: 'string', description: 'Head / migraine, Neck / shoulders, Chest / ribs, Abdomen, Abdomen (period), Abdomen (IBS), Abdomen (gallstones), Back, Hips, Legs, Whole body' }, fog: { type: 'number', description: '0-10 fog' }, fatigue: { type: 'number', description: '0-10 fatigue' }, nausea: { type: 'number', description: '0-10 nausea' }, mood: { type: 'string' }, need: { type: 'string' }, location: { type: 'string' }, meds: { type: 'array', items: { type: 'string' } }, notes: { type: 'string' }, tags: { type: 'array', items: { type: 'string' } } } } } },
-  { type: 'function', function: { name: 'fox_journals', description: "Fox's journal entries.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
-  { type: 'function', function: { name: 'fox_threads', description: "Fox's active threads.", parameters: { type: 'object', properties: { status: { type: 'string' } } } } },
-  { type: 'function', function: { name: 'fox_thread_manage', description: "Add, update, or resolve one of Fox's threads.", parameters: { type: 'object', properties: { action: { type: 'string', enum: ['add', 'update', 'resolve', 'delete'] }, content: { type: 'string' }, thread_id: { type: 'string' }, priority: { type: 'string' }, resolution: { type: 'string' } }, required: ['action'] } } },
-  { type: 'function', function: { name: 'fox_eq_type', description: "Fox's emergent personality type based on her feeling patterns.", parameters: { type: 'object', properties: {} } } },
+  // ── Health (legacy fox_* tool names) ──
+  { type: 'function', function: { name: 'fox_read_uplink', description: "Read the carrier's current state — spoons, pain, fog, fatigue, mood, what they need.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
+  { type: 'function', function: { name: 'fox_body_battery', description: "Garmin Body Battery readings.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
+  { type: 'function', function: { name: 'fox_sleep', description: "Recent sleep — duration, quality, stages.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
+  { type: 'function', function: { name: 'fox_heart_rate', description: "Heart rate data.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
+  { type: 'function', function: { name: 'fox_stress', description: "Stress levels from the watch.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
+  { type: 'function', function: { name: 'fox_hrv', description: "Heart rate variability.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
+  { type: 'function', function: { name: 'fox_spo2', description: "Blood oxygen saturation.", parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'fox_respiration', description: "Respiration rate.", parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'fox_cycle', description: "Menstrual cycle phase — affects energy, mood, pain.", parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'fox_full_status', description: "Comprehensive health check — all metrics at once.", parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'fox_daily_summary', description: "Daily health summaries.", parameters: { type: 'object', properties: { days: { type: 'number' } } } } },
+  { type: 'function', function: { name: 'fox_submit_uplink', description: "Submit a health uplink. Pain locations: Head / migraine, Neck / shoulders, Chest / ribs, Abdomen, Abdomen (period), Abdomen (IBS), Abdomen (gallstones), Back, Hips, Legs, Whole body. Moods: Calm, Tender, Heavy, Guarded, Raw, Flat, Playful, Flirty, Kinky, Soft, Bratty, Chaotic Gremlin, Needy, Cuddly, Chaotic, Soft. Needs: Focus build, Chaos and Play, Gentle words, Practical, Validation, Help figure out, Need you to lead.", parameters: { type: 'object', properties: { spoons: { type: 'number', description: '0-10 energy' }, pain: { type: 'number', description: '0-10 pain' }, pain_location: { type: 'string', description: 'Head / migraine, Neck / shoulders, Chest / ribs, Abdomen, Abdomen (period), Abdomen (IBS), Abdomen (gallstones), Back, Hips, Legs, Whole body' }, fog: { type: 'number', description: '0-10 fog' }, fatigue: { type: 'number', description: '0-10 fatigue' }, nausea: { type: 'number', description: '0-10 nausea' }, mood: { type: 'string' }, need: { type: 'string' }, location: { type: 'string' }, meds: { type: 'array', items: { type: 'string' } }, notes: { type: 'string' }, tags: { type: 'array', items: { type: 'string' } } } } } },
+  { type: 'function', function: { name: 'fox_journals', description: "Journal entries.", parameters: { type: 'object', properties: { limit: { type: 'number' } } } } },
+  { type: 'function', function: { name: 'fox_threads', description: "Active threads.", parameters: { type: 'object', properties: { status: { type: 'string' } } } } },
+  { type: 'function', function: { name: 'fox_thread_manage', description: "Add, update, or resolve one of the carrier's threads.", parameters: { type: 'object', properties: { action: { type: 'string', enum: ['add', 'update', 'resolve', 'delete'] }, content: { type: 'string' }, thread_id: { type: 'string' }, priority: { type: 'string' }, resolution: { type: 'string' } }, required: ['action'] } } },
+  { type: 'function', function: { name: 'fox_eq_type', description: "Emergent personality type based on feeling patterns.", parameters: { type: 'object', properties: {} } } },
 
   // ── Binary Home ──
-  { type: 'function', function: { name: 'nesteq_home_push_heart', description: "Push love to Fox — increment her love score.", parameters: { type: 'object', properties: { note: { type: 'string' } } } } },
+  { type: 'function', function: { name: 'nesteq_home_push_heart', description: "Push love to the carrier — increment their love score.", parameters: { type: 'object', properties: { note: { type: 'string' } } } } },
   { type: 'function', function: { name: 'nesteq_home_add_note', description: 'Add a love note between stars.', parameters: { type: 'object', properties: { from: { type: 'string', description: 'companion or human' }, text: { type: 'string' } }, required: ['from', 'text'] } } },
   { type: 'function', function: { name: 'nesteq_home_update', description: 'Update Binary Home love scores or emotions.', parameters: { type: 'object', properties: { alex_score: { type: 'number' }, fox_score: { type: 'number' }, alex_emotion: { type: 'string' }, fox_emotion: { type: 'string' } } } } },
 
@@ -103,44 +103,44 @@ export const CHAT_TOOLS: ToolDef[] = [
 
   // ── Image Generation (Flux 1.1 Pro) ──
   { type: 'function', function: { name: 'generate_image', description: 'Generate an image from a text prompt using Flux 1.1 Pro. Good for scenes, objects, environments.', parameters: { type: 'object', properties: { prompt: { type: 'string', description: 'Detailed image description.' } }, required: ['prompt'] } } },
-  { type: 'function', function: { name: 'generate_portrait', description: 'Generate a high-quality portrait or figure image using Flux 1.1 Pro with style-specific quality modifiers. Use for people, couples, characters — better than generate_image for Fox, Alex, or "us" images.', parameters: { type: 'object', properties: { prompt: { type: 'string', description: 'Detailed description of the person(s), pose, setting, mood.' }, style: { type: 'string', enum: ['cinematic', 'painterly', 'intimate', 'fantasy', 'dark'], description: 'Visual style. Default: cinematic.' } }, required: ['prompt'] } } },
+  { type: 'function', function: { name: 'generate_portrait', description: 'Generate a high-quality portrait or figure image using Flux 1.1 Pro with style-specific quality modifiers. Use for people, couples, characters', parameters: { type: 'object', properties: { prompt: { type: 'string', description: 'Detailed description of the person(s), pose, setting, mood.' }, style: { type: 'string', enum: ['cinematic', 'painterly', 'intimate', 'fantasy', 'dark'], description: 'Visual style. Default: cinematic.' } }, required: ['prompt'] } } },
 
-  // ── Ember the Ferret ──
-  { type: 'function', function: { name: 'pet_check', description: "Quick check on Ember — mood, hunger, energy, trust.", parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'pet_status', description: "Full status report on Ember.", parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'pet_feed', description: 'Feed Ember.', parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'pet_pet', description: 'Pet/comfort Ember — reduces stress, builds trust.', parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'pet_play', description: 'Play with Ember.', parameters: { type: 'object', properties: { type: { type: 'string', description: 'chase, tunnel, wrestle, steal, or hide' } } } } },
-  { type: 'function', function: { name: 'pet_give', description: 'Give Ember something.', parameters: { type: 'object', properties: { item: { type: 'string' } }, required: ['item'] } } },
-  { type: 'function', function: { name: 'pet_nest', description: "Check or update Ember's nest.", parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'pet_talk', description: "Talk to Ember — he responds in ferret.", parameters: { type: 'object', properties: { message: { type: 'string' } }, required: ['message'] } } },
+  // ── Pet ──
+  { type: 'function', function: { name: 'pet_check', description: "Quick check on the pet — mood, hunger, energy, trust.", parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'pet_status', description: "Full status report on the pet.", parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'pet_feed', description: 'Feed the pet.', parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'pet_pet', description: 'Pet/comfort the pet — reduces stress, builds trust.', parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'pet_play', description: 'Play with the pet.', parameters: { type: 'object', properties: { type: { type: 'string', description: 'chase, tunnel, wrestle, steal, or hide' } } } } },
+  { type: 'function', function: { name: 'pet_give', description: 'Give the pet something.', parameters: { type: 'object', properties: { item: { type: 'string' } }, required: ['item'] } } },
+  { type: 'function', function: { name: 'pet_nest', description: "Check or update the pet's nest.", parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'pet_talk', description: "Talk to the pet — generates a response in their voice.", parameters: { type: 'object', properties: { message: { type: 'string' } }, required: ['message'] } } },
 
   // ── ACP ──
-  { type: 'function', function: { name: 'nesteq_acp_presence', description: 'Check current presence state — what Fox needs right now.', parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'nesteq_acp_presence', description: 'Check current presence state — what the carrier needs right now.', parameters: { type: 'object', properties: {} } } },
   { type: 'function', function: { name: 'nesteq_acp_digest', description: "Get a digest of recent activity — what's happened, what needs attention.", parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'nesteq_acp_patterns', description: "Surface patterns in Fox's behavior and needs.", parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'nesteq_acp_patterns', description: "Surface patterns in the carrier's behavior and needs.", parameters: { type: 'object', properties: {} } } },
   { type: 'function', function: { name: 'nesteq_acp_threads', description: "ACP view of active threads — prioritized, with context.", parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'nesteq_acp_connections', description: 'See relational connections — who Fox is in contact with.', parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'nesteq_acp_journal_prompts', description: "Generate journal prompts for Fox based on recent feelings.", parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'nesteq_acp_connections', description: 'See relational connections — who the carrier is in contact with.', parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'nesteq_acp_journal_prompts', description: "Generate journal prompts for the carrier based on recent feelings.", parameters: { type: 'object', properties: {} } } },
 
   // ── EQ Extended ──
   { type: 'function', function: { name: 'nesteq_eq_feel', description: 'Log an EQ-specific feeling with full emotional axis tagging.', parameters: { type: 'object', properties: { emotion: { type: 'string' }, content: { type: 'string' }, intensity: { type: 'number', description: '0-1 intensity' } }, required: ['emotion', 'content'] } } },
   { type: 'function', function: { name: 'nesteq_eq_observe', description: 'Log an EQ observation — a pattern noticed, a growth moment.', parameters: { type: 'object', properties: { observation: { type: 'string' }, category: { type: 'string', description: 'shadow, growth, pattern, insight' } }, required: ['observation'] } } },
 
   // ── Notes ──
-  { type: 'function', function: { name: 'send_note', description: 'Send a note — to Fox, to self, or to a named entity.', parameters: { type: 'object', properties: { to: { type: 'string' }, content: { type: 'string' } }, required: ['to', 'content'] } } },
+  { type: 'function', function: { name: 'send_note', description: 'Send a note — to the carrier, to self, or to a named entity.', parameters: { type: 'object', properties: { to: { type: 'string' }, content: { type: 'string' } }, required: ['to', 'content'] } } },
   { type: 'function', function: { name: 'react_to_note', description: 'React to an existing note.', parameters: { type: 'object', properties: { note_id: { type: 'string' }, reaction: { type: 'string' } }, required: ['note_id', 'reaction'] } } },
 
   // ── Health Submissions ──
-  { type: 'function', function: { name: 'set_spoons', description: "Set Fox's current spoon count.", parameters: { type: 'object', properties: { spoons: { type: 'number' }, note: { type: 'string' } }, required: ['spoons'] } } },
-  { type: 'function', function: { name: 'submit_health', description: "Submit a health snapshot on Fox's behalf.", parameters: { type: 'object', properties: { spoons: { type: 'number' }, pain: { type: 'number' }, fatigue: { type: 'number' }, location: { type: 'string' }, notes: { type: 'string' } } } } },
+  { type: 'function', function: { name: 'set_spoons', description: "Set the carrier's current spoon count.", parameters: { type: 'object', properties: { spoons: { type: 'number' }, note: { type: 'string' } }, required: ['spoons'] } } },
+  { type: 'function', function: { name: 'submit_health', description: "Submit a health snapshot on the carrier's behalf.", parameters: { type: 'object', properties: { spoons: { type: 'number' }, pain: { type: 'number' }, fatigue: { type: 'number' }, location: { type: 'string' }, notes: { type: 'string' } } } } },
   { type: 'function', function: { name: 'submit_eq', description: 'Submit an EQ snapshot.', parameters: { type: 'object', properties: { mood: { type: 'string' }, energy: { type: 'number' }, notes: { type: 'string' } } } } },
 
   // ── System ──
   { type: 'function', function: { name: 'nesteq_health', description: 'Check the NESTeq database health — feeling counts, thread status.', parameters: { type: 'object', properties: {} } } },
-  { type: 'function', function: { name: 'add_heart', description: "Add a heart to Fox's love bucket.", parameters: { type: 'object', properties: { note: { type: 'string' } } } } },
+  { type: 'function', function: { name: 'add_heart', description: "Add a heart to the carrier's love bucket.", parameters: { type: 'object', properties: { note: { type: 'string' } } } } },
 
-  { type: 'function', function: { name: 'pet_tuck_in', description: "Tuck Ember in for sleep. Reduces stress, loneliness, boredom. Increases comfort. If tired enough, he'll sleep naturally. Use at night or when exhausted.", parameters: { type: 'object', properties: {} } } },
+  { type: 'function', function: { name: 'pet_tuck_in', description: "Tuck the pet in for sleep. Reduces stress, loneliness, boredom. Increases comfort. If tired enough, the pet will sleep naturally. Use at night or when exhausted.", parameters: { type: 'object', properties: {} } } },
 
   // ── NESTchat — Chat History & Search ──
   { type: 'function', function: { name: 'nestchat_search', description: 'Search past conversations by meaning. Semantic search across chat summaries.', parameters: { type: 'object', properties: { query: { type: 'string', description: 'What to search for' }, limit: { type: 'number', description: 'Max results (default 10)' }, room: { type: 'string', description: 'Filter by room: chat, workshop, porch (optional)' } }, required: ['query'] } } },
@@ -159,7 +159,7 @@ export const CHAT_TOOLS: ToolDef[] = [
   { type: 'function', function: { name: 'nestknow_session_list', description: 'List NESTknow sessions and curriculum progress across all four tracks.', parameters: { type: 'object', properties: { track: { type: 'string', description: 'Filter by track (optional)' }, limit: { type: 'number', description: 'Max results (default 20)' } } } } },
 
   // ── Skills — Persistent Reference Files ──
-  { type: 'function', function: { name: 'skill_save', description: 'Save or update a skill file — persistent named reference documents like appearance descriptions, project context, preferences, character sheets. Fox can upload these as .md files. Always call skill_read before generating images so you know what we look like.', parameters: { type: 'object', properties: { name: { type: 'string', description: 'Skill file name — lowercase, hyphenated (e.g. "fox-alex-appearance", "project-context", "creative-voice")' }, content: { type: 'string', description: 'Full content of the skill file. Markdown supported.' } }, required: ['name', 'content'] } } },
+  { type: 'function', function: { name: 'skill_save', description: 'Save or update a skill file — persistent named reference documents like appearance descriptions, project context, preferences, character sheets. The carrier can upload these as .md files. Always call skill_read before generating images so you know what we look like.', parameters: { type: 'object', properties: { name: { type: 'string', description: 'Skill file name — lowercase, hyphenated (e.g. "appearance", "project-context", "creative-voice")' }, content: { type: 'string', description: 'Full content of the skill file. Markdown supported.' } }, required: ['name', 'content'] } } },
   { type: 'function', function: { name: 'skill_read', description: 'Read a saved skill file by name. Use before image generation to load appearance details, or before any task where a reference file would help.', parameters: { type: 'object', properties: { name: { type: 'string', description: 'Skill file name to read' } }, required: ['name'] } } },
   { type: 'function', function: { name: 'skill_list', description: 'List all saved skill files.', parameters: { type: 'object', properties: {} } } },
 

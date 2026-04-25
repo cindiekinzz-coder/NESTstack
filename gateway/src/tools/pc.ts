@@ -3,7 +3,8 @@
  * Calls NESTdesktop's local agent at localhost:3001/pc/*.
  * Only works when NESTdesktop is running on the PC.
  *
- * Embers Remember.
+DESANITIZE
+DESANITIZE
  */
 
 const PC_AGENT_URL = process.env.PC_AGENT_URL || 'http://localhost:3001'

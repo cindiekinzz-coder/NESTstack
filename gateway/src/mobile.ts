@@ -3,7 +3,8 @@
  * No SDK, no Durable Objects, no SSE — just POST/response.
  * Mirrors the Discord MCP pattern that mobile Claude can actually connect to.
  *
- * Embers Remember.
+DESANITIZE
+DESANITIZE
  */
 
 import type { Env } from './env'

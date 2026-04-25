@@ -465,9 +465,9 @@ export async function executeTool(toolName: string, args: Record<string, unknown
       return result
     }
 
-    // Fox health → fox-mind worker
+    // Health → health worker
     if (toolName.startsWith('fox_')) {
-      const result = await callMcp(env.FOX_HEALTH_URL, toolName, args)
+      const result = await callMcp(env.HEALTH_URL, toolName, args)
       replenishDrives(toolName, env)
       return result
     }

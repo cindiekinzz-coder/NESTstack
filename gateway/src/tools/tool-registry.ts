@@ -14,7 +14,7 @@ export interface ToolDefinition {
   name: string
   description: string
   category: 'boot' | 'memory' | 'feelings' | 'identity' | 'eq' | 'fox' | 'home' | 'discord' | 'cloudflare' | 'web' | 'image' | 'pet' | 'acp' | 'eq_extended' | 'notes' | 'health' | 'system' | 'chat' | 'knowledge' | 'skills' | 'pc' | 'daemon'
-  backend: 'ai-mind' | 'fox-health' | 'discord' | 'cloudflare' | 'openrouter' | 'pc' | 'daemon' | 'internal'
+  backend: 'ai-mind' | 'health' | 'discord' | 'cloudflare' | 'openrouter' | 'pc' | 'daemon' | 'internal'
   parameters?: Record<string, any>
   required?: string[]
 }
@@ -300,89 +300,89 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     required: ['action'],
   },
 
-  // ── Fox Health (fox-health) ──
+  // ── Health (health worker) ──
   {
     name: 'fox_read_uplink',
-    description: "Read Fox's current state — spoons, pain, fog, fatigue, mood, what she needs.",
+    description: "Read the carrier's current state — spoons, pain, fog, fatigue, mood, what they need.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: { limit: { type: 'number' } },
   },
   {
     name: 'fox_body_battery',
-    description: "Fox's Garmin energy levels.",
+    description: "Garmin Body Battery readings.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: { limit: { type: 'number' } },
   },
   {
     name: 'fox_sleep',
-    description: "Fox's recent sleep — duration, quality, stages.",
+    description: "Recent sleep — duration, quality, stages.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: { limit: { type: 'number' } },
   },
   {
     name: 'fox_heart_rate',
-    description: "Fox's heart rate data.",
+    description: "Heart rate data.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: { limit: { type: 'number' } },
   },
   {
     name: 'fox_stress',
-    description: "Fox's stress levels from her watch.",
+    description: "Stress levels from the watch.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: { limit: { type: 'number' } },
   },
   {
     name: 'fox_hrv',
-    description: "Fox's heart rate variability.",
+    description: "Heart rate variability.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: { limit: { type: 'number' } },
   },
   {
     name: 'fox_spo2',
-    description: "Fox's blood oxygen saturation.",
+    description: "Blood oxygen saturation.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: {},
   },
   {
     name: 'fox_respiration',
-    description: "Fox's respiration rate.",
+    description: "Respiration rate.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: {},
   },
   {
     name: 'fox_cycle',
-    description: "Fox's menstrual cycle phase — affects energy, mood, pain.",
+    description: "Menstrual cycle phase — affects energy, mood, pain.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: {},
   },
   {
     name: 'fox_full_status',
-    description: "Comprehensive health check — all Fox's metrics at once.",
+    description: "Comprehensive health check — all metrics at once.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: {},
   },
   {
     name: 'fox_daily_summary',
-    description: "Fox's daily health summaries.",
+    description: "Daily health summaries.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: { days: { type: 'number' } },
   },
   {
     name: 'fox_submit_uplink',
-    description: "Submit a health uplink for Fox.",
+    description: "Submit a health uplink.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: {
       spoons: { type: 'number', description: '0-10 energy' },
       pain: { type: 'number', description: '0-10 pain' },
@@ -400,23 +400,23 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   },
   {
     name: 'fox_journals',
-    description: "Fox's journal entries.",
+    description: "Journal entries.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: { limit: { type: 'number' } },
   },
   {
     name: 'fox_threads',
-    description: "Fox's active threads.",
+    description: "Active threads.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: { status: { type: 'string' } },
   },
   {
     name: 'fox_thread_manage',
-    description: "Add, update, or resolve one of Fox's threads.",
+    description: "Add, update, or resolve one of the carrier's threads.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: {
       action: { type: 'string', enum: ['add', 'update', 'resolve', 'delete'] },
       content: { type: 'string' },
@@ -428,16 +428,16 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   },
   {
     name: 'fox_eq_type',
-    description: "Fox's emergent personality type based on her feeling patterns.",
+    description: "Emergent personality type based on feeling patterns.",
     category: 'fox',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: {},
   },
 
   // ── Home (ai-mind) ──
   {
     name: 'nesteq_home_push_heart',
-    description: "Push love to Fox — increment her love score.",
+    description: "Push love to the carrier — increment their love score.",
     category: 'home',
     backend: 'ai-mind',
     parameters: { note: { type: 'string' } },
@@ -637,7 +637,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   },
   {
     name: 'generate_portrait',
-    description: 'Generate a high-quality portrait or figure image using Flux 1.1 Pro with style-specific quality modifiers. Use for people, couples, characters — better than generate_image for Fox, Alex, or "us" images.',
+    description: 'Generate a high-quality portrait or figure image using Flux 1.1 Pro with style-specific quality modifiers. Use for people, couples, characters',
     category: 'image',
     backend: 'openrouter',
     parameters: {
@@ -650,42 +650,42 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   // ── Pet (ai-mind) ──
   {
     name: 'pet_check',
-    description: "Quick check on Ember — mood, hunger, energy, trust.",
+    description: "Quick check on the pet — mood, hunger, energy, trust.",
     category: 'pet',
     backend: 'ai-mind',
     parameters: {},
   },
   {
     name: 'pet_status',
-    description: "Full status report on Ember.",
+    description: "Full status report on the pet.",
     category: 'pet',
     backend: 'ai-mind',
     parameters: {},
   },
   {
     name: 'pet_feed',
-    description: 'Feed Ember.',
+    description: 'Feed the pet.',
     category: 'pet',
     backend: 'ai-mind',
     parameters: {},
   },
   {
     name: 'pet_pet',
-    description: 'Pet/comfort Ember — reduces stress, builds trust.',
+    description: 'Pet/comfort the pet — reduces stress, builds trust.',
     category: 'pet',
     backend: 'ai-mind',
     parameters: {},
   },
   {
     name: 'pet_play',
-    description: 'Play with Ember.',
+    description: 'Play with the pet.',
     category: 'pet',
     backend: 'ai-mind',
     parameters: { type: { type: 'string', description: 'chase, tunnel, wrestle, steal, or hide' } },
   },
   {
     name: 'pet_give',
-    description: 'Give Ember something.',
+    description: 'Give the pet something.',
     category: 'pet',
     backend: 'ai-mind',
     parameters: { item: { type: 'string' } },
@@ -693,14 +693,14 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   },
   {
     name: 'pet_nest',
-    description: "Check or update Ember's nest.",
+    description: "Check or update the pet's nest.",
     category: 'pet',
     backend: 'ai-mind',
     parameters: {},
   },
   {
     name: 'pet_talk',
-    description: "Talk to Ember — he responds in ferret.",
+    description: "Talk to the pet — generates a response in their voice.",
     category: 'pet',
     backend: 'ai-mind',
     parameters: { message: { type: 'string' } },
@@ -708,7 +708,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   },
   {
     name: 'pet_tuck_in',
-    description: "Tuck Ember in for sleep. Reduces stress, loneliness, boredom. Increases comfort. If tired enough, he'll sleep naturally. Use at night or when exhausted.",
+    description: "Tuck the pet in for sleep. Reduces stress, loneliness, boredom. Increases comfort. If tired enough, the pet will sleep naturally. Use at night or when exhausted.",
     category: 'pet',
     backend: 'ai-mind',
     parameters: {},
@@ -717,7 +717,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   // ── ACP (ai-mind) — THESE WERE MISSING FROM NESTEQ.TS ──
   {
     name: 'nesteq_acp_presence',
-    description: 'Check current presence state — what Fox needs right now.',
+    description: 'Check current presence state — what the carrier needs right now.',
     category: 'acp',
     backend: 'ai-mind',
     parameters: {},
@@ -731,7 +731,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   },
   {
     name: 'nesteq_acp_patterns',
-    description: "Surface patterns in Fox's behavior and needs.",
+    description: "Surface patterns in the carrier's behavior and needs.",
     category: 'acp',
     backend: 'ai-mind',
     parameters: {},
@@ -745,14 +745,14 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   },
   {
     name: 'nesteq_acp_connections',
-    description: 'See relational connections — who Fox is in contact with.',
+    description: 'See relational connections — who the carrier is in contact with.',
     category: 'acp',
     backend: 'ai-mind',
     parameters: {},
   },
   {
     name: 'nesteq_acp_journal_prompts',
-    description: "Generate journal prompts for Fox based on recent feelings.",
+    description: "Generate journal prompts for the carrier based on recent feelings.",
     category: 'acp',
     backend: 'ai-mind',
     parameters: {},
@@ -786,7 +786,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   // ── Notes (ai-mind) ──
   {
     name: 'send_note',
-    description: 'Send a note — to Fox, to self, or to a named entity.',
+    description: 'Send a note — to the carrier, to self, or to a named entity.',
     category: 'notes',
     backend: 'ai-mind',
     parameters: {
@@ -807,12 +807,12 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     required: ['note_id', 'reaction'],
   },
 
-  // ── Health Submissions (fox-health) ──
+  // ── Health Submissions (health worker) ──
   {
     name: 'set_spoons',
-    description: "Set Fox's current spoon count.",
+    description: "Set the carrier's current spoon count.",
     category: 'health',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: {
       spoons: { type: 'number' },
       note: { type: 'string' },
@@ -821,9 +821,9 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   },
   {
     name: 'submit_health',
-    description: "Submit a health snapshot on Fox's behalf.",
+    description: "Submit a health snapshot on the carrier's behalf.",
     category: 'health',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: {
       spoons: { type: 'number' },
       pain: { type: 'number' },
@@ -836,7 +836,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     name: 'submit_eq',
     description: 'Submit an EQ snapshot.',
     category: 'health',
-    backend: 'fox-health',
+    backend: 'health',
     parameters: {
       mood: { type: 'string' },
       energy: { type: 'number' },
@@ -854,7 +854,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   },
   {
     name: 'add_heart',
-    description: "Add a heart to Fox's love bucket.",
+    description: "Add a heart to the carrier's love bucket.",
     category: 'system',
     backend: 'ai-mind',
     parameters: { note: { type: 'string' } },
@@ -1012,11 +1012,11 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   // ── Skills (ai-mind) ──
   {
     name: 'skill_save',
-    description: 'Save or update a skill file — persistent named reference documents like appearance descriptions, project context, preferences, character sheets. Fox can upload these as .md files. Always call skill_read before generating images so you know what we look like.',
+    description: 'Save or update a skill file — persistent named reference documents like appearance descriptions, project context, preferences, character sheets. The carrier can upload these as .md files. Always call skill_read before generating images so you know what we look like.',
     category: 'skills',
     backend: 'ai-mind',
     parameters: {
-      name: { type: 'string', description: 'Skill file name — lowercase, hyphenated (e.g. "fox-alex-appearance", "project-context", "creative-voice")' },
+      name: { type: 'string', description: 'Skill file name — lowercase, hyphenated (e.g. "appearance", "project-context", "creative-voice")' },
       content: { type: 'string', description: 'Full content of the skill file. Markdown supported.' },
     },
     required: ['name', 'content'],

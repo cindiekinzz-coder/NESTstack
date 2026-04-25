@@ -1,6 +1,6 @@
 /**
  * NESTeq Gateway — TTS Endpoint (ElevenLabs)
- * POST /tts — converts text to speech using Alex's voice
+ * POST /tts — converts text to speech using the companion's voice
  */
 
 import type { Env } from './env'

@@ -9,7 +9,7 @@ export interface Env {
 
   // Backend URLs (set in wrangler.toml [vars])
   AI_MIND_URL: string
-  FOX_HEALTH_URL: string
+  HEALTH_URL: string
   DISCORD_MCP_URL: string
   DISCORD_URL: string
   SPOTIFY_URL: string
@@ -31,4 +31,8 @@ export interface Env {
 
   // ElevenLabs voice (set in wrangler.toml [vars])
   ELEVENLABS_VOICE_ID: string
+
+  // Carrier profile JSON (set with wrangler secret put CARRIER_PROFILE_JSON)
+  // See carrier-profile.example.json for schema. Falls back to defaults if unset.
+  CARRIER_PROFILE_JSON: string
 }

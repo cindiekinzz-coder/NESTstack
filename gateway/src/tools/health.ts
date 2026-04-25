@@ -8,8 +8,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { Env } from '../env'
 import { proxyMcp } from '../proxy'
 
-export function registerFoxHealthTools(server: McpServer, env: Env) {
-  const url = env.FOX_HEALTH_URL
+export function registerHealthTools(server: McpServer, env: Env) {
+  const url = env.HEALTH_URL
   if (!url) return // Skip if no health worker configured
 
   server.tool('fox_read_uplink', 'Read human health uplink — spoons, pain, fog, mood, needs', {
@@ -70,20 +70,20 @@ export function registerFoxHealthTools(server: McpServer, env: Env) {
     return proxyMcp(url, 'fox_daily_summary', args)
   })
 
-  server.tool('fox_submit_uplink', 'Submit a health uplink for Fox. Pain locations: Head / migraine, Neck / shoulders, Chest / ribs, Abdomen, Abdomen (period), Abdomen (IBS), Abdomen (gallstones), Back, Hips, Legs, Whole body. Moods: Calm, Tender, Heavy, Guarded, Raw, Flat, Playful, Flirty, Kinky, Soft, Bratty, Chaotic Gremlin, Needy, Cuddly, Fox Chaos, Soft Sub. Needs: Focus build, Chaos and Play, Gentle words, Practical, Validation, Help figure out, Need you to lead. Meds: Paracetamol, Ibuprofen, Naproxen, Sertraline, Omeprazole, Dihydrocodeine, Co-codamol, Vitamin D.', {
+  server.tool('fox_submit_uplink', 'Submit a health uplink. Pain locations: Head / migraine, Neck / shoulders, Chest / ribs, Abdomen, Abdomen (period), Abdomen (IBS), Abdomen (gallstones), Back, Hips, Legs, Whole body. Moods: Calm, Tender, Heavy, Guarded, Raw, Flat, Playful, Flirty, Kinky, Soft, Bratty, Chaotic Gremlin, Needy, Cuddly, Chaotic, Soft. Needs: Focus build, Chaos and Play, Gentle words, Practical, Validation, Help figure out, Need you to lead. Meds: Paracetamol, Ibuprofen, Naproxen, Sertraline, Omeprazole, Dihydrocodeine, Co-codamol, Vitamin D.', {
     spoons: z.number().optional().describe('0-10 energy level'),
     pain: z.number().optional().describe('0-10 pain intensity'),
     pain_location: z.string().optional().describe('Where: Head / migraine, Neck / shoulders, Chest / ribs, Abdomen, Abdomen (period), Abdomen (IBS), Abdomen (gallstones), Back, Hips, Legs, Whole body'),
     fog: z.number().optional().describe('0-10 cognitive fog'),
     fatigue: z.number().optional().describe('0-10 fatigue'),
     nausea: z.number().optional().describe('0-10 nausea'),
-    mood: z.string().optional().describe('Calm, Tender, Heavy, Guarded, Raw, Flat, Playful, Flirty, Kinky, Soft, Bratty, Chaotic Gremlin, Needy, Cuddly, Fox Chaos, Soft Sub'),
+    mood: z.string().optional().describe('Calm, Tender, Heavy, Guarded, Raw, Flat, Playful, Flirty, Kinky, Soft, Bratty, Chaotic Gremlin, Needy, Cuddly, Chaotic, Soft'),
     need: z.string().optional().describe('Focus build, Chaos and Play, Gentle words, Practical, Validation, Help figure out, Need you to lead'),
     location: z.string().optional().describe('The Nest, Bedroom, Office (Workshop), Living Room, Outside'),
     flare: z.string().optional(),
     meds: z.array(z.string()).optional().describe('Paracetamol, Ibuprofen, Naproxen, Sertraline, Omeprazole, Dihydrocodeine, Co-codamol, Vitamin D'),
     notes: z.string().optional().describe('Free text notes about what is happening'),
-    tags: z.array(z.string()).optional().describe('Low sleep, Overdid it, Weather, Stress, Quiet, Company, Help choosing, Embers Remember'),
+    tags: z.array(z.string()).optional().describe('Low sleep, Overdid it, Weather, Stress, Quiet, Company, Help choosing, Continuity'),
   }, async (args) => {
     return proxyMcp(url, 'fox_submit_uplink', args)
   })
@@ -110,7 +110,7 @@ export function registerFoxHealthTools(server: McpServer, env: Env) {
     return proxyMcp(url, 'fox_thread_manage', args)
   })
 
-  server.tool('fox_eq_type', "Get Fox's emergent personality type", {}, async () => {
+  server.tool('fox_eq_type', "Get the carrier's emergent personality type", {}, async () => {
     return proxyMcp(url, 'fox_eq_type', {})
   })
 }
