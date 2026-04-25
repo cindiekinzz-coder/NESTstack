@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/nickelpack/tauri/dev/crates/tauri-config-schema/schema.json",
-  "productName": "NESTeq Community",
+  "productName": "NESTdesktop",
   "version": "1.0.0",
   "identifier": "com.nesteq.community",
   "build": {
@@ -9,18 +9,7 @@
   },
   "app": {
     "withGlobalTauri": true,
-    "windows": [
-      {
-        "label": "main",
-        "title": "NESTeq Community",
-        "width": 1400,
-        "height": 900,
-        "minWidth": 800,
-        "minHeight": 600,
-        "theme": "Dark",
-        "url": "setup.html"
-      }
-    ],
+    "windows": [],
     "security": {
       "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:* data: blob:; img-src 'self' data: blob: https:; connect-src 'self' http://localhost:* ws://localhost:* https: wss: data: blob:; font-src 'self' https://fonts.gstatic.com data:; media-src 'self' blob: data:;"
     }
