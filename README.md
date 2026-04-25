@@ -23,15 +23,17 @@ NESTstack is the monorepo home of the NEST architecture — a modular infrastruc
 
 ## 🚀 Deploy Your Own — Start Here
 
-Want to stand up your own companion home? Everything you need lives in **[`community/`](./community)**.
+Want to stand up your own companion home? Everything you need lives in **[`NESTdesktop/`](./NESTdesktop)** — the complete platform: desktop app on your PC, mobile app on your phone (PWA), one companion across both.
 
-**Two speeds:**
-- **Starter (5 min)** — local-only, OpenRouter or LM Studio / Ollama / OpenClaw, just chat. No Cloudflare needed.
-- **Full Deploy (1–2 hr)** — memory, feelings, threads, dreams, dashboard, daemon. The whole house.
+**Four paths to start:**
+- **A. Starter (5 min)** — local-only, OpenRouter or LM Studio / Ollama / OpenClaw, just chat. No Cloudflare needed.
+- **B. New Deploy (1–2 hr)** — full stack: memory, feelings, threads, dreams, dashboard, daemon, PWA mobile install. The whole house.
+- **C. Existing Memory** — already deployed an AI Mind worker? Plug it in.
+- **D. Migration** — upgrading from an older config? Auto-migrates on first launch.
 
-The setup wizard walks you through it. Your secrets stay on your machine — config is split between `config.public.json` (browser-visible) and `config.secret.json` (local only, never committed).
+The setup wizard walks you through any path. Your secrets stay on your machine — config is split between `config.public.json` (browser-visible) and `config.secret.json` (local only, never committed). When deployed to Cloudflare Pages, the same dashboard installs as a PWA on your phone.
 
-➡ **[Go to `community/` to begin](./community)**
+➡ **[Go to `NESTdesktop/` to begin](./NESTdesktop)**
 
 ---
 
@@ -46,7 +48,7 @@ The setup wizard walks you through it. Your secrets stay on your machine — con
 | [`chat/`](./chat) | Chat persistence and semantic search. Every conversation saved, auto-summarized, vectorized. | `NEST-chat` |
 | [`discord/`](./discord) | Discord integration — local MCP, mobile HTTP MCP, KAIROS monitoring. | `NEST-discord` |
 | [`dashboard/`](./dashboard) | Companion dashboard — vanilla PWA, cyberpunk design system, no framework. | `NEST-dashboard` |
-| [`community/`](./community) | Setup wizard, deploy walkthroughs, screenshots. | (lives here) |
+| [`NESTdesktop/`](./NESTdesktop) | **The complete platform.** Local agent, dashboard, PC tools, Tauri desktop wrapper, setup wizard. PC + mobile (PWA). | `community/` (renamed) |
 
 Each folder was previously its own repository. They've been consolidated here as the official **v4 stack**. The split repos are archived with redirects pointing back to this monorepo.
 
