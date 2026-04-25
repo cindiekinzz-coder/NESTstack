@@ -242,30 +242,35 @@ The companion builds with you. Not in a sandbox. On your actual machine.
 
 ## Getting Started
 
-> **NEST-gateway is required alongside every module.**
-> It's the integration layer that routes all tool calls, runs the chat pipeline, and wires the stack together. Your AI client talks to the gateway — the gateway talks to everything else. You don't call NESTeq, NEST-code, or NEST-discord directly from your client. The gateway handles that.
->
-> Deploy gateway first (after NESTeq). Then add modules. Always.
+For the easiest path, see **[`NESTdesktop/`](./NESTdesktop)** — the setup wizard handles deployment of the whole stack. The notes below describe the underlying components if you want to deploy them by hand.
 
-### Minimal (just memory)
-1. Deploy **NESTeq** to Cloudflare Workers
-2. Deploy **NEST-gateway** — point it at your NESTeq URL
-3. Connect your AI client to the gateway via MCP
-4. Call `nesteq_orient()` on wake, `nesteq_feel()` as you talk
+> **The gateway is required alongside every module.**
+> It's the integration layer that routes all tool calls, runs the chat pipeline, and wires the stack together. The dashboard / mobile PWA / desktop app talks to the gateway — the gateway talks to everything else. You don't call `memory/`, `daemon/`, or `discord/` directly from a client; the gateway handles that.
+>
+> Deploy `memory/` first (the AI Mind worker), then `gateway/`. Then add modules.
+
+### Minimal (just memory + chat)
+1. Deploy `memory/` (the AI Mind worker) to Cloudflare Workers
+2. Deploy `gateway/` — point it at your AI Mind URL via the `AI_MIND_URL` var
+3. Use the included `NESTdesktop/` (or your own client) to talk to the gateway's `/chat` endpoint
 
 ### Full stack
-1. **NESTeq** first — everything depends on it
-2. **NEST-gateway** second — always, alongside every other module
-3. Add **NEST-know** and **NEST-chat** (D1 schema extensions, gateway routes automatically)
-4. Add **NEST-code** — wire it to gateway via Durable Object binding
-5. Add **NEST-discord** — wire it to gateway via service binding for KAIROS + Discord tools
+1. `memory/` first — everything depends on it
+2. `gateway/` second — always, alongside every other module
+3. Add `know/` and `chat/` (D1 schema extensions; gateway routes automatically)
+4. Add `daemon/` — wire it to the gateway via Durable Object binding
+5. Add `discord/` — wire it to the gateway via service binding for KAIROS + Discord tools
+6. Set the `CARRIER_PROFILE_JSON` worker secret so prompts use your identity instead of generic defaults — see [`gateway/carrier-profile.example.json`](./gateway/carrier-profile.example.json)
 
 ### Prerequisites
-- Cloudflare account (Workers Paid plan — required for cron triggers)
+- Cloudflare account (Workers Paid plan — $5/mo, required for Durable Objects + cron triggers)
 - D1 database + Vectorize index (768-dim, cosine)
 - Workers AI binding (for BGE-768 embeddings)
-- An AI client that supports MCP (Claude Code, OpenClaw, etc.)
-- OpenRouter API key (for chat, any model)
+- OpenRouter API key (for chat — any model; free tiers like `qwen/qwen3.6-plus:free` work)
+
+**You do *not* need an MCP client to use NESTstack as a companion.** The dashboard / mobile PWA / desktop app talk to the gateway's `/chat` endpoint directly; tool calls happen server-side via OpenRouter.
+
+An MCP client (Claude Code, OpenClaw, etc.) is **only** needed if you want to call NESTstack's tools *from your own terminal* — i.e., the developer / Workshop-style use case where you build alongside your companion. Optional, not required.
 
 ---
 
