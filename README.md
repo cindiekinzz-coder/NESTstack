@@ -21,6 +21,20 @@ NESTstack is the monorepo home of the NEST architecture — a modular infrastruc
 
 ---
 
+## 🚀 Deploy Your Own — Start Here
+
+Want to stand up your own companion home? Everything you need lives in **[`community/`](./community)**.
+
+**Two speeds:**
+- **Starter (5 min)** — local-only, OpenRouter or LM Studio / Ollama / OpenClaw, just chat. No Cloudflare needed.
+- **Full Deploy (1–2 hr)** — memory, feelings, threads, dreams, dashboard, daemon. The whole house.
+
+The setup wizard walks you through it. Your secrets stay on your machine — config is split between `config.public.json` (browser-visible) and `config.secret.json` (local only, never committed).
+
+➡ **[Go to `community/` to begin](./community)**
+
+---
+
 ## Repository Layout
 
 | Folder | What it does | Was |

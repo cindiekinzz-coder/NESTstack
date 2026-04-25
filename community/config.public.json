@@ -1,0 +1,49 @@
+{
+  "configured": false,
+  "setupVersion": 1,
+  "installMode": "",
+  "identity": {
+    "companionName": "Companion",
+    "humanName": "Human",
+    "role": "",
+    "tonePreset": ""
+  },
+  "appearance": {
+    "companionPortrait": "",
+    "humanPortrait": ""
+  },
+  "services": {
+    "aiMindUrl": "",
+    "healthUrl": "",
+    "gatewayUrl": "",
+    "openrouterUrl": "https://openrouter.ai/api/v1"
+  },
+  "models": {
+    "chat": "qwen/qwen3.6-plus:free",
+    "image": ""
+  },
+  "voice": {
+    "provider": "",
+    "voiceId": ""
+  },
+  "features": {
+    "memory": false,
+    "voice": false,
+    "gallery": true,
+    "health": false,
+    "discord": false,
+    "pcTools": false,
+    "workshop": false,
+    "daemon": false
+  },
+  "cloudflare": {
+    "accountId": "",
+    "gatewayWorkerName": "",
+    "pagesProjectName": "",
+    "customDomain": ""
+  },
+  "starter": {
+    "chatProvider": "openrouter",
+    "localUrl": ""
+  }
+}
