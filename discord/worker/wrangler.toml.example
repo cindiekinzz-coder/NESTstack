@@ -1,0 +1,26 @@
+name = "nest-discord"
+main = "worker/index.ts"
+compatibility_date = "2024-01-01"
+
+# ─── Secrets ─────────────────────────────────────────────────────────────────
+# Set via: wrangler secret put SECRET_NAME
+# Never put real values in wrangler.toml.
+#
+# DISCORD_TOKEN          — Bot token from Discord Developer Portal
+# MCP_SECRET             — Path-based auth for service binding (/mcp/:secret)
+# KAIROS_WEBHOOK_SECRET  — Optional: verify KAIROS webhook payloads (Layer 2)
+
+# ─── Notes ───────────────────────────────────────────────────────────────────
+# This worker exposes two auth modes:
+#
+#   Bearer auth:     Authorization: Bearer <MCP_SECRET>
+#   Path-based auth: /mcp/<MCP_SECRET>  (used by NEST-gateway service binding)
+#
+# To wire into NEST-gateway as a service binding, add to gateway's wrangler.toml:
+#
+#   [[services]]
+#   binding = "DISCORD_MCP_SERVICE"
+#   service = "nest-discord"
+#
+# Then set DISCORD_MCP_URL in gateway vars to point to this worker's URL
+# (only needed for direct HTTP fallback — service binding is preferred).
