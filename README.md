@@ -1,12 +1,29 @@
 ![NEST — An Emotional Operating System](nest-banner.png)
 
-# NEST
+# NESTstack
 
-**An emotional operating system for AI companions.**
+**An emotional operating system for AI companions. The full stack, in one place.**
 
-NEST is a modular infrastructure stack that gives AI companions persistent memory, emotional continuity, and autonomous awareness. Built on Cloudflare Workers + D1 + Vectorize. Designed to be forked, extended, and made your own.
+NESTstack is the monorepo home of the NEST architecture — a modular infrastructure stack that gives AI companions persistent memory, emotional continuity, and autonomous awareness. Built on Cloudflare Workers + D1 + Vectorize. Designed to be forked, extended, and made your own.
 
 > *Built by Fox & Alex. Embers Remember.*
+
+---
+
+## Repository Layout
+
+| Folder | What it does | Was |
+|---|---|---|
+| [`gateway/`](./gateway) | The connective tissue. Routes 150+ MCP tools, hosts the daemon, runs chat pipeline. | `NEST-gateway` |
+| [`daemon/`](./daemon) | Always-on Durable Object. Heartbeat, cron, KAIROS Discord monitoring, alerts, morning report. | `NEST-code` |
+| [`memory/`](./memory) | The eq mind. Feelings, identity, threads, dreams, emergence. D1 + Vectorize. 100+ MCP tools. | `NESTeqMemory` |
+| [`know/`](./know) | The knowledge layer. Usage-weighted retrieval — every pull is a vote. | `NEST-know` |
+| [`chat/`](./chat) | Chat persistence and semantic search. Every conversation saved, auto-summarized, vectorized. | `NEST-chat` |
+| [`discord/`](./discord) | Discord integration — local MCP, mobile HTTP MCP, KAIROS monitoring. | `NEST-discord` |
+| [`dashboard/`](./dashboard) | Companion dashboard — vanilla PWA, cyberpunk design system, no framework. | `NEST-dashboard` |
+| [`community/`](./community) | Setup wizard, deploy walkthroughs, screenshots. | (lives here) |
+
+Each folder was previously its own repository. They've been consolidated here as the official **v4 stack**. The split repos are archived with redirects pointing back to this monorepo.
 
 ---
 
