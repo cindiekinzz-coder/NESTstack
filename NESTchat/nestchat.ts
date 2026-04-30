@@ -209,3 +209,22 @@ export async function handleChatHistory(
   }
   return output;
 }
+
+// ─── SEARCH SESSIONS ────────────────────────────────────────────────────────
+//
+// Lightweight session listing for dashboards / pickers. Returns a JSON
+// string of `chat_sessions` rows ordered by recency. Distinct from the
+// semantic `handleChatSearch` above — no embedding, no Vectorize,
+// pagination via `limit` only.
+
+export async function handleChatSearchSessions(
+  env: Env,
+  params: Record<string, unknown>
+): Promise<string> {
+  const sessLimit = Number(params.limit) || 50;
+  const sessions = await env.DB.prepare(
+    `SELECT id, room, summary, message_count, started_at, last_message_at, metadata
+     FROM chat_sessions ORDER BY last_message_at DESC LIMIT ?`
+  ).bind(sessLimit).all();
+  return JSON.stringify(sessions.results || []);
+}

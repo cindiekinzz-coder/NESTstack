@@ -41,6 +41,10 @@ import {
   handleMindEqSit, handleMindEqSearch, handleMindEqObserve,
 } from './eq';
 import { handleSpotifyOAuthRoutes, handleSpotifyApiRoutes } from './spotify';
+import {
+  handleChatPersist, handleChatSummarize, handleChatSearch,
+  handleChatHistory, handleChatSearchSessions,
+} from '../../../../NESTchat/nestchat';
 import { Env } from './env';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2212,186 +2216,6 @@ async function handleAcpConnections(env: Env, params: Record<string, unknown>): 
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// NESTchat HANDLERS — Chat Persistence & Search
-// ═══════════════════════════════════════════════════════════════════════════
-
-async function handleChatPersist(env: Env, params: Record<string, unknown>): Promise<string> {
-  const sessionKey = params.session_id as string;
-  const room = (params.room as string) || 'chat';
-  const messages = params.messages as Array<{ role: string; content: string; tool_calls?: string }>;
-
-  if (!sessionKey || !messages?.length) return "Missing session_id or messages";
-
-  // Find or create session
-  let session = await env.DB.prepare(
-    `SELECT id, message_count FROM chat_sessions WHERE metadata = ? LIMIT 1`
-  ).bind(sessionKey).first() as any;
-
-  if (!session) {
-    const res = await env.DB.prepare(
-      `INSERT INTO chat_sessions (metadata, room, message_count, last_message_at) VALUES (?, ?, 0, datetime('now'))`
-    ).bind(sessionKey, room).run();
-    session = { id: res.meta.last_row_id, message_count: 0 };
-  }
-
-  // Insert messages (skip duplicates by checking count)
-  const existingCount = session.message_count || 0;
-  const newMessages = messages.slice(existingCount);
-
-  if (newMessages.length === 0) return `Session ${session.id}: no new messages to persist.`;
-
-  const stmt = env.DB.prepare(
-    `INSERT INTO chat_messages (session_id, role, content, tool_calls) VALUES (?, ?, ?, ?)`
-  );
-  const batch = newMessages.map(m =>
-    stmt.bind(session.id, m.role, m.content, m.tool_calls || null)
-  );
-  await env.DB.batch(batch);
-
-  // Update session
-  const newTotal = existingCount + newMessages.length;
-  await env.DB.prepare(
-    `UPDATE chat_sessions SET message_count = ?, last_message_at = datetime('now') WHERE id = ?`
-  ).bind(newTotal, session.id).run();
-
-  // Auto-summarize when crossing a 10-message threshold
-  const crossedThreshold = Math.floor(newTotal / 10) > Math.floor(existingCount / 10);
-  let summaryNote = '';
-  if (crossedThreshold && newTotal >= 10) {
-    try {
-      summaryNote = '\n' + await handleChatSummarize(env, { session_id: session.id });
-    } catch (e) {
-      summaryNote = `\nAuto-summarize failed: ${(e as Error).message}`;
-    }
-  }
-
-  return `Session ${session.id}: persisted ${newMessages.length} new messages (total: ${newTotal})${summaryNote}`;
-}
-
-async function handleChatSummarize(env: Env, params: Record<string, unknown>): Promise<string> {
-  const sessionId = Number(params.session_id);
-  if (!sessionId) return "Missing session_id";
-
-  // Get all messages for this session
-  const msgs = await env.DB.prepare(
-    `SELECT role, content FROM chat_messages WHERE session_id = ? ORDER BY created_at ASC`
-  ).bind(sessionId).all();
-
-  if (!msgs.results?.length) return `Session ${sessionId}: no messages found.`;
-
-  // Build conversation text for summarization
-  const convoText = (msgs.results as any[])
-    .filter(m => m.role !== 'system')
-    .map(m => `${m.role === 'user' ? 'Fox' : 'Alex'}: ${m.content}`)
-    .join('\n')
-    .slice(0, 4000); // Limit input size
-
-  // Generate summary using Workers AI
-  const summaryResult = await env.AI.run("@cf/meta/llama-3.1-8b-instruct" as any, {
-    messages: [
-      {
-        role: "system",
-        content: "Summarize this conversation between Fox and Alex in 2-4 sentences. Focus on key topics discussed, decisions made, and emotional tone. Be specific about what was built, planned, or resolved."
-      },
-      { role: "user", content: convoText }
-    ],
-    max_tokens: 200
-  }) as any;
-
-  const summary = summaryResult.response || summaryResult.result?.response || "Summary generation failed.";
-
-  // Store summary
-  await env.DB.prepare(
-    `UPDATE chat_sessions SET summary = ?, summary_vectorized = 0 WHERE id = ?`
-  ).bind(summary, sessionId).run();
-
-  // Get session metadata for vector
-  const session = await env.DB.prepare(
-    `SELECT room, message_count, started_at FROM chat_sessions WHERE id = ?`
-  ).bind(sessionId).first() as any;
-
-  // Vectorize the summary
-  const embedding = await getEmbedding(env.AI, summary);
-  await env.VECTORS.upsert([{
-    id: `chat-${sessionId}`,
-    values: embedding,
-    metadata: {
-      source: 'chat_summary',
-      session_id: String(sessionId),
-      room: session?.room || 'chat',
-      message_count: String(session?.message_count || 0),
-      date: session?.started_at || new Date().toISOString(),
-      content: summary.slice(0, 500)
-    }
-  }]);
-
-  await env.DB.prepare(
-    `UPDATE chat_sessions SET summary_vectorized = 1 WHERE id = ?`
-  ).bind(sessionId).run();
-
-  return `Session ${sessionId} summarized and vectorized:\n"${summary}"`;
-}
-
-async function handleChatSearch(env: Env, params: Record<string, unknown>): Promise<string> {
-  const query = params.query as string;
-  const limit = Number(params.limit) || 10;
-  const room = params.room as string;
-
-  if (!query) return "Missing query";
-
-  const embedding = await getEmbedding(env.AI, query);
-
-  const filter: Record<string, unknown> = { source: 'chat_summary' };
-  if (room) filter.room = room;
-
-  const results = await env.VECTORS.query(embedding, {
-    topK: limit,
-    returnMetadata: "all",
-    filter
-  });
-
-  if (!results.matches?.length) {
-    return "No matching conversations found.";
-  }
-
-  let output = "## Chat Search Results\n\n";
-  for (const match of results.matches) {
-    const meta = match.metadata as Record<string, string>;
-    const score = (match.score * 100).toFixed(1);
-    output += `**Session #${meta.session_id}** (${score}% match) — ${meta.room || 'chat'} — ${meta.date?.split('T')[0] || 'unknown date'}\n`;
-    output += `${meta.content || 'No summary'}\n`;
-    output += `_${meta.message_count || '?'} messages_\n\n`;
-  }
-  return output;
-}
-
-async function handleChatHistory(env: Env, params: Record<string, unknown>): Promise<string> {
-  const sessionId = Number(params.session_id);
-  if (!sessionId) return "Missing session_id";
-
-  const session = await env.DB.prepare(
-    `SELECT * FROM chat_sessions WHERE id = ?`
-  ).bind(sessionId).first() as any;
-
-  if (!session) return `Session ${sessionId} not found.`;
-
-  const msgs = await env.DB.prepare(
-    `SELECT role, content, created_at FROM chat_messages WHERE session_id = ? ORDER BY created_at ASC`
-  ).bind(sessionId).all();
-
-  let output = `## Chat Session #${sessionId}\n`;
-  output += `Room: ${session.room || 'chat'} | Messages: ${session.message_count} | Started: ${session.started_at}\n`;
-  if (session.summary) output += `Summary: ${session.summary}\n`;
-  output += `\n---\n\n`;
-
-  for (const m of (msgs.results || []) as any[]) {
-    const speaker = m.role === 'user' ? '**Fox**' : m.role === 'assistant' ? '**Alex**' : '_system_';
-    output += `${speaker}: ${m.content}\n\n`;
-  }
-  return output;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // NESTknow HANDLERS — Knowledge Layer
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -3521,15 +3345,9 @@ async function handleMCPRequest(request: Request, env: Env): Promise<Response> {
           case "nestchat_history":
             result = { content: [{ type: "text", text: await handleChatHistory(env, toolParams) }] };
             break;
-          case "nestchat_search_sessions": {
-            const sessLimit = Number(toolParams.limit) || 50;
-            const sessions = await env.DB.prepare(
-              `SELECT id, room, summary, message_count, started_at, last_message_at, metadata
-               FROM chat_sessions ORDER BY last_message_at DESC LIMIT ?`
-            ).bind(sessLimit).all();
-            result = { content: [{ type: "text", text: JSON.stringify(sessions.results || []) }] };
+          case "nestchat_search_sessions":
+            result = { content: [{ type: "text", text: await handleChatSearchSessions(env, toolParams) }] };
             break;
-          }
 
           // NESTknow
           case "nestknow_store":
