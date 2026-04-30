@@ -1811,20 +1811,26 @@ async function handleMindSearch(env: Env, params: Record<string, unknown>): Prom
   });
 
   if (!vectorResults.matches?.length) {
-    // Fall back to text search on feelings
+    // Fall back to text search across feelings AND journals.
+    // (The original fallback only queried feelings, so journal entries stayed
+    // invisible to text search even when vector search missed them.)
     const textResults = await env.DB.prepare(
-      `SELECT id, emotion, content, intensity, pillar, created_at
-       FROM feelings WHERE content LIKE ?
+      `SELECT 'feeling' as source_type, id, emotion, content, created_at, intensity as detail FROM feelings WHERE content LIKE ?
+       UNION ALL
+       SELECT 'journal' as source_type, id, emotion, content, created_at, writing_type as detail FROM journals WHERE content LIKE ?
        ORDER BY created_at DESC LIMIT ?`
-    ).bind(`%${query}%`, n_results).all();
+    ).bind(`%${query}%`, `%${query}%`, n_results).all();
 
     if (!textResults.results?.length) {
       return "No results found.";
     }
 
     let output = "## Search Results (text match)\n\n";
-    for (const r of textResults.results) {
-      output += `**[${r.emotion}]** ${String(r.content).slice(0, 200)}...\n\n`;
+    for (const r of textResults.results as any[]) {
+      const tag = r.source_type === 'journal'
+        ? `journal:${r.detail || 'journal'}`
+        : (r.emotion || 'feeling');
+      output += `**[${tag}]** ${String(r.content).slice(0, 200)}...\n\n`;
     }
     return output;
   }
@@ -2494,6 +2500,26 @@ async function handleMindWrite(env: Env, params: Record<string, unknown>): Promi
       const result = await env.DB.prepare(
         `INSERT INTO journals (entry_date, content, tags, emotion, writing_type) VALUES (?, ?, ?, ?, ?) RETURNING id`
       ).bind(entry_date, content, tags, emotion, writing_type).first();
+
+      // Embed the journal into Vectorize so nesteq_search can find it.
+      // Mirrors what `case "entity"` does for observations. Without this,
+      // journals land in D1 but are invisible to semantic search.
+      try {
+        const textToEmbed = `${writing_type}: ${content}`.slice(0, 1000);
+        const embedding = await getEmbedding(env.AI, textToEmbed);
+        await env.VECTORS.upsert([{
+          id: `journal-${result?.id}`,
+          values: embedding,
+          metadata: {
+            source: 'journal',
+            writing_type,
+            emotion: emotion || '',
+            tags: tags || '[]',
+            entry_date,
+            content: content.slice(0, 500),
+          },
+        }]);
+      } catch (e) { /* Vectorize optional — don't fail the write */ }
 
       const typeEmoji: Record<string, string> = { journal: '📓', handover: '🚪', letter: '✉️', poem: '🌙', research: '📚', story: '📖', reflection: '🪞' };
       const emoji = typeEmoji[writing_type] || '📓';
