@@ -4,7 +4,8 @@
  * Takes chemical state + stimulus, outputs action probabilities.
  * No numpy — pure array math for Cloudflare Workers.
  *
- * Ported from Raze's corvid engine.
+ * Ported from corvid (Raze NotGreg, sparked by Miri saying "Creatures").
+ * https://github.com/shadenraze/corvid — full credit chain in pet/index.ts
  */
 
 import { BrainWeights } from './types';

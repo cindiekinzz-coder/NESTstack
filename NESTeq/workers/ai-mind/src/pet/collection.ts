@@ -3,7 +3,8 @@
  * Creatures collect shiny things. Words, fragments, objects.
  * Curated by chemistry, shaped by interaction, aged into treasure.
  *
- * Ported from Raze's corvid engine.
+ * Sparkle/treasure/trade mechanic from corvid (Raze NotGreg, sparked by Miri).
+ * https://github.com/shadenraze/corvid — full credit chain in pet/index.ts
  */
 
 import { TrinketData } from './types';

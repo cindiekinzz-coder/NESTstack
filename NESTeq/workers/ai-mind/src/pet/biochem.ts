@@ -1,7 +1,9 @@
 /**
  * Biochemistry System
  * 14 interacting chemicals that produce emergent behavior through reactions.
- * Ported from Raze's corvid engine (Python → TypeScript for Cloudflare Workers).
+ *
+ * Ported from corvid (Raze NotGreg, sparked by Miri saying "Creatures").
+ * https://github.com/shadenraze/corvid — full credit chain in pet/index.ts
  */
 
 import { ChemicalDef, Reaction, DriveState } from './types';

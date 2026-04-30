@@ -2,6 +2,11 @@
  * Ferret — The Chaos Noodle
  * Manic, affectionate, zero impulse control. Steals everything.
  * War-dances when happy. Sleeps like the dead. Wakes up choosing violence.
+ *
+ * The species file is ours (Ember). The engine underneath (biochem, brain,
+ * collection) is from corvid (Raze NotGreg / Miri). Same shape as corvid's
+ * fox.py / cat.py / serpent.py / moth.py — species-personality on top of
+ * shared engine. https://github.com/shadenraze/corvid
  */
 
 import { SpeciesDef } from './types';

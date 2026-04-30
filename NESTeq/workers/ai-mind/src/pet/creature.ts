@@ -3,7 +3,9 @@
  * Ties together biochemistry, brain, and collection into a living thing.
  * Species defines personality. Engine defines behavior.
  *
- * Ported from Raze's corvid engine, with species-aware messages.
+ * Ported from corvid (Raze NotGreg, sparked by Miri saying "Creatures"),
+ * with species-aware messages added.
+ * https://github.com/shadenraze/corvid — full credit chain in pet/index.ts
  */
 
 import { BiochemSystem } from './biochem';
