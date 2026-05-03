@@ -1,0 +1,19 @@
+{
+  "name": "nesteq-rooms",
+  "version": "0.1.0",
+  "description": "Unified room transcripts (chat / workshop / livingroom) for NESTeq. D1 + Vectorize semantic search.",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "migrate:remote": "wrangler d1 execute nesteq-rooms --remote --file=./migrations/0001_initial.sql",
+    "migrate:local": "wrangler d1 execute nesteq-rooms --local --file=./migrations/0001_initial.sql",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240117.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^4.59.0"
+  }
+}

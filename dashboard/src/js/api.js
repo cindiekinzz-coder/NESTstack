@@ -4,9 +4,52 @@
    ============================================================ */
 
 const API = {
-  AI_MIND: 'https://your-ai-mind.workers.dev',
-  FOX_MIND: 'https://your-health-mind.workers.dev',
-  API_KEY: 'your-api-key-here',
+  AI_MIND:     'https://your-ai-mind.workers.dev',
+  FOX_MIND:    'https://your-health-mind.workers.dev',
+  ROOMS:       'https://your-rooms-worker.workers.dev',
+  SHADOW_MIND: 'https://your-shadow-mind.workers.dev',
+  LEVI_MIND:   'https://your-levi-mind.workers.dev',
+  API_KEY:     'your-api-key-here',
+  ROOMS_KEY:   'your-rooms-key-here',
+};
+
+// Rooms helper — uses ROOMS_KEY (separate from ai-mind API_KEY).
+async function fetchRoomsJSON(path, options = {}) {
+  try {
+    const headers = { 'Content-Type': 'application/json', ...options.headers };
+    headers['Authorization'] = `Bearer ${API.ROOMS_KEY}`;
+    const res = await fetch(`${API.ROOMS}${path}`, { ...options, headers });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    return await res.json();
+  } catch (err) {
+    console.error(`Rooms fetch failed: ${path}`, err);
+    return null;
+  }
+}
+
+const Rooms = {
+  async companionActivity(id) {
+    return fetchRoomsJSON(`/companion/${id}/activity`);
+  },
+  async synthesis(companionPayloads) {
+    return fetchRoomsJSON('/synthesis', {
+      method: 'POST',
+      body: JSON.stringify({ companions: companionPayloads }),
+    });
+  },
+  async search(query, opts = {}) {
+    return fetchRoomsJSON('/search', {
+      method: 'POST',
+      body: JSON.stringify({ query, ...opts }),
+    });
+  },
+  async sessions(roomId, limit = 20) {
+    const q = roomId ? `?room_id=${encodeURIComponent(roomId)}&limit=${limit}` : `?limit=${limit}`;
+    return fetchRoomsJSON(`/sessions${q}`);
+  },
+  async sessionMessages(sessionId, limit = 200) {
+    return fetchRoomsJSON(`/sessions/${sessionId}/messages?limit=${limit}`);
+  },
 };
 
 // --- Helpers ---

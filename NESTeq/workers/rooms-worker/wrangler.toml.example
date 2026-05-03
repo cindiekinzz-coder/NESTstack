@@ -1,0 +1,26 @@
+name = "rooms-worker"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "nesteq-rooms"
+database_id = "your-database-id-here"
+
+[[vectorize]]
+binding = "VECTORS"
+index_name = "nesteq-rooms-vectors"
+
+[ai]
+binding = "AI"
+
+# Secrets — set with `wrangler secret put`:
+#   ROOMS_API_KEY        — bearer token gating all writes/reads
+#                          (set the same value as a secret on any worker that
+#                          needs to call this one, e.g. your gateway)
+
+[observability]
+enabled = true
+
+[observability.logs]
+head_sampling_rate = 1

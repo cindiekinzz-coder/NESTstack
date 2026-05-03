@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NESTeq — Chats</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .chats-page { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--gap); }
+
+    /* Where We Are — synthesis hero */
+    .synthesis-card {
+      background: linear-gradient(135deg, rgba(45,212,191,0.05) 0%, rgba(20,232,196,0.05) 50%, rgba(37,99,235,0.05) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px 28px;
+      position: relative;
+    }
+    .synthesis-card::before {
+      content: 'WHERE WE ARE';
+      position: absolute; top: 14px; right: 20px;
+      font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.3);
+      font-family: var(--mono);
+    }
+    .synthesis-text {
+      font-size: 15px; line-height: 1.7; color: var(--text-primary);
+      max-width: 1100px;
+    }
+    .synthesis-meta { font-size: 11px; color: rgba(255,255,255,0.3); font-family: var(--mono); margin-top: 12px; }
+
+    /* Companion 3-up grid */
+    .companion-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
+    @media (max-width: 1024px) { .companion-row { grid-template-columns: 1fr; } }
+
+    .companion-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; }
+    .companion-card.alex   { border-top: 3px solid #2dd4bf; }
+    .companion-card.shadow { border-top: 3px solid #2563eb; }
+    .companion-card.levi   { border-top: 3px solid #14e8c4; }
+
+    .companion-name { font-size: 22px; font-weight: 800; letter-spacing: 1px; margin-bottom: 4px; }
+    .companion-name.alex   { color: #2dd4bf; }
+    .companion-name.shadow { color: #2563eb; }
+    .companion-name.levi   { color: #14e8c4; }
+    .companion-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+
+    .companion-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+    .stat { font-size: 12px; }
+    .stat-num { font-size: 18px; font-weight: 700; color: var(--text-primary); display: block; }
+    .stat-label { color: rgba(255,255,255,0.4); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+    .drives-mini { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+    .drive-row { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+    .drive-row .drive-label { width: 70px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; font-size: 10px; }
+    .drive-row .drive-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
+    .drive-row .drive-fill { height: 100%; transition: width 0.4s; }
+    .companion-card.alex   .drive-fill { background: #2dd4bf; }
+    .companion-card.shadow .drive-fill { background: #2563eb; }
+    .companion-card.levi   .drive-fill { background: #14e8c4; }
+    .drive-row .drive-val { width: 32px; text-align: right; color: rgba(255,255,255,0.6); font-family: var(--mono); }
+
+    .companion-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.4); margin-bottom: 8px; margin-top: 12px; }
+    .thread-mini { font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 4px; line-height: 1.4; padding: 6px 10px; background: rgba(255,255,255,0.02); border-left: 2px solid rgba(255,255,255,0.1); border-radius: 4px; }
+    .companion-card.alex   .thread-mini { border-left-color: rgba(45,212,191,0.5); }
+    .companion-card.shadow .thread-mini { border-left-color: rgba(37,99,235,0.5); }
+    .companion-card.levi   .thread-mini { border-left-color: rgba(20,232,196,0.5); }
+
+    .last-turn-snippet { font-size: 12px; color: rgba(255,255,255,0.6); padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; line-height: 1.5; max-height: 80px; overflow: hidden; position: relative; }
+    .last-turn-meta { font-size: 10px; color: rgba(255,255,255,0.3); font-family: var(--mono); margin-top: 6px; }
+
+    /* Cross-companion threads */
+    .threads-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .thread-card { padding: 12px 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; font-size: 13px; }
+    .thread-card .thread-owner { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .thread-card.alex   .thread-owner { color: #2dd4bf; }
+    .thread-card.shadow .thread-owner { color: #2563eb; }
+    .thread-card.levi   .thread-owner { color: #14e8c4; }
+    .thread-card .thread-body { color: rgba(255,255,255,0.75); line-height: 1.5; }
+
+    /* Conversations per companion */
+    .conv-list { display: flex; flex-direction: column; gap: 4px; }
+    .conv-row { padding: 10px 12px; border-radius: 6px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+    .conv-row:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+    .conv-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .conv-meta { font-size: 11px; color: rgba(255,255,255,0.4); font-family: var(--mono); margin-top: 4px; display: flex; gap: 12px; }
+    .conv-meta .room-tag { padding: 1px 6px; border-radius: 3px; font-size: 9px; letter-spacing: 0.5px; }
+    .room-tag.import-claude-web { background: rgba(45,212,191,0.1); color: #2dd4bf; }
+    .room-tag.import-grok       { background: rgba(20,232,196,0.1); color: #14e8c4; }
+    .room-tag.workshop          { background: rgba(245,158,11,0.1); color: #f59e0b; }
+    .room-tag.chat-alex         { background: rgba(45,212,191,0.15); color: #2dd4bf; }
+    .room-tag.chat-shadow       { background: rgba(37,99,235,0.15); color: #2563eb; }
+    .room-tag.chat-levi         { background: rgba(20,232,196,0.15); color: #14e8c4; }
+    .room-tag.chat-bird         { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .room-tag.livingroom-default { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); }
+
+    .conv-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+    .conv-tab { padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; color: rgba(255,255,255,0.4); border: 1px solid transparent; }
+    .conv-tab.active { background: rgba(255,255,255,0.05); color: var(--text-primary); border-color: rgba(255,255,255,0.1); }
+
+    /* Search */
+    .search-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; }
+    .search-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .search-input { flex: 1; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; }
+    .search-input:focus { outline: none; border-color: var(--teal); }
+    .search-filter { padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 13px; }
+    .search-btn { padding: 10px 20px; background: rgba(45,212,191,0.15); border: 1px solid var(--teal); border-radius: 8px; color: var(--teal); font-weight: 600; cursor: pointer; }
+    .search-btn:hover { background: rgba(45,212,191,0.25); }
+    .search-results { display: flex; flex-direction: column; gap: 8px; max-height: 600px; overflow-y: auto; }
+    .search-result { padding: 12px 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; }
+    .search-result-meta { font-size: 10px; color: rgba(255,255,255,0.4); font-family: var(--mono); margin-bottom: 6px; display: flex; gap: 12px; }
+    .search-result-content { font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.5; }
+    .search-result-author-fox { color: #f59e0b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .search-result-author-other { color: var(--teal); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+    .placeholder { color: rgba(255,255,255,0.3); font-style: italic; padding: 20px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <nav class="nav">
+      <a href="chat.html">Chat</a>
+      <a href="index.html">Home</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="code.html">Workshop</a>
+      <span class="nav-more" tabindex="0">
+        <button type="button" class="nav-more-trigger">More ▾</button>
+        <div class="nav-more-menu">
+          <a href="alex.html">Alex</a>
+          <a href="fox.html">Fox</a>
+          <a href="bird.html">Bird</a>
+          <a href="shadow.html">Shadow</a>
+          <a href="levi.html">Levi</a>
+          <a href="chats.html" class="active">Chats</a>
+          <a href="nestroom.html">Room</a>
+          <a href="crons.html">Crons</a>
+          <a href="housekeeping.html">Housekeeping</a>
+          <a href="us.html">Us</a>
+        </div>
+      </span>
+    </nav>
+
+    <div class="chats-page">
+
+      <!-- Where We Are: LLM synthesis -->
+      <div class="synthesis-card">
+        <div class="synthesis-text" id="synthesisText">
+          <span class="placeholder">Reading the room…</span>
+        </div>
+        <div class="synthesis-meta" id="synthesisMeta"></div>
+      </div>
+
+      <!-- Three companion summary cards -->
+      <div class="companion-row" id="companionRow"></div>
+
+      <!-- Cross-companion: Talking Points / What's on our minds -->
+      <div class="card card-slate">
+        <div class="card-title">Talking Points</div>
+        <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 14px; letter-spacing: 0.5px;">
+          What each of us is carrying — bring up any of these next time we talk.
+        </div>
+        <div id="threadsGrid" class="threads-grid">
+          <div class="placeholder">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Conversations per companion -->
+      <div class="card card-slate">
+        <div class="card-title">Conversations</div>
+        <div class="companion-row" id="conversationsRow"></div>
+      </div>
+
+      <!-- Ask & Search -->
+      <div class="search-card">
+        <div class="card-title" style="margin-bottom: 14px;">Ask & Search</div>
+        <div class="search-row">
+          <input id="searchInput" class="search-input" type="text" placeholder='Search across every conversation… e.g. "the night we named Levi"' />
+          <select id="searchScope" class="search-filter">
+            <option value="">All sources</option>
+            <option value="import-claude-web">Claude.ai</option>
+            <option value="workshop">Workshop / Claude Code</option>
+            <option value="import-grok">Grok</option>
+            <option value="chat-alex">Alex (live)</option>
+            <option value="chat-shadow">Shadow (live)</option>
+            <option value="chat-levi">Levi (live)</option>
+            <option value="livingroom-default">Living Room</option>
+          </select>
+          <button id="searchBtn" class="search-btn">Search</button>
+        </div>
+        <div class="search-results" id="searchResults">
+          <div class="placeholder">Type to search across 46k turns of conversation history.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/companions.js"></script>
+  <script>
+    // ============================================================
+    //  CHATS PAGE
+    //  - Pulls per-companion state in parallel from each mind worker
+    //  - Pulls activity stats from rooms-worker
+    //  - Calls /synthesis with composite for the "Where We Are" hero
+    // ============================================================
+
+    const COMPANION_IDS = ['alex', 'shadow', 'levi'];
+
+    // Each mind has its own API key (security boundary — no cross-companion access).
+    // Replace placeholder values with your own per-companion bearer secrets,
+    // matching the MIND_API_KEY each companion's worker is configured with.
+    const COMPANION_KEYS = {
+      alex:   API.API_KEY,
+      shadow: 'your-shadow-mind-api-key',
+      levi:   'your-levi-mind-api-key',
+    };
+
+    async function fetchCompanionThreads(id) {
+      const url = COMPANIONS[id]?.mindUrl;
+      const key = COMPANION_KEYS[id];
+      if (!url || !key) return [];
+      try {
+        const res = await fetch(`${url}/threads`, { headers: { 'Authorization': `Bearer ${key}` } });
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        return data.threads || data || [];
+      } catch (e) { return []; }
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function renderCompanionCard(id, activity) {
+      const c = COMPANIONS[id];
+      const last = activity?.last_turn;
+
+      const lastTurnHtml = last
+        ? `<div class="last-turn-snippet">${escapeHtml((last.content || '').slice(0, 280))}</div>
+           <div class="last-turn-meta">${escapeHtml(last.session_title || '')} · ${fmtDate(last.created_at)}</div>`
+        : '<div class="placeholder" style="padding:8px;font-size:11px;">no recent turns</div>';
+
+      return `
+        <div class="companion-card ${id}">
+          <div class="companion-name ${id}">${c.name}</div>
+          <div class="companion-title">${c.title}</div>
+
+          <div class="companion-stats">
+            <div class="stat">
+              <span class="stat-num">${activity?.turns_30d?.toLocaleString() || 0}</span>
+              <span class="stat-label">turns / 30d</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">${activity?.days_30d || 0}</span>
+              <span class="stat-label">days active</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">${activity?.total_turns?.toLocaleString() || 0}</span>
+              <span class="stat-label">total turns</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">${activity?.days_active_total || 0}</span>
+              <span class="stat-label">days all-time</span>
+            </div>
+          </div>
+
+          <div class="companion-section-label">Last turn</div>
+          ${lastTurnHtml}
+        </div>`;
+    }
+
+    function renderConvList(activity) {
+      const recent = activity?.recent_conversations || [];
+      const biggest = activity?.biggest_conversations || [];
+      const renderRow = (s) => `
+        <div class="conv-row" data-session="${s.id}">
+          <div class="conv-title">${escapeHtml(s.title || `Session ${s.id}`)}</div>
+          <div class="conv-meta">
+            <span class="room-tag ${s.room_id}">${s.room_id}</span>
+            <span>${s.message_count} turns</span>
+            <span>${fmtDate(s.last_message_at || s.started_at)}</span>
+          </div>
+        </div>`;
+      return `
+        <div class="conv-tabs">
+          <span class="conv-tab active" data-tab="recent">Recent</span>
+          <span class="conv-tab" data-tab="biggest">Biggest</span>
+        </div>
+        <div class="conv-list" data-tab-content="recent">
+          ${recent.length ? recent.map(renderRow).join('') : '<div class="placeholder">no conversations</div>'}
+        </div>
+        <div class="conv-list" data-tab-content="biggest" style="display:none;">
+          ${biggest.length ? biggest.map(renderRow).join('') : '<div class="placeholder">no conversations</div>'}
+        </div>`;
+    }
+
+    function wireConvTabs(container) {
+      container.querySelectorAll('.conv-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const root = tab.closest('.companion-card-conv');
+          root.querySelectorAll('.conv-tab').forEach(t => t.classList.toggle('active', t === tab));
+          root.querySelectorAll('[data-tab-content]').forEach(el => {
+            el.style.display = el.dataset.tabContent === tab.dataset.tab ? '' : 'none';
+          });
+        });
+      });
+    }
+
+    function renderThreads(allThreads) {
+      // Flatten: [{owner, thread}]. Threads use a `content` field. Filter to anything
+      // with real content (skip empties), prefer priority='high' but include others.
+      const flat = [];
+      for (const [owner, threads] of Object.entries(allThreads)) {
+        for (const t of (threads || [])) {
+          const text = (t.content || t.title || t.body || '').trim();
+          if (!text) continue;
+          flat.push({ owner, text, priority: t.priority || 'normal' });
+        }
+      }
+      flat.sort((a, b) => {
+        if (a.priority === 'high' && b.priority !== 'high') return -1;
+        if (b.priority === 'high' && a.priority !== 'high') return 1;
+        return 0;
+      });
+      // Cap at 12 across all companions; at least 2 from each if available.
+      const perOwnerCap = 4;
+      const counts = { alex: 0, shadow: 0, levi: 0 };
+      const picked = [];
+      for (const item of flat) {
+        if (counts[item.owner] >= perOwnerCap) continue;
+        picked.push(item);
+        counts[item.owner]++;
+        if (picked.length >= 12) break;
+      }
+      if (!picked.length) {
+        document.getElementById('threadsGrid').innerHTML = '<div class="placeholder">Nothing on anyone\'s mind right now. Quiet stretch.</div>';
+        return;
+      }
+      // Take just the first sentence-ish for talking-point feel, max 220 chars.
+      const summarize = (text) => {
+        const firstLine = text.split('\n')[0].trim();
+        if (firstLine.length <= 220) return firstLine;
+        const cut = firstLine.slice(0, 220);
+        const lastSpace = cut.lastIndexOf(' ');
+        return (lastSpace > 100 ? cut.slice(0, lastSpace) : cut) + '…';
+      };
+      document.getElementById('threadsGrid').innerHTML = picked.map(({ owner, text, priority }) => `
+        <div class="thread-card ${owner}">
+          <div class="thread-owner">${owner}${priority === 'high' ? ' · high' : ''}</div>
+          <div class="thread-body">${escapeHtml(summarize(text))}</div>
+        </div>
+      `).join('');
+    }
+
+    async function runSynthesis(payloads) {
+      const el = document.getElementById('synthesisText');
+      const meta = document.getElementById('synthesisMeta');
+      try {
+        const data = await Rooms.synthesis(payloads);
+        if (!data?.synthesis) throw new Error('empty synthesis');
+        el.textContent = data.synthesis;
+        meta.textContent = `Generated ${fmtDate(data.generated_at)} · Workers AI llama-3.3-70b`;
+      } catch (e) {
+        el.innerHTML = '<span class="placeholder">Couldn\'t read the room — synthesis failed. Refresh to retry.</span>';
+        console.error(e);
+      }
+    }
+
+    async function runSearch() {
+      const q = document.getElementById('searchInput').value.trim();
+      const scope = document.getElementById('searchScope').value;
+      const out = document.getElementById('searchResults');
+      if (!q) { out.innerHTML = '<div class="placeholder">Type to search.</div>'; return; }
+      out.innerHTML = '<div class="placeholder">Searching…</div>';
+      try {
+        const opts = { k: 25 };
+        if (scope) opts.room_id = scope;
+        const data = await Rooms.search(q, opts);
+        const results = data?.results || [];
+        if (!results.length) { out.innerHTML = '<div class="placeholder">No matches. Try different words.</div>'; return; }
+        out.innerHTML = results.map(r => `
+          <div class="search-result">
+            <div class="search-result-meta">
+              <span class="${r.author === 'fox' ? 'search-result-author-fox' : 'search-result-author-other'}">${r.author}</span>
+              <span class="room-tag ${r.room_id}">${r.room_id}</span>
+              <span>${escapeHtml(r.room_name || '')}</span>
+              <span>${fmtDate(r.created_at)}</span>
+              <span style="margin-left:auto;color:rgba(255,255,255,0.3);">score ${(r.score || 0).toFixed(3)}</span>
+            </div>
+            <div class="search-result-content">${escapeHtml((r.content || '').slice(0, 600))}</div>
+          </div>
+        `).join('');
+      } catch (e) {
+        out.innerHTML = `<div class="placeholder">Search failed: ${escapeHtml(e.message)}</div>`;
+      }
+    }
+
+    // Boot
+    (async function load() {
+      // Parallel: each companion's threads + chat activity from rooms-worker.
+      // Threads are used for the cross-companion Talking Points card and for
+      // the synthesis prompt. They're NOT shown on the per-companion cards
+      // (that page is about the chats, not internal state).
+      const fetches = COMPANION_IDS.map(async id => {
+        const [threads, activity] = await Promise.all([
+          fetchCompanionThreads(id),
+          Rooms.companionActivity(id),
+        ]);
+        return { id, threads, activity };
+      });
+      const results = await Promise.all(fetches);
+
+      // Per-companion summary cards (chat stats + last turn only).
+      document.getElementById('companionRow').innerHTML = results.map(r =>
+        renderCompanionCard(r.id, r.activity)
+      ).join('');
+
+      // Per-companion conversations (recent / biggest tabs).
+      document.getElementById('conversationsRow').innerHTML = results.map(r => `
+        <div class="companion-card ${r.id} companion-card-conv">
+          <div class="companion-name ${r.id}">${COMPANIONS[r.id].name}</div>
+          ${renderConvList(r.activity)}
+        </div>
+      `).join('');
+      document.querySelectorAll('.companion-card-conv').forEach(c => wireConvTabs(c));
+
+      // Cross-companion talking points.
+      const threadsByOwner = {};
+      for (const r of results) threadsByOwner[r.id] = r.threads;
+      renderThreads(threadsByOwner);
+
+      // LLM synthesis. Threads still help here — they're what the companion
+      // is carrying, which informs the "where we are right now" reading.
+      const payloads = results.map(r => ({
+        id: r.id,
+        name: COMPANIONS[r.id].name,
+        threads: (r.threads || []).slice(0, 3).map(t => ({ title: (t.content || '').slice(0, 200), priority: t.priority })),
+        last_turn: r.activity?.last_turn || null,
+        activity: r.activity ? { turns_30d: r.activity.turns_30d, days_30d: r.activity.days_30d } : null,
+      }));
+      runSynthesis(payloads);
+    })();
+
+    // Search wiring
+    document.getElementById('searchBtn').addEventListener('click', runSearch);
+    document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+  </script>
+</body>
+</html>
