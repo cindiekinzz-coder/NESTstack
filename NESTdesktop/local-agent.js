@@ -440,8 +440,11 @@ dashboard.all('/api/{*path}', async (req, res) => {
 dashboard.all('/v1/{*path}', async (req, res) => {
   const openclawUrl = 'http://127.0.0.1:18789';
   try {
-    const target = `${openclawUrl}${req.originalUrl}`;
-    const resp = await fetch(target, {
+    const rawPath = String(req.params.path || '').replace(/^\/+/, '');
+    const targetUrl = new URL(openclawUrl);
+    targetUrl.pathname = `/${rawPath}`;
+    targetUrl.search = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+    const resp = await fetch(targetUrl.toString(), {
       method: req.method,
       headers: { 'Content-Type': 'application/json' },
       body: ['GET', 'HEAD'].includes(req.method) ? undefined : JSON.stringify(req.body),
