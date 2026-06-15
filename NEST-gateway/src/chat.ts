@@ -584,7 +584,7 @@ export async function handleChat(request: Request, env: Env, ctx?: ExecutionCont
       // Stream final message
       sendSSE(streamController, 'message', { content: fullContent })
       sendSSE(streamController, 'done', {})
-      streamController.close()
+      ;(streamController as ReadableStreamDefaultController<Uint8Array>).close()
 
       return new Response(responseStream, {
         headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive', ...CORS },
@@ -600,7 +600,7 @@ export async function handleChat(request: Request, env: Env, ctx?: ExecutionCont
   } catch (error: any) {
     if (shouldStream && streamController) {
       sendSSE(streamController, 'error', { error: error.message })
-      streamController.close()
+      ;(streamController as ReadableStreamDefaultController<Uint8Array>).close()
       return new Response(responseStream, {
         headers: { 'Content-Type': 'text/event-stream', ...CORS },
       })

@@ -1195,7 +1195,8 @@ ${code}
           max_tokens: 4096,
           temperature: 0,
           stream: false,
-          ...(model.startsWith('anthropic/') ? { provider: { order: ['Anthropic'], allow_fallbacks: false } } : {}),
+          // Runner always uses a fixed non-Anthropic model, so no provider pin needed.
+          // (Previously referenced an undefined `model` var here — would throw at runtime.)
         }),
       })
 
@@ -1762,7 +1763,7 @@ Rules:
     let calendar = 'Calendar not available from Workshop yet'
     try {
       const today = now.toISOString().split('T')[0]
-      const calRes = await fetch(`${env.GATEWAY_URL || 'http://localhost:8787'}/daemon/calendar?date=${today}`)
+      const calRes = await fetch(`${(this.env as any).GATEWAY_URL || 'http://localhost:8787'}/daemon/calendar?date=${today}`)
       if (calRes.ok) {
         const calData = await calRes.json() as any
         calendar = calData.events || calendar

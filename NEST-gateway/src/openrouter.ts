@@ -37,7 +37,7 @@ export function openrouterFetch(
     ? `https://gateway.ai.cloudflare.com/v1/${env.CLOUDFLARE_ACCOUNT_ID}/${env.AIG_GATEWAY_NAME}/openrouter/v1/chat/completions`
     : 'https://openrouter.ai/api/v1/chat/completions'
 
-  const authHeader = useGateway
+  const authHeader: Record<string, string> = useGateway
     ? { 'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}` }
     : { 'Authorization': `Bearer ${env.OPENROUTER_API_KEY}` }
 

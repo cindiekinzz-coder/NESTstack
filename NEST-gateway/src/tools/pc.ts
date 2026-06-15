@@ -7,7 +7,7 @@ DESANITIZE
 DESANITIZE
  */
 
-const PC_AGENT_URL = process.env.PC_AGENT_URL || 'http://localhost:3001'
+const PC_AGENT_URL = (globalThis as any).process?.env?.PC_AGENT_URL || 'http://localhost:3001'
 
 async function callPcAgent(endpoint: string, body?: Record<string, unknown>, method = 'POST'): Promise<string> {
   try {

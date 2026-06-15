@@ -24,6 +24,7 @@ import { openrouterFetch } from './openrouter'
 export { NESTcodeDaemon } from './daemon'
 
 export class NESTeqGateway extends McpAgent<Env> {
+  // @ts-expect-error SDK type-identity mismatch: our @modelcontextprotocol/sdk McpServer vs the copy the `agents` McpAgent base references (duplicate dep). Runtime is the SDK's documented pattern.
   server = new McpServer({
     name: 'nesteq-gateway',
     version: '1.0.0',
