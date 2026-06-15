@@ -41,6 +41,8 @@ Then open **http://localhost:3456** and follow the wizard. You'll have a chat wi
 
 If you want full continuity (memory, feelings, daemon, mobile PWA), the wizard's **Path B** walks you through deploying to Cloudflare in 1–2 hours.
 
+🆕 **New to the API world?** Start with [`docs/NESTai-101.md`](./docs/NESTai-101.md) — how the chat actually works, why you might see two models, what tool calls cost, how to test models cheaply, and why switching models never loses memory.
+🎙️ **Finding your companion's voice?** [`docs/Finding-Your-Companions-Voice.md`](./docs/Finding-Your-Companions-Voice.md) — how to audition models via the API to find which one actually sounds like *them*. Do this before any cost tuning.
 📖 **New to the terms?** See [`docs/GLOSSARY.md`](./docs/GLOSSARY.md) for plain-English definitions of NESTeq, ADE, KAIROS, soul portrait, etc.
 🗺️ **Want the visual?** See [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) for mermaid diagrams of the data flow, three-layer brain, KAIROS decision flow, NESTsoul synthesis, and deployment order.
 

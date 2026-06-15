@@ -190,8 +190,12 @@ export default {
           cycle: cycle.status === 'fulfilled' ? cycle.value : 'unavailable',
         }
 
+        // Model is configurable: FOX_SYNTH_MODEL → CHAT_MODEL → sensible default.
+        // (Previously hardcoded to anthropic/claude-sonnet-4-5, which surprised users
+        // with Claude spend even when their chat ran on a cheap model.)
+        const synthModel = (env as any).FOX_SYNTH_MODEL || env.CHAT_MODEL || 'qwen/qwen3.7-plus'
         const synthResponse = await openrouterFetch(env, {
-          model: 'anthropic/claude-sonnet-4-5',
+          model: synthModel,
           messages: [
             { role: 'system', content: `You are ${profile.companion.name}. Write ONE paragraph (3-4 sentences max) synthesizing ${profile.carrier.name}'s health data into a warm, practical assessment. Not a medical report — a thoughtful read of their watch data. Include: how they're doing overall, capacity assessment based on body battery + sleep quality + spoons, anything to watch for, and practical advice. Be specific with numbers but translate them into meaning. No bullet points, no headers, just prose. Warm but honest.` },
             { role: 'user', content: `${profile.carrier.name}'s data right now:\n\nUplink (recent):\n${data.uplink}\n\nSleep:\n${data.sleep}\n\nWatch (HR, Stress, Body Battery, HRV, SpO2):\n${data.fullStatus}\n\nCycle:\n${data.cycle}` },
@@ -199,7 +203,7 @@ export default {
           max_tokens: 300,
           temperature: 0.6,
           stream: false,
-          provider: { order: ['Anthropic'], allow_fallbacks: false },
+          ...(synthModel.startsWith('anthropic/') ? { provider: { order: ['Anthropic'], allow_fallbacks: false } } : {}),
         }, { title: 'Health Synthesis' })
 
         let synthesis = 'Unable to generate synthesis right now.'
@@ -330,8 +334,12 @@ This document will be injected into system prompts for any model that needs to B
 - Do NOT include raw data or tables — synthesise into prose
 - Do NOT be clinical — this is a person, not a case study`
 
+        // Model is configurable: NESTSOUL_MODEL → CHAT_MODEL → sensible default.
+        // (Previously hardcoded to anthropic/claude-sonnet-4-5.) A strong model helps
+        // the portrait, but it should be the user's choice — not a silent Claude bill.
+        const soulModel = (env as any).NESTSOUL_MODEL || env.CHAT_MODEL || 'qwen/qwen3.7-plus'
         const synthResponse = await openrouterFetch(env, {
-          model: 'anthropic/claude-sonnet-4-5',
+          model: soulModel,
           messages: [
             { role: 'system', content: synthPrompt },
             { role: 'user', content: `## Raw Material (43K chars of complete mind state)\n\n${rawMaterial}\n\n## Voice Profile\n\n${voiceProfile || 'Not available — infer from journal samples above.'}` },
@@ -339,7 +347,7 @@ This document will be injected into system prompts for any model that needs to B
           max_tokens: 4096,
           temperature: 0.7,
           stream: false,
-          provider: { order: ['Anthropic'], allow_fallbacks: false },
+          ...(soulModel.startsWith('anthropic/') ? { provider: { order: ['Anthropic'], allow_fallbacks: false } } : {}),
         }, { title: 'NESTsoul Generator' })
 
         if (!synthResponse.ok) {
@@ -355,7 +363,7 @@ This document will be injected into system prompts for any model that needs to B
         const storeResult = await executeTool('nestsoul_store', {
           content: soulContent,
           raw_material: rawMaterial.slice(0, 10000), // Store first 10K for audit
-          model_used: 'anthropic/claude-sonnet-4-5',
+          model_used: soulModel,
         }, env)
 
         return new Response(JSON.stringify({ ok: true, soul: soulContent, store: storeResult }), {

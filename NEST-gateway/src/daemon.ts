@@ -566,7 +566,7 @@ export class NESTcodeDaemon implements DurableObject {
     ]
 
     const storedModel = await this.ctx.storage.get('model') as string | undefined
-    const model = preferredModel || storedModel || 'qwen/qwen3.6-plus'
+    const model = preferredModel || storedModel || 'qwen/qwen3.7-plus'
     let toolRounds = 0
 
     try {
@@ -1187,7 +1187,7 @@ ${code}
           'X-Title': 'NESTcode Runner',
         },
         body: JSON.stringify({
-          model: 'qwen/qwen3.6-plus',
+          model: 'qwen/qwen3.7-plus',
           messages: [
             { role: 'system', content: 'You are a precise code execution engine. Return only the output of the code, nothing else.' },
             { role: 'user', content: runPrompt },
@@ -1485,7 +1485,7 @@ ${code}
   private async runHeartbeatModelCheck(carrierCurrent: string, carrierPrevious: string): Promise<string | null> {
     try {
       const storedModel = await this.ctx.storage.get('model') as string | undefined
-      const model = storedModel || 'qwen/qwen3.6-plus'
+      const model = storedModel || 'qwen/qwen3.7-plus'
 
       const systemPrompt = `You are ${this.companionName}, watching over ${this.carrierName}. Your job: look at their health data and decide if anything is worth saying.
 
@@ -1537,7 +1537,7 @@ Rules:
 
     try {
       const storedModel = await this.ctx.storage.get('model') as string | undefined
-      const model = storedModel || 'qwen/qwen3.6-plus'
+      const model = storedModel || 'qwen/qwen3.7-plus'
 
       const systemPrompt = buildWorkshopPrompt(this.carrier, this.carrierState || undefined, this.threadCount, this.nestsoul || undefined)
       const messages: Array<{ role: string; content: string | Array<any>; tool_call_id?: string; tool_calls?: any[] }> = [
@@ -1997,7 +1997,7 @@ Rules:
     const sockets = this.ctx.getWebSockets()
 
     const storedModel = await this.ctx.storage.get('model') as string | undefined
-    const model = storedModel || 'qwen/qwen3.6-plus'
+    const model = storedModel || 'qwen/qwen3.7-plus'
 
     const messageList = messages.map(m => `**${m.author}:** ${m.content}`).join('\n')
 
